@@ -1,14 +1,18 @@
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-
+import React from 'react';
+import Sidebar from './Sidebar/Sidebar';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Bs from './BS/Bs'
+import './App.css'
 function App() {
   return (
-    <Container>
-    <Row>
-      <Col>1 of 1</Col>
-    </Row>
-  </Container>
+    <BrowserRouter>
+    <Sidebar />
+    <Routes>
+      <Route path="/bs" element={<Bs />} />
+      {/* <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} /> */}
+    </Routes>
+  </BrowserRouter>
   );
 }
 
