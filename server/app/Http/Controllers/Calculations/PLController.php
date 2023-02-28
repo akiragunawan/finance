@@ -13,7 +13,8 @@ class PLController extends Controller
     {   
         $year = $request->input('year');
         $month = $request->input('month');
-        $date = Carbon::createFromDate($year, $month, 31)->toDateString();
+        $date = Carbon::createFromDate($year, $month, Carbon::create($year,$month)->endOfMonth()->day)->toDateString();
+        
         $result = array();
         $branches = explode(',', config('auth.branches'));
         $coas = explode(',', config('auth.pl_coa'));
@@ -37,13 +38,23 @@ class PLController extends Controller
             foreach($branches as $b){
                 $b_array['branch_name'] = $b_data['branch_name'][$i];
                 $b_array['branch_code'] = $b_data['branch_code'][$i];
-                $b_array['value'] = number_format((float)($res->get($b)));
+                if($b_array['branch_code']=='1108'){
+                    $temp = DB::table('T_Inoan_COAPerBranch')
+                    ->select('IDRBalance')
+                    ->where('COADate', $date)
+                    ->where('Branch', '1108')
+                    ->where('AccountNo', $c)
+                    ->first();
+                    $temp = collect($temp);
+                    $b_array['value'] = number_format((float)$temp->get('IDRBalance')/1000000);
+                }
+                else $b_array['value'] = number_format((float)($res->get($b))/1000000);
                 array_push($branch_array, $b_array);
                 $i++;
             }
             $COA_query['Branches'] = $branch_array;
             array_push($result, $COA_query);
         }
-        return $res;
+        return $result;
     }
 }
