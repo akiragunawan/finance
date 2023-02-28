@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BSController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,3 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/get_bs', [BSController::class, 'queryBS'])->name('bs.view');
+Route::get('/get_pl', [PLController::class, 'queryPL'])->name('pl.view');
+
+Route::get("/sso/login",[SSOController::class,'getLogin'])->name('sso.login');
+Route::get("/callback",[SSOController::class,'getCallback'])->name('sso.callback');
+Route::get("/sso/connect",[SSOController::class,'connectUser'])->name('sso.connect');

@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Calculations\BranchController;
+use App\Http\Controllers\Calculations\BSController;
+use App\Http\Controllers\Calculations\PLController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,3 +19,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/get/bs', [BSController::class, 'queryBS'])->name('bs.get');
+Route::get('/get/pl', [PLController::class, 'queryPL'])->name('pl.get');
+Route::get('/get/branch', [BranchController::class, 'queryBranch'])->name('branch.get');

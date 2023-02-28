@@ -108,4 +108,16 @@ return [
 
     'password_timeout' => 10800,
 
+    // SSO credentials
+    'client_id' => env("SSO_CLIENT_ID"),
+    'client_secret' => env("SSO_CLIENT_SECRET"),
+    'callback' => env("SSO_CLIENT_CALLBACK"),
+    'scopes' => env("SSO_SCOPES"),
+    'sso_host' => env("SSO_HOST"),
+
+    'branches' => env("BRANCHES"),
+    'branches_name' => env("BRANCHES_NAME"),
+
+    'bs_coa' => env("BS_COA"),
+    'pl_coa' => env("PL_COA"),
 ];
