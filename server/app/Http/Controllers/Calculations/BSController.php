@@ -56,7 +56,7 @@ class BSController extends Controller
                 $result->push($COA_query);
             }
             
-            $wrapper->put($curr_month, $result); 
+            $wrapper->push($result); 
         }
         
         return $wrapper;
