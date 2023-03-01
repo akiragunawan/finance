@@ -18,15 +18,16 @@ class BSController extends Controller
         $date_origin->endOfMonth();
         
         $month = $date_origin->month;
-        $date = Carbon::createFromDate($date_origin)->toDateString();
+        $date = Carbon::createFromDate($date_origin);
         for($curr_month = 1; $curr_month <= $month; $curr_month++){
             $result=collect();
             $branches = explode(',', config('auth.branches'));
             $coas = explode(',', config('auth.bs_coa'));
             foreach($coas as $c){
+                $temp_date = Carbon::create($date->year, $curr_month)->endOfMonth()->toDateString();
                 $res = DB::table('T_Inoan_COAAllBranch')
                 ->select('*')
-                ->where('COADate', $date)
+                ->where('COADate', $temp_date)
                 ->where('AccountNo', $c)
                 ->first();
                 $res = collect($res);
@@ -44,7 +45,7 @@ class BSController extends Controller
                     $b_array['branch_name'] = $b_data['branch_name'][$i];
                     $b_array['branch_code'] = $b_data['branch_code'][$i];
                     if($b_array['branch_code']=='1108'){
-                        $temp = $this->getBSPerBranch($date, $c, '1108')->first();
+                        $temp = $this->getBSPerBranch($temp_date, $c, '1108')->first();
                         $temp = collect($temp);
                         $b_array['value'] = number_format((float)$temp->get('IDRBalance')/1000000);
                     }
