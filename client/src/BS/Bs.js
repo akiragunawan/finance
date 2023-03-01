@@ -25,10 +25,12 @@ function Bs(){
     return <div className="container p-5">
         <h2 className="fw-bold text-uppercase ">Balance Sheet</h2>
        <div className="mt-5">
-            <div className="card shadow p-3 mb-5 bg-body rounded">
-                
+            <div className="card shadow p-3 mb-5 bg-body rounded d-flex flex-row">
+         
               {data.map((subitem)=>(
-                <div>
+                <div className="d-flex flex-row">
+                    <div>
+                        
                 {subitem.map((item)=>(
                 
                 <div key={item.COA_num} className="card p-3 m-3 shadow p-3  bg-body rounded">
@@ -59,6 +61,7 @@ function Bs(){
                    </div>
                 </div>
                ))}
+                </div>
                 </div>
               ))}
                
