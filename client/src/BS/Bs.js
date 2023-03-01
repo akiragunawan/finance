@@ -4,6 +4,7 @@ import axios from 'axios';
 
 
 function Bs(){
+  
     const [data, setData] = useState([]);
 
     useEffect(() => {
@@ -11,26 +12,24 @@ function Bs(){
 
      })
         .then(response => {
-          setData(response.data);
-        //   console.log(data);
+        
+            setData(response.data);
+        //   setData(response.data[1]);
+          
         })
         .catch(error => {
           console.log(error);
         });
     }, []);
-
-        // function data_branch(){
-        //     for(let i = 0;i< data.branches.count;i++){
-        //         return console.log(data[i]);
-        //     }
-        // }   
-    
+    // console.log(data)
     return <div className="container p-5">
         <h2 className="fw-bold text-uppercase ">Balance Sheet</h2>
        <div className="mt-5">
             <div className="card shadow p-3 mb-5 bg-body rounded">
                 
+              
                {data.map((item)=>(
+                
                 <div key={item.COA_num} className="card p-3 m-3 shadow p-3  bg-body rounded">
                 
                     <div className="d-flex justify-content-between card-title mt-3 ms-4 me-4">
@@ -59,6 +58,7 @@ function Bs(){
                    </div>
                 </div>
                ))}
+               
             </div>
        </div>
     </div>
