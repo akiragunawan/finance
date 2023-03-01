@@ -15,7 +15,7 @@ class BSController extends Controller
         $month = $request->input('month');
         $date = Carbon::createFromDate($year, $month, Carbon::create($year,$month)->endOfMonth()->day)->toDateString();
         
-        $result=array();
+        $result=collect();
         $branches = explode(',', config('auth.branches'));
         $coas = explode(',', config('auth.bs_coa'));
         foreach($coas as $c){
@@ -25,7 +25,7 @@ class BSController extends Controller
             ->where('AccountNo', $c)
             ->first();
             $res = collect($res);
-            $COA_query = collect()->toArray();
+            $COA_query = collect();
             $COA_query['COA_date'] = $res->get("COADate");
             $COA_query['COA_name'] = $res->get("AccountNameID");
             $COA_query['COA_num'] = $res->get("AccountNo");
@@ -39,12 +39,7 @@ class BSController extends Controller
                 $b_array['branch_name'] = $b_data['branch_name'][$i];
                 $b_array['branch_code'] = $b_data['branch_code'][$i];
                 if($b_array['branch_code']=='1108'){
-                    $temp = DB::table('T_Inoan_COAPerBranch')
-                    ->select('IDRBalance')
-                    ->where('COADate', $date)
-                    ->where('Branch', '1108')
-                    ->where('AccountNo', $c)
-                    ->first();
+                    $temp = $this->getBSPerBranch($date, $c, '1108')->first();
                     $temp = collect($temp);
                     $b_array['value'] = number_format((float)$temp->get('IDRBalance')/1000000);
                 }
@@ -53,8 +48,20 @@ class BSController extends Controller
                 $i++;
             }
             $COA_query['Branches'] = $branch_array;
-            array_push($result, $COA_query);
+            $result->push($COA_query);
         }
-        return $result;
+        $wrapper = collect();
+        $wrapper->put($date, $result);
+        return $wrapper;
+    }
+
+    public function getBSPerBranch($date, $coa, $branch)
+    {
+        return DB::table('T_Inoan_COAPerBranch')
+        ->select('*')
+        ->where('COADate', $date)
+        ->where('AccountNo', $coa)
+        ->where('Branch', $branch)
+        ->get();
     }
 }
