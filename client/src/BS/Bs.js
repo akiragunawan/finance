@@ -27,8 +27,9 @@ function Bs(){
        <div className="mt-5">
             <div className="card shadow p-3 mb-5 bg-body rounded">
                 
-              
-               {data.map((item)=>(
+              {data.map((subitem)=>(
+                <div>
+                {subitem.map((item)=>(
                 
                 <div key={item.COA_num} className="card p-3 m-3 shadow p-3  bg-body rounded">
                 
@@ -58,6 +59,9 @@ function Bs(){
                    </div>
                 </div>
                ))}
+                </div>
+              ))}
+               
                
             </div>
        </div>
