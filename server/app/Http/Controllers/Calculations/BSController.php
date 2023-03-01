@@ -39,12 +39,7 @@ class BSController extends Controller
                 $b_array['branch_name'] = $b_data['branch_name'][$i];
                 $b_array['branch_code'] = $b_data['branch_code'][$i];
                 if($b_array['branch_code']=='1108'){
-                    $temp = DB::table('T_Inoan_COAPerBranch')
-                    ->select('IDRBalance')
-                    ->where('COADate', $date)
-                    ->where('Branch', '1108')
-                    ->where('AccountNo', $c)
-                    ->first();
+                    $temp = $this->getBSPerBranch($date, $c, '1108')->first();
                     $temp = collect($temp);
                     $b_array['value'] = number_format((float)$temp->get('IDRBalance')/1000000);
                 }
@@ -56,5 +51,15 @@ class BSController extends Controller
             array_push($result, $COA_query);
         }
         return $result;
+    }
+
+    public function getBSPerBranch($date, $coa, $branch)
+    {
+        return DB::table('T_Inoan_COAPerBranch')
+        ->select('*')
+        ->where('COADate', $date)
+        ->where('AccountNo', $coa)
+        ->where('Branch', $branch)
+        ->get();
     }
 }
