@@ -56,7 +56,7 @@ const Sidebar = () => {
               </NavLink>
             </li>
             <li className="dropdown-items">
-              <NavLink to="/BEP" className="dropdown-link" activeClassName="active">
+              <NavLink to="/Bep" className="dropdown-link" activeClassName="active">
                 Final BEP
               </NavLink>
             </li>
