@@ -24,3 +24,4 @@ Route::get('/get/bs', [BSController::class, 'queryBS'])->name('bs.get');
 Route::get('/get/pl', [PLController::class, 'queryPL'])->name('pl.get');
 Route::get('/get/branch', [BranchController::class, 'queryBranch'])->name('branch.get');
 Route::get('/get/bep', [BEPController::class, 'queryBEP'])->name('bep.get');
+Route::get('/get/calculation', [BEPController::class, 'calculate']);
