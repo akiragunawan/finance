@@ -31,8 +31,8 @@ class BEPController extends BSController
         foreach($branch as $b){
             
             $col = collect();
-            $col->put("Kode Cabang", $b);
-            $col->put("Nama Cabang", $branch_name[$i]);
+            $col->put("Kode_Cabang", $b);
+            $col->put("Nama_Cabang", $branch_name[$i]);
             $col->put("Data", $this->getBox($date->toDateString(), $b));
             array_push($result, $col);
             $i++;
