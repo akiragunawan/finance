@@ -23,15 +23,24 @@ function Bep(){
    
     return (
     <div className="container">
-        <div className="row">
-          {data.map((item)=>(
-            <div key={item.kode} className="col-3">
-              <div className="card">
-                {item.nama_cabang}
-              </div>
-            </div>
+      
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+      {data.map((item)=>(
+           <li class="nav-item" role="presentation">
+           <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="{}" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">{item.Nama_Cabang}</button>
+         </li>
+         
           ))}
-        </div>
+ 
+
+</ul>
+<div class="tab-content" id="myTabContent">
+  {data.map((items)=>(
+    
+  <div class="tab-pane fade show active" id='home-tab-pane' role="tabpanel" aria-labelledby="home-tab" tabindex="0">...</div>
+  
+  ))}
+</div>
     </div>)
 }
 
