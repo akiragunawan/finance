@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Calculations;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use App\Http\Controllers\GoalSeekController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,8 +14,30 @@ class BEPController extends BSController
         $month = $request->input('month');
         $year = $request->input('year');
         $date = Carbon::create($year, $month)->endOfMonth();
-        $branch = '1101';
-        return $this->getBox($date->toDateString(), $branch);
+
+        // $date_origin = Carbon::today();
+        // if(!$date_origin->isSameDay(Carbon::today()->endOfMonth())) $date_origin->subMonthNoOverflow();
+        // $date_origin->endOfMonth();
+
+        $branch = explode(',', config('auth.branches'));
+        array_shift($branch);
+        array_shift($branch);
+        $branch_name = explode(',', config('auth.branches_name'));
+        array_shift($branch_name);
+        array_shift($branch_name);
+        $result = array();
+        
+        $i = 0;
+        foreach($branch as $b){
+            
+            $col = collect();
+            $col->put("Kode Cabang", $b);
+            $col->put("Nama Cabang", $branch_name[$i]);
+            $col->put("Data", $this->getBox($date->toDateString(), $b));
+            array_push($result, $col);
+            $i++;
+        }
+        return $result;
     }
 
     public function getBox($date, $branch){
@@ -22,7 +45,10 @@ class BEPController extends BSController
         $box = collect();
         for($i=1; $i <= $process_number; $i++){
             $box[$i] = $this->getRow($i, $date, $branch, $box);
-        }
+        };
+        $tmp = array(0);
+        $box = array_merge($tmp, $box->toArray());
+        array_shift($box);
         return $box;
     }
     
@@ -149,6 +175,47 @@ class BEPController extends BSController
         $res = collect($res);
         $res = (float)$res->get("IDRBalance")/1000000;
         return $res;
+    }
+    public function calculate()
+    {
+        //if profit = 1000
+        //adjust bal, check CKPN
+        //if CKPN changes.. profit must be different, so keep looping
+        //If CKPN doesn't change, profit must be the same, so break
+        //if profit not 1000, keep looping, else break
+
+        $balance = $this->calcGoalSeek(5000);
+        return $balance;
+    }
+    
+    public function calcGoalSeek($expected_result){
+        //Instantiate your class
+        $goalseek = new GoalSeekController();
+        //$goalseek->debug = true;
+
+        //I want to know which input needs callbackTest to give me 301
+        $rate = 0.07927444500;
+        $IC = 19111.90440724000;
+        $S = 285.66067382000;
+        $C = -930.87179400000;
+        $CKPN_Prev = 697.28937163000;
+        //Calculate the input to get you goal, with accuracy
+        $input = $goalseek->calculate('callbackTest', $expected_result, 10, $rate, $IC, $S, $C, $CKPN_Prev);
+
+        $x = collect();
+        //Voilá!
+        $x[0]  = $input;
+
+        //Let's test our input it is close
+        $actual_result = $goalseek->
+        callbackTest($input, $rate, $IC, $S, $C, $CKPN_Prev);
+        //Searched result of function
+        $x[1]  = "Searched result of callbackTest($input) = " . $expected_result . "<br />";
+        //Actual result of function with calculated goalseek
+        $x[2]  = "Actual result of callbackTest(" . $input . ") = " . $actual_result . "<br />";
+        //If difference is too high, you can improve the class and send me it your modifications ;)
+        $x[3]  = "Difference = " . ($actual_result - $expected_result);
+        return $input;
     }
 
 }
