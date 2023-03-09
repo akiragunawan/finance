@@ -115,9 +115,12 @@ return [
     'scopes' => env("SSO_SCOPES"),
     'sso_host' => env("SSO_HOST"),
 
+    // Branches
     'branches' => env("BRANCHES"),
     'branches_name' => env("BRANCHES_NAME"),
 
     'bs_coa' => env("BS_COA"),
     'pl_coa' => env("PL_COA"),
+
+    'bep_row_name' => env("BEP_ROW"),
 ];

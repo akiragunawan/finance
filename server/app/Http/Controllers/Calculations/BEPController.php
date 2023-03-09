@@ -26,28 +26,32 @@ class BEPController extends BSController
         array_shift($branch_name);
         array_shift($branch_name);
         $result = array();
-        
+        $row_name = explode(',', config('auth.bep_row_name'));
         $i = 0;
         foreach($branch as $b){
             
             $col = collect();
             $col->put("Kode_Cabang", $b);
             $col->put("Nama_Cabang", $branch_name[$i]);
-            $col->put("Data", $this->getBox($date->toDateString(), $b));
+            $col->put("Data", $this->getBox($date->toDateString(), $b, $row_name));
             array_push($result, $col);
             $i++;
         }
         return $result;
     }
 
-    public function getBox($date, $branch){
-        $process_number = 18;
-        $box = collect();
+    public function getBox($date, $branch, $row_name){
+        $process_number = 17;
+        $box = array();
         for($i=1; $i <= $process_number; $i++){
             $box[$i] = $this->getRow($i, $date, $branch, $box);
-        };
+        }
+        $named_box = collect();
+        foreach($box as $index => $b){
+            $named_box->put($row_name[$index-1], $b);
+        }
         $tmp = array(0);
-        $box = array_merge($tmp, $box->toArray());
+        $box = array_merge($tmp, $named_box->toArray());
         array_shift($box);
         return $box;
     }
@@ -118,7 +122,7 @@ class BEPController extends BSController
                 break;
             case 12:
                 $col['balance'] = $this->getAverage($date, $PLCOA_12, $branch);
-                $col['rest'] = 1/100;
+                $col['rate'] = 1/100;
                 break;
             case 13:
                 $col['balance'] = $this->getAverage($date, $PLCOA_13_1, $branch) + 
@@ -135,15 +139,10 @@ class BEPController extends BSController
                 $col['interest_income'] = $col['balance'];
                 break;
             case 16:
-                $col['balance'] = $box[10]['balance'] + $box[11]['balance'] + $box[12]['balance'] +
-                $box[13]['balance'] + $box[14]['balance'];
-                $col['interest_income'] = $col['balance'];
+                $col['interest_income'] = $box[8]['interest_income'] + $box[15]['balance'];
                 break;
             case 17:
-                $col['interest_income'] = $box[8]['interest_income'] + $box[16]['balance'];
-                break;
-            case 18:
-                $col['interest_income'] = $box[5]['interest_income'] - $box[17]['interest_income'];
+                $col['interest_income'] = $box[5]['interest_income'] - $box[16]['interest_income'];
                 break;
             default:
                 
