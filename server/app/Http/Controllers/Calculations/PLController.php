@@ -19,7 +19,8 @@ class PLController extends Controller
         $branches = explode(',', config('auth.branches'));
         $coas = explode(',', config('auth.pl_coa'));
         foreach($coas as $c){
-            $res = DB::table('T_Inoan_COAAllBranch')
+            $res = DB::connection('sqlsrv')->
+            table('T_Inoan_COAAllBranch')
             ->select('*')
             ->where('COADate', $date)
             ->where('AccountNo', $c)
@@ -54,7 +55,8 @@ class PLController extends Controller
     }
     public function getPLPerBranch($date, $coa, $branch)
     {
-        return DB::table('T_Inoan_COAPerBranch')
+        return DB::connection('sqlsrv')
+        ->table('T_Inoan_COAPerBranch')
         ->select('*')
         ->where('COADate', $date)
         ->where('AccountNo', $coa)
