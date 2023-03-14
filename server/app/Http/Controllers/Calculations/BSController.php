@@ -25,7 +25,8 @@ class BSController extends Controller
             $coas = explode(',', config('auth.bs_coa'));
             foreach($coas as $c){
                 $temp_date = Carbon::create($date->year, $curr_month)->endOfMonth()->toDateString();
-                $res = DB::table('T_Inoan_COAAllBranch')
+                $res = DB::connection('sqlsrv')
+                ->table('T_Inoan_COAAllBranch')
                 ->select('*')
                 ->where('COADate', $temp_date)
                 ->where('AccountNo', $c)
@@ -65,7 +66,8 @@ class BSController extends Controller
 
     public function getBSPerBranch($date, $coa, $branch)
     {
-        return DB::table('T_Inoan_COAPerBranch')
+        return DB::connection('sqlsrv')
+        ->table('T_Inoan_COAPerBranch')
         ->select('*')
         ->where('COADate', $date)
         ->where('AccountNo', $coa)

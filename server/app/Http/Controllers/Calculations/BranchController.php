@@ -14,7 +14,8 @@ class BranchController extends Controller
         $branches = $this->getBranchNum()->pluck('COLUMN_NAME');
         $branch = collect();
         foreach($branches as $b){
-            $branch->push(DB::table('T_Inoan_Branch')
+            $branch->push(DB::connection('sqlsrv')
+            ->table('T_Inoan_Branch')
             ->select('BR_NO as branch_code, ')
             ->where('BR_NO' ,$b)
             ->first());
@@ -23,7 +24,8 @@ class BranchController extends Controller
     }
     
     public function getBranchNum(){
-        $branches = DB::table('INFORMATION_SCHEMA.COLUMNS')
+        $branches = DB::connection('sqlsrv')
+        ->table('INFORMATION_SCHEMA.COLUMNS')
         ->select('COLUMN_NAME')
         ->where('TABLE_NAME', 'T_Inoan_COAAllBranch')
         ->get();
