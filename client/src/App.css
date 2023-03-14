@@ -3,6 +3,11 @@
 
 
 body{
-  font-family: 'Poppins', sans-serif !important
+  font-family: 'Poppins', sans-serif !important;
+  background: linear-gradient(300deg, #5a4b4dae 28%, #fff 28%);
+  background-color: #F5F6F9;
+  height: 100%;
+  background-repeat: no-repeat;
+  padding-left: 250px;
 /* font-family: 'Roboto', sans-serif; */
 }
