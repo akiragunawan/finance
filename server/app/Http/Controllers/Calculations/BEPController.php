@@ -45,9 +45,9 @@ class BEPController extends BSController
         if ($request->has('profit')) $this->profit = $request->input('profit');
 
         $yellow = $this->getYellow($date, $branch, $all);
-        $green = $this->getGreen($date, $branch, $yellow);
+        // $green = $this->getGreen($date, $branch, $yellow);
         $res->put("Yellow", $yellow);
-        $res->put("Green", $green);
+        // $res->put("Green", $green);
         return $res;
     }
 
