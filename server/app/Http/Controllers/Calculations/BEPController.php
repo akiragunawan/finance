@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Calculations;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use App\Http\Controllers\GoalSeekController;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -45,9 +46,9 @@ class BEPController extends BSController
         if ($request->has('profit')) $this->profit = $request->input('profit');
 
         $yellow = $this->getYellow($date, $branch, $all);
-        // $green = $this->getGreen($date, $branch, $yellow);
+        $green = $this->getGreen($date, $branch, $yellow);
         $res->put("Yellow", $yellow);
-        // $res->put("Green", $green);
+        $res->put("Green", $green);
         return $res;
     }
 
@@ -95,7 +96,8 @@ class BEPController extends BSController
         $profit = 0;
         $yellow = collect($yellow);
         $month = $date->month;
-        $green = clone $yellow;
+        // $green = clone $yellow;
+        $green = unserialize(serialize($yellow));
         foreach($branch as $index => $b){
             // dd($yellow);
             if(is_null($this->profit)) $profit = 8000;
@@ -103,6 +105,82 @@ class BEPController extends BSController
             $bal = $this->calculate($profit, $month, $yellow[$index]);
            
             $green[$index]["Data"]["loan"]->put("balance", $bal);
+            foreach($green[$index]["Data"] as $key => $c) {
+                $green[$index]["Data"]->forget($key);
+                // switch ($key){
+                //     case 1:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_1)->first()->IDRBalance);
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_1)->first()->IDRBalance);
+                //         $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
+                //         break;
+                //     case 2:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_2)->first()->IDRBalance);
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_2)->first()->IDRBalance);
+                //         $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
+                //         break;
+                //     case 3:
+                //         $col->put('balance', $box[1]['balance']+$box[2]['balance']);
+                //         $col->put('interest_income', $box[1]['interest_income']+$box[2]['interest_income']);
+                //         break;
+                //     case 4:
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_4)->first()->IDRBalance - $box[3]['interest_income']);
+                //         break;
+                //     case 5:
+                //         $col->put('interest_income', $box[3]['interest_income']+$box[4]['interest_income']);
+                //         break;
+                //     case 6:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_6_1)->first()->IDRBalance + $all[$branch]->where('AccountNo', $this->BSCOA_6_2)->first()->IDRBalance);
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_6)->first()->IDRBalance);
+                //         $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
+                //         break;
+                //     case 7:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_7)->first()->IDRBalance);
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_7)->first()->IDRBalance);
+                //         $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
+                //         break;
+                //     case 8:
+                //         $col->put('balance', $box[6]['balance']+$box[7]['balance']);
+                //         $col->put('interest_income', $box[6]['interest_income']+$box[7]['interest_income']);
+                //         break;
+                //     case 9:
+                //         $col->put('interest_income', $box[3]['interest_income']-$box[8]['interest_income']);
+                //         break;
+                //     case 10:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_10)->first()->IDRBalance);
+                //         break;
+                //     case 11:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_11)->first()->IDRBalance);
+                //         break;
+                //     case 12:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_12)->first()->IDRBalance);
+                //         $col->put('rate', 1/100);
+                //         break;
+                //     case 13:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_13_1)->first()->IDRBalance + 
+                //         $all[$branch]->where('AccountNo', $this->PLCOA_13_2)->first()->IDRBalance +
+                //         $all[$branch]->where('AccountNo', $this->PLCOA_13_3)->first()->IDRBalance -
+                //         $box[10]['balance'] - $box [11]['balance']);
+                //         break;
+                //     case 14:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_14)->first()->IDRBalance - $box[7]['interest_income']);
+                //         break;
+                //     case 15:
+                //         $col->put('balance', $box[10]['balance'] + $box[11]['balance'] + $box[12]['balance'] +
+                //         $box[13]['balance'] + $box[14]['balance']);
+                //         $col->put('interest_income', $col['balance']);
+                //         break;
+                //     case 16:
+                //         $col->put('interest_income', $box[8]['interest_income'] + $box[15]['balance']);
+                //         break;
+                //     case 17:
+                //         $col->put('interest_income', $box[5]['interest_income'] - $box[16]['interest_income']);
+                //         break;
+                //     default:
+                        
+                //         break;
+                // }
+            }
+            // $green[$index]->dd();
         }
         
         
