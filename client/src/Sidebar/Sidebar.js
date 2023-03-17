@@ -7,9 +7,12 @@ import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+  // const [paddingValue, setPaddingValue] = useState("0");
   const handleSidebarToggle = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  
+
+ 
   };
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
