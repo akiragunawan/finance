@@ -1,5 +1,6 @@
+
 .sidebar {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: -180px;
 	bottom: 0;
@@ -15,7 +16,9 @@
 	left: 0;
 	top: 0;
 }
-
+.open > .body{
+  padding-left: 70px;
+}
 .sidebar-header {
 	height: 60px;
 	display: flex;
