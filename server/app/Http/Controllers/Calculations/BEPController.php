@@ -5,146 +5,258 @@ namespace App\Http\Controllers\Calculations;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use App\Http\Controllers\GoalSeekController;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class BEPController extends BSController
 {   
+    private $month = 0;
+    private $profit = null;
     private $query_count = 0;
+    private $BSCOA_1 = '15420000';
+    private $PLCOA_1 = '41000000';
+    private $BSCOA_2 = '18809001';
+    private $PLCOA_2 = '49011001';
+    private $PLCOA_4 = '40000000';
+    private $BSCOA_6_1 = '21230000';
+    private $BSCOA_6_2 = '21830000';
+    private $PLCOA_6 = '51000000';
+    private $BSCOA_7 = '28809001';
+    private $PLCOA_7 = '59002001';
+    private $PLCOA_10 = '57200000';
+    private $PLCOA_11 = '57400000';
+    private $PLCOA_12 = '53000000';
+    private $PLCOA_13_1 = '52000000';
+    private $PLCOA_13_2 = '57000000';
+    private $PLCOA_13_3 = '58000000';
+    private $PLCOA_14 = '59000000';
     public function queryBEP(Request $request){
         $month = $request->input('month');
         $year = $request->input('year');
-        $search = $request->input('search');
         $date = Carbon::create($year, $month)->endOfMonth();
-
+        
         // $date_origin = Carbon::today();
         // if(!$date_origin->isSameDay(Carbon::today()->endOfMonth())) $date_origin->subMonthNoOverflow();
         // $date_origin->endOfMonth();
+        $res = collect();
         $branch = $this->getBranch();
-        $coas = $this->getCOA();
         $all = $this->getAverageAll($date);
-        $result = array();
-        foreach($branch as $i => $b){
-            $col = collect();
-            $col->put("Kode_Cabang", $b->branch_code);
-            $col->put("Nama_Cabang", $b->branch_name);
-            $col->put("Data", $this->getYellow($date, $b, $all));
-            array_push($result, $col);
-        }
-        return $result;
+        
+        if ($request->has('profit')) $this->profit = $request->input('profit');
+
+        $yellow = $this->getYellow($date, $branch, $all);
+        $green = $this->getGreen($date, $branch, $yellow);
+        $res->put("Yellow", $yellow);
+        $res->put("Green", $green);
+        return $res;
     }
 
     public function getYellow($date, $branch, $all){
+        
         $row_name = DB::connection('mysql')
         ->table('bep_row')
         ->select('*')
         ->get()
         ->pluck('row_name');
-        // dd($row_name);
         $process_number = count($row_name);
-        $box = array();
-        for($i=1; $i <= $process_number; $i++){
-            $box[$i] = $this->getRow($i, $box, $all, $branch->branch_code);
+        $result = collect();
+        $this->month = Carbon::createFromDate($all->first()->first()->COADate)->month;
+        foreach($branch as $index => $b){
+            //first loop run code per branch
+            $col = collect();
+            $col->put("Kode_Cabang", $b->branch_code);
+            $col->put("Nama_Cabang", $b->branch_name);
+            
+            //$box is iterative array (used in getRow())
+            $box = collect();
+            $named_box = collect();
+            
+            for($i=1; $i <= $process_number; $i++){
+                //second loop run code per row
+                //$i is for getrow(box), $index is for branches
+                //
+                $box->put($i, $this->getRow($i, $box, $all, $branch[$index]->branch_code)); 
+                
+                //insert data to named_box with name as key
+                $named_box->put($row_name[$i-1], $box[$i]);
+            }
+            
+            
+            $col->put("Data", collect($named_box));
+            $result->push($col);
         }
-        $named_box = collect();
-        foreach($box as $index => $b){
-            $named_box->put($row_name[$index-1], $b);
-        }
-        $tmp = array(0);
-        $box = array_merge($tmp, $named_box->toArray());
-        array_shift($box);
-        return $box;
+        
+        return $result;
         
     }
-    
+    public function getGreen($date, $branch, $yellow)
+    {
+        $result = array();
+        $profit = 0;
+        $yellow = collect($yellow);
+        $month = $date->month;
+        // $green = clone $yellow;
+        $green = unserialize(serialize($yellow));
+        foreach($branch as $index => $b){
+            // dd($yellow);
+            if(is_null($this->profit)) $profit = 8000;
+            else $profit = $this->profit;
+            $bal = $this->calculate($profit, $month, $yellow[$index]);
+           
+            $green[$index]["Data"]["loan"]->put("balance", $bal);
+            foreach($green[$index]["Data"] as $key => $c) {
+                $green[$index]["Data"]->forget($key);
+                // switch ($key){
+                //     case 1:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_1)->first()->IDRBalance);
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_1)->first()->IDRBalance);
+                //         $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
+                //         break;
+                //     case 2:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_2)->first()->IDRBalance);
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_2)->first()->IDRBalance);
+                //         $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
+                //         break;
+                //     case 3:
+                //         $col->put('balance', $box[1]['balance']+$box[2]['balance']);
+                //         $col->put('interest_income', $box[1]['interest_income']+$box[2]['interest_income']);
+                //         break;
+                //     case 4:
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_4)->first()->IDRBalance - $box[3]['interest_income']);
+                //         break;
+                //     case 5:
+                //         $col->put('interest_income', $box[3]['interest_income']+$box[4]['interest_income']);
+                //         break;
+                //     case 6:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_6_1)->first()->IDRBalance + $all[$branch]->where('AccountNo', $this->BSCOA_6_2)->first()->IDRBalance);
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_6)->first()->IDRBalance);
+                //         $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
+                //         break;
+                //     case 7:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_7)->first()->IDRBalance);
+                //         $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_7)->first()->IDRBalance);
+                //         $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
+                //         break;
+                //     case 8:
+                //         $col->put('balance', $box[6]['balance']+$box[7]['balance']);
+                //         $col->put('interest_income', $box[6]['interest_income']+$box[7]['interest_income']);
+                //         break;
+                //     case 9:
+                //         $col->put('interest_income', $box[3]['interest_income']-$box[8]['interest_income']);
+                //         break;
+                //     case 10:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_10)->first()->IDRBalance);
+                //         break;
+                //     case 11:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_11)->first()->IDRBalance);
+                //         break;
+                //     case 12:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_12)->first()->IDRBalance);
+                //         $col->put('rate', 1/100);
+                //         break;
+                //     case 13:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_13_1)->first()->IDRBalance + 
+                //         $all[$branch]->where('AccountNo', $this->PLCOA_13_2)->first()->IDRBalance +
+                //         $all[$branch]->where('AccountNo', $this->PLCOA_13_3)->first()->IDRBalance -
+                //         $box[10]['balance'] - $box [11]['balance']);
+                //         break;
+                //     case 14:
+                //         $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_14)->first()->IDRBalance - $box[7]['interest_income']);
+                //         break;
+                //     case 15:
+                //         $col->put('balance', $box[10]['balance'] + $box[11]['balance'] + $box[12]['balance'] +
+                //         $box[13]['balance'] + $box[14]['balance']);
+                //         $col->put('interest_income', $col['balance']);
+                //         break;
+                //     case 16:
+                //         $col->put('interest_income', $box[8]['interest_income'] + $box[15]['balance']);
+                //         break;
+                //     case 17:
+                //         $col->put('interest_income', $box[5]['interest_income'] - $box[16]['interest_income']);
+                //         break;
+                //     default:
+                        
+                //         break;
+                // }
+            }
+            // $green[$index]->dd();
+        }
+        
+        
+        return $green;
+    }
     
     public function getRow($index, $box, $all, $branch){
-        $BSCOA_1 = '15420000';
-        $PLCOA_1 = '41000000';
-        $BSCOA_2 = '18809001';
-        $PLCOA_2 = '49011001';
-        $PLCOA_4 = '40000000';
-        $BSCOA_6_1 = '21230000';
-        $BSCOA_6_2 = '21830000';
-        $PLCOA_6 = '51000000';
-        $BSCOA_7 = '28809001';
-        $PLCOA_7 = '59002001';
-        $PLCOA_10 = '57200000';
-        $PLCOA_11 = '57400000';
-        $PLCOA_12 = '53000000';
-        $PLCOA_13_1 = '52000000';
-        $PLCOA_13_2 = '57000000';
-        $PLCOA_13_3 = '58000000';
-        $PLCOA_14 = '59000000';
-        $month = Carbon::createFromDate($all[$branch]->first()->COADate)->month;
+        $col = collect();
         switch ($index) {
             case 1:
-                // dd($all[$branch]->where('AccountNo', $BSCOA_1)->first());
-                $col['balance'] = $all[$branch]->where('AccountNo', $BSCOA_1)->first()->IDRBalance;
-                $col['interest_income'] = $all[$branch]->where('AccountNo', $PLCOA_1)->first()->IDRBalance;
-                $col['rate'] = ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$month);
+                // change array to col?
+                $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_1)->first()->IDRBalance);
+                $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_1)->first()->IDRBalance);
+                $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
                 break;
             case 2:
-                $col['balance'] = $all[$branch]->where('AccountNo', $BSCOA_2)->first()->IDRBalance;
-                $col['interest_income'] = $all[$branch]->where('AccountNo', $PLCOA_2)->first()->IDRBalance;
-                $col['rate'] = ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$month);
+                $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_2)->first()->IDRBalance);
+                $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_2)->first()->IDRBalance);
+                $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
                 break;
             case 3:
-                $col['balance'] = $box[1]['balance']+$box[2]['balance'];
-                $col['interest_income'] = $box[1]['interest_income']+$box[2]['interest_income'];
+                $col->put('balance', $box[1]['balance']+$box[2]['balance']);
+                $col->put('interest_income', $box[1]['interest_income']+$box[2]['interest_income']);
                 break;
             case 4:
-                $col['interest_income'] = $all[$branch]->where('AccountNo', $PLCOA_4)->first()->IDRBalance - $box[3]['interest_income'];
+                $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_4)->first()->IDRBalance - $box[3]['interest_income']);
                 break;
             case 5:
-                $col['interest_income'] = $box[3]['interest_income']+$box[4]['interest_income'];;
+                $col->put('interest_income', $box[3]['interest_income']+$box[4]['interest_income']);
                 break;
             case 6:
-                $col['balance'] = $all[$branch]->where('AccountNo', $BSCOA_6_1)->first()->IDRBalance + $all[$branch]->where('AccountNo', $BSCOA_6_2)->first()->IDRBalance;
-                $col['interest_income'] = $all[$branch]->where('AccountNo', $PLCOA_6)->first()->IDRBalance;
-                $col['rate'] = ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$month);
+                $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_6_1)->first()->IDRBalance + $all[$branch]->where('AccountNo', $this->BSCOA_6_2)->first()->IDRBalance);
+                $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_6)->first()->IDRBalance);
+                $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
                 break;
             case 7:
-                $col['balance'] = $all[$branch]->where('AccountNo', $BSCOA_7)->first()->IDRBalance;
-                $col['interest_income'] = $all[$branch]->where('AccountNo', $PLCOA_7)->first()->IDRBalance;
-                $col['rate'] = ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$month);
+                $col->put('balance', $all[$branch]->where('AccountNo', $this->BSCOA_7)->first()->IDRBalance);
+                $col->put('interest_income', $all[$branch]->where('AccountNo', $this->PLCOA_7)->first()->IDRBalance);
+                $col->put('rate', ($col['balance'] <= 0) ? 0 : ($col['interest_income']/$col['balance']*12*100/$this->month));
                 break;
             case 8:
-                $col['balance'] = $box[6]['balance']+$box[7]['balance'];
-                $col['interest_income'] = $box[6]['interest_income']+$box[7]['interest_income'];
+                $col->put('balance', $box[6]['balance']+$box[7]['balance']);
+                $col->put('interest_income', $box[6]['interest_income']+$box[7]['interest_income']);
                 break;
             case 9:
-                $col['interest_income'] = $box[3]['interest_income']-$box[8]['interest_income'];
+                $col->put('interest_income', $box[3]['interest_income']-$box[8]['interest_income']);
                 break;
             case 10:
-                $col['balance'] = $all[$branch]->where('AccountNo', $PLCOA_10)->first()->IDRBalance;
+                $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_10)->first()->IDRBalance);
                 break;
             case 11:
-                $col['balance'] = $all[$branch]->where('AccountNo', $PLCOA_11)->first()->IDRBalance;
+                $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_11)->first()->IDRBalance);
                 break;
             case 12:
-                $col['balance'] = $all[$branch]->where('AccountNo', $PLCOA_12)->first()->IDRBalance;
-                $col['rate'] = 1/100;
+                $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_12)->first()->IDRBalance);
+                $col->put('rate', 1/100);
                 break;
             case 13:
-                $col['balance'] = $all[$branch]->where('AccountNo', $PLCOA_13_1)->first()->IDRBalance + 
-                $all[$branch]->where('AccountNo', $PLCOA_13_2)->first()->IDRBalance +
-                $all[$branch]->where('AccountNo', $PLCOA_13_3)->first()->IDRBalance -
-                $box[10]['balance'] - $box [11]['balance'];
+                $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_13_1)->first()->IDRBalance + 
+                $all[$branch]->where('AccountNo', $this->PLCOA_13_2)->first()->IDRBalance +
+                $all[$branch]->where('AccountNo', $this->PLCOA_13_3)->first()->IDRBalance -
+                $box[10]['balance'] - $box [11]['balance']);
                 break;
             case 14:
-                $col['balance'] = $all[$branch]->where('AccountNo', $PLCOA_14)->first()->IDRBalance - $box[7]['interest_income'];
+                $col->put('balance', $all[$branch]->where('AccountNo', $this->PLCOA_14)->first()->IDRBalance - $box[7]['interest_income']);
                 break;
             case 15:
-                $col['balance'] = $box[10]['balance'] + $box[11]['balance'] + $box[12]['balance'] +
-                $box[13]['balance'] + $box[14]['balance'];
-                $col['interest_income'] = $col['balance'];
+                $col->put('balance', $box[10]['balance'] + $box[11]['balance'] + $box[12]['balance'] +
+                $box[13]['balance'] + $box[14]['balance']);
+                $col->put('interest_income', $col['balance']);
                 break;
             case 16:
-                $col['interest_income'] = $box[8]['interest_income'] + $box[15]['balance'];
+                $col->put('interest_income', $box[8]['interest_income'] + $box[15]['balance']);
                 break;
             case 17:
-                $col['interest_income'] = $box[5]['interest_income'] - $box[16]['interest_income'];
+                $col->put('interest_income', $box[5]['interest_income'] - $box[16]['interest_income']);
                 break;
             default:
                 
@@ -238,77 +350,48 @@ class BEPController extends BSController
         // dd($arr);
         return $resBM;
     }
-
-    public function getAverage($date, $coa, $branch){
-        $dateCarbon = Carbon::createFromDate($date);
-        //dd($date);
-        $requested_month = $dateCarbon->month;
-        $requested_year = $dateCarbon->year;
-        $average = 0;
-        for($query_count=0; $query_count<$requested_month; $query_count++){
-            $res = $this->getCOAPerBranch($dateCarbon,$coa,$branch);
-            $average = $average + $res;
-            $dateCarbon->addMonth();
-            //dd($res);
-        }
-        $average = $average / $requested_month;
-        return $average;
-    }
-    public function getCOAPerBranch($date, $coa, $branch)
-    {   
-
-        $res = DB::connection('sqlsrv')
-        ->table('T_Inoan_COAPerBranch')
-        ->select('IDRBalance')
-        ->where('COADate', $date->toDateString())
-        ->where('AccountNo', $coa)
-        ->where('Branch', $branch)
-        ->first();
-        $res = collect($res);
-        $res = (float)$res->get("IDRBalance")/1000000;
-        $this->query_count++;
-        return $res;
-    }
-
-    public function calculate()
+    public function calculate($target, $month, $box)
     {
         //if profit = 1000
         //adjust bal, check CKPN
         //if CKPN changes.. profit must be different, so keep looping
         //If CKPN doesn't change, profit must be the same, so break
         //if profit not 1000, keep looping, else break
-
-        $balance = $this->calcGoalSeek(5000);
+        // dd($box);
+        $balance = $this->calcGoalSeek($target, $month, $box);
         return $balance;
     }
     
-    public function calcGoalSeek($expected_result){
+    public function calcGoalSeek($expected_result, $month, $box){
         //Instantiate your class
         $goalseek = new GoalSeekController();
         //$goalseek->debug = true;
 
         //I want to know which input needs callbackTest to give me 301
-        $rate = 0.07927444500;
-        $IC = 19111.90440724000;
-        $S = 285.66067382000;
-        $C = -930.87179400000;
-        $CKPN_Prev = 697.28937163000;
+        $rate = $box["Data"]["loan"]["rate"]/100;
+        $IC = $box["Data"]["total_interest"]["interest_income"];
+        $PIO = $box["Data"]["pio"]["balance"] * $box["Data"]["pio"]["rate"] * $month / 12;
+        
+        $S = $box["Data"]["salary"]["balance"] + $box["Data"]["rental"]["balance"]
+        + $box["Data"]["operational"]["balance"] + $box["Data"]["non_operational"]["balance"];
+        $C = $box["Data"]["other"]["interest_income"];
+        $CKPN_Prev =  $box["Data"]["ckpn"]["balance"];
+        // if($box["Kode_Cabang"] == 1105)dd($expected_result, $rate, $IC, $PIO, $S, $C, $CKPN_Prev);
         //Calculate the input to get you goal, with accuracy
-        $input = $goalseek->calculate('callbackTest', $expected_result, 10, $rate, $IC, $S, $C, $CKPN_Prev);
-
-        $query_count = collect();
+        $input = $goalseek->calculate('callbackTest', $expected_result, 10, $rate, $IC, $PIO, $S, $C, $CKPN_Prev, $month);
+        
+        $goalseekResult = collect();
         //Voilá!
-        $query_count[0]  = $input;
+        $goalseekResult[0]  = $input;
 
         //Let's test our input it is close
-        $actual_result = $goalseek->
-        callbackTest($input, $rate, $IC, $S, $C, $CKPN_Prev);
+        $actual_result = $goalseek->callbackTest($input, $rate, $IC, $PIO, $S, $C, $CKPN_Prev, $month);
         //Searched result of function
-        $query_count[1]  = "Searched result of callbackTest($input) = " . $expected_result . "<br />";
+        $goalseekResult[1]  = "Searched result of callbackTest($input) = " . $expected_result . "<br />";
         //Actual result of function with calculated goalseek
-        $query_count[2]  = "Actual result of callbackTest(" . $input . ") = " . $actual_result . "<br />";
+        $goalseekResult[2]  = "Actual result of callbackTest(" . $input . ") = " . $actual_result . "<br />";
         //If difference is too high, you can improve the class and send me it your modifications ;)
-        $query_count[3]  = "Difference = " . ($actual_result - $expected_result);
+        $goalseekResult[3]  = "Difference = " . ($actual_result - $expected_result);
         return $input;
     }
     public function getCOA(){
@@ -328,4 +411,6 @@ class BEPController extends BSController
         $coas = $this->getCOA();
         return $coas->where('coa', $coa->AccountNo)->first()->bs_pl == 2;
     }
+
+    
 }
