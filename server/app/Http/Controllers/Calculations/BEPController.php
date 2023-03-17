@@ -42,7 +42,7 @@ class BEPController extends BSController
         // $date_origin = Carbon::today();
         // if(!$date_origin->isSameDay(Carbon::today()->endOfMonth())) $date_origin->subMonthNoOverflow();
         // $date_origin->endOfMonth();
-        $res = collect();
+        $res = array();
         $branch = $this->getBranch();
         $all = $this->getAverageAll($date);
         
@@ -50,8 +50,8 @@ class BEPController extends BSController
         if ($request->has('ftp')) $this->ftp = $request->input('ftp');
         $yellow = $this->getYellow($date, $branch, $all);
         $green = $this->getGreen($date, $branch, $yellow);
-        $res->put("Yellow", $yellow);
-        $res->put("Green", $green);
+        $res[0] = $yellow;
+        $res[1] = $green;
         return $res;
     }
 
@@ -78,7 +78,6 @@ class BEPController extends BSController
             for($i=1; $i <= $process_number; $i++){
                 //second loop run code per row
                 //$i is for getrow(box), $index is for branches
-                //
                 $box->put($i, $this->getRow($i, $box, $all, $branch[$index]->branch_code)); 
                 
                 //insert data to named_box with name as key
