@@ -12,15 +12,12 @@ function Bep() {
 	const d = new Date();
 	const [profit, setProfit] = useState();
 	const [ftp, setFtp] = useState();
-
+	// console.log(d);
 	useEffect(() => {
+		console.log(d.getDate(),d.getMonth()+1,d.getFullYear());
 		axios
 			.get(
-				"http://127.0.0.1:8000/api/get/bep?year=" +
-					d.getFullYear() +
-					"&month=" +
-					d.getMonth(),
-				{}
+				"http://127.0.0.1:8000/api/get/bep"
 			)
 			.then((response) => {
 				setDataCabang(response.data);
