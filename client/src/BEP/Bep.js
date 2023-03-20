@@ -451,7 +451,7 @@ function Bep() {
 										<div className="card-body p-4">
 											<div className="row">
 												<div className="col-6 text-start ">
-													Rate BASE ON FINANCIAL REPORT 2023
+													Scenario BASE ON FINANCIAL REPORT 2023
 												</div>
 												<div className="col-6 text-end ">(In Million Rp)</div>
 											</div>
@@ -460,10 +460,10 @@ function Bep() {
 													className="col-12 text-center fw-bold"
 													style={{ fontSize: "30px" }}
 												>
-													EXISTING
+													Scenario 1
 												</div>
 											</div>
-											<div className="row bg-opacity-50 bg-warning rounded-2 text-dark fw-bolder">
+											<div className="row bg-opacity-50 bg-success rounded-2 text-dark fw-bolder">
 												<div className="col-3 ">COA Name</div>
 												<div className="col-3">Balance</div>
 												<div className="col-3">Rate</div>
