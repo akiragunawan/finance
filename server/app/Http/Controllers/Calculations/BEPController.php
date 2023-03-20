@@ -47,7 +47,7 @@ class BEPController extends BSController
             $date = Carbon::create($year, $month)->endOfMonth();
             if($date_origin->lessThan($date)) $date = $date_origin;
         }
-        dd($date->toDateString());
+        // dd($date->toDateString());
         $res = array();
         $branch = $this->getBranch();
         $all = $this->getAverageAll($date);
