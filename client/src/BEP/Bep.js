@@ -69,12 +69,11 @@ function Bep() {
 		axios
 			.get(
 				"http://127.0.0.1:8000/api/get/bep?year=2023&month=" +
-					(startDate.getMonth() +
-					1) +
+					(startDate.getMonth() + 1) +
 					"&year=" +
 					startDate.getFullYear() +
 					"&profit=" +
-					profit  +
+					profit +
 					"&ftp=" +
 					ftp
 			)
@@ -116,7 +115,7 @@ function Bep() {
 					<input
 						className="form-control mb-2 shadow"
 						placeholder="Profit Parameter"
-						onChange={(event) => setProfit(event.target.value )}
+						onChange={(event) => setProfit(event.target.value)}
 						name="profit"
 						id="profit"
 					/>
