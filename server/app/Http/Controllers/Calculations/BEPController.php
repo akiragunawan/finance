@@ -46,8 +46,8 @@ class BEPController extends BSController
         $branch = $this->getBranch();
         $all = $this->getAverageAll($date);
         
-        if ($request->has('profit')) $this->profit = $request->input('profit');
-        if ($request->has('ftp')) $this->ftp = $request->input('ftp');
+        if ($request->filled('profit')) $this->profit = $request->input('profit');
+        if ($request->filled('ftp')) $this->ftp = (float)$request->input('ftp');
         $yellow = $this->getYellow($date, $branch, $all);
         $green = $this->getGreen($date, $branch, $yellow);
         $res[0] = $yellow;
