@@ -9,7 +9,6 @@ function Bep() {
 	const [loading, setLoading] = useState(true);
 	const [startDate, setStartDate] = useState(new Date());
 	const [branch, setBranch] = useState([]);
-	
 
 	useEffect(() => {
 		axios
@@ -17,7 +16,7 @@ function Bep() {
 			.then((response) => {
 				setDataCabang(response.data);
 				setLoading(false);
-				console.log(response.data["Yellow"][0].Nama_Cabang);
+				// console.log(response.data["Yellow"][0].Nama_Cabang);
 				// setDataBalance(response.data.Data);
 				// console.log(dataBalance);
 			})
@@ -32,6 +31,7 @@ function Bep() {
 			.then((response) => {
 				setBranch(response.data);
 				setLoading(false);
+				// console.log(response.data[0]);
 				// console.log(response.data["Yellow"][0].Nama_Cabang);
 				// setDataBalance(response.data.Data);
 				// console.log(dataBalance);
@@ -41,7 +41,7 @@ function Bep() {
 				setLoading(false);
 			});
 	}, []);
-	console.log(dataCabang);
+	// console.log(dataCabang);
 	if (loading) {
 		return (
 			<div className="position-absolute top-50 start-50 translate-middle">
@@ -107,19 +107,19 @@ function Bep() {
 						<h3>Branch</h3>
 					</div>
 					<div className="d-flex justify-content-center flex-wrap">
-						{dataCabang["Yellow"].map((item) => (
+						{branch.map((item) => (
 							<button
 								className="nav-link text-dark p-3 text-dark fw-bold"
-								id={"nav-" + item.Kode_Cabang + "-tab"}
+								id={"nav-" + item.branch_code + "-tab"}
 								data-bs-toggle="tab"
-								data-bs-target={"#nav-" + item.Kode_Cabang}
+								data-bs-target={"#nav-" + item.branch_code}
 								type="button"
 								role="tab"
-								aria-controls={"nav-" + item.Kode_Cabang}
+								aria-controls={"nav-" + item.branch_code}
 								aria-selected="false"
-								key={item.Kode_Cabang}
+								key={item.branch_code}
 							>
-								{item.Nama_Cabang}
+								{item.branch_name}
 							</button>
 						))}
 					</div>
@@ -127,12 +127,12 @@ function Bep() {
 			</div>
 			<div className="container">
 				<div className="tab-content" id="nav-tabContent">
-					{dataCabang.map((item) => (
+					{branch.map((brn, key) => (
 						<div
 							className="tab-pane fade"
-							id={"nav-" + item.Kode_Cabang}
+							id={"nav-" + brn.branch_code}
 							role="tabpanel"
-							aria-labelledby={"nav-" + item.Kode_Cabang + "-tab"}
+							aria-labelledby={"nav-" + brn.branch_code + "-tab"}
 						>
 							<div className="scrolling-wrapper row flex-row flex-nowrap mt-4 pb-4 pt-2 ">
 								<div className="col">
@@ -140,7 +140,7 @@ function Bep() {
 										<div className="card-body p-4">
 											<div className="row">
 												<div className="col-6 text-start ">
-													BASE ON FINANCIAL REPORT 2023
+													Rate BASE ON FINANCIAL REPORT 2023
 												</div>
 												<div className="col-6 text-end ">(In Million Rp)</div>
 											</div>
@@ -163,16 +163,18 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.loan.balance.toFixed(2)
+														dataCabang[0][key].Data.loan.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3">
-													{item.Data.loan.rate.toFixed(2)}%
+													{dataCabang[0][key].Data.loan.rate.toFixed(2)}%
 												</div>
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.loan.interest_income.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.loan.interest_income.toFixed(2)
 													)}
 												</div>
 											</div>
@@ -181,16 +183,18 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.pio.balance.toFixed(2)
+														dataCabang[0][key].Data.pio.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3">
-													{item.Data.pio.rate.toFixed(2)}%
+													{dataCabang[0][key].Data.pio.rate.toFixed(2)}%
 												</div>
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.pio.interest_income.toFixed(2)
+														dataCabang[0][key].Data.pio.interest_income.toFixed(
+															2
+														)
 													)}
 												</div>
 											</div>
@@ -199,14 +203,16 @@ function Bep() {
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.total.balance.toFixed(2)
+														dataCabang[0][key].Data.total.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3"></div>
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.total.interest_income.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.total.interest_income.toFixed(2)
 													)}
 												</div>
 											</div>
@@ -218,7 +224,9 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.other.interest_income.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.other.interest_income.toFixed(2)
 													)}
 												</div>
 											</div>
@@ -229,7 +237,9 @@ function Bep() {
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.total_income.interest_income.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.total_income.interest_income.toFixed(2)
 													)}
 												</div>
 											</div>
@@ -245,16 +255,18 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.dpk.balance.toFixed(2)
+														dataCabang[0][key].Data.dpk.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3">
-													{item.Data.dpk.rate.toFixed(2)}%
+													{dataCabang[0][key].Data.dpk.rate.toFixed(2)}%
 												</div>
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.dpk.interest_income.toFixed(2)
+														dataCabang[0][key].Data.dpk.interest_income.toFixed(
+															2
+														)
 													)}
 												</div>
 											</div>
@@ -263,16 +275,18 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.bio.balance.toFixed(2)
+														dataCabang[0][key].Data.bio.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3">
-													{item.Data.bio.rate.toFixed(2)}%
+													{dataCabang[0][key].Data.bio.rate.toFixed(2)}%
 												</div>
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.bio.interest_income.toFixed(2)
+														dataCabang[0][key].Data.bio.interest_income.toFixed(
+															2
+														)
 													)}
 												</div>
 											</div>
@@ -281,14 +295,18 @@ function Bep() {
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.total_interest.balance.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.total_interest.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3"></div>
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.total_interest.interest_income.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.total_interest.interest_income.toFixed(2)
 													)}
 												</div>
 											</div>
@@ -302,7 +320,9 @@ function Bep() {
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.net.interest_income.toFixed(2)
+														dataCabang[0][key].Data.net.interest_income.toFixed(
+															2
+														)
 													)}
 												</div>
 											</div>
@@ -320,7 +340,7 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.salary.balance.toFixed(2)
+														dataCabang[0][key].Data.salary.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3"></div>
@@ -331,7 +351,7 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.rental.balance.toFixed(2)
+														dataCabang[0][key].Data.rental.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3"></div>
@@ -342,11 +362,11 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.ckpn.balance.toFixed(2)
+														dataCabang[0][key].Data.ckpn.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3">
-													{item.Data.ckpn.rate.toFixed(2)}%
+													{dataCabang[0][key].Data.ckpn.rate.toFixed(2)}%
 												</div>
 												<div className="col-3 fw-bold"></div>
 											</div>
@@ -355,7 +375,9 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.operational.balance.toFixed(2)
+														dataCabang[0][key].Data.operational.balance.toFixed(
+															2
+														)
 													)}
 												</div>
 												<div className="col-3"></div>
@@ -366,7 +388,9 @@ function Bep() {
 												<div className="col-3">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.non_operational.balance.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.non_operational.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3"></div>
@@ -377,14 +401,18 @@ function Bep() {
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.total_op_cost.balance.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.total_op_cost.balance.toFixed(2)
 													)}
 												</div>
 												<div className="col-3"></div>
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.total_op_cost.interest_income.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.total_op_cost.interest_income.toFixed(2)
 													)}
 												</div>
 											</div>
@@ -395,7 +423,9 @@ function Bep() {
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.total_cost.interest_income.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.total_cost.interest_income.toFixed(2)
 													)}
 												</div>
 											</div>
@@ -407,7 +437,9 @@ function Bep() {
 												<div className="col-3 fw-bold">
 													Rp.{" "}
 													{new Intl.NumberFormat().format(
-														item.Data.profit.interest_income.toFixed(2)
+														dataCabang[0][
+															key
+														].Data.profit.interest_income.toFixed(2)
 													)}
 												</div>
 											</div>
@@ -415,7 +447,315 @@ function Bep() {
 									</div>
 								</div>
 								<div className="col">
-									<div className="card mb-3 " style={{ width: "900px" }}></div>
+									<div className="card mb-3 " style={{ width: "900px" }}>
+										<div className="card-body p-4">
+											<div className="row">
+												<div className="col-6 text-start ">
+													Scenario BASE ON FINANCIAL REPORT 2023
+												</div>
+												<div className="col-6 text-end ">(In Million Rp)</div>
+											</div>
+											<div className="row">
+												<div
+													className="col-12 text-center fw-bold"
+													style={{ fontSize: "30px" }}
+												>
+													Scenario 1
+												</div>
+											</div>
+											<div className="row bg-opacity-50 bg-success rounded-2 text-dark fw-bolder">
+												<div className="col-3 ">COA Name</div>
+												<div className="col-3">Balance</div>
+												<div className="col-3">Rate</div>
+												<div className="col-3">Interest Income</div>
+											</div>
+											<div className="row">
+												<div className="col-3">Loan</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.loan.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3">
+													{dataCabang[1][key].Data.loan.rate.toFixed(2)}%
+												</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.loan.interest_income.toFixed(2)
+													)}
+												</div>
+											</div>
+											<div className="row">
+												<div className="col-3">Placement Inter Office</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.pio.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3">
+													{dataCabang[1][key].Data.pio.rate.toFixed(2)}%
+												</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.pio.interest_income.toFixed(
+															2
+														)
+													)}
+												</div>
+											</div>
+											<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.total.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.total.interest_income.toFixed(2)
+													)}
+												</div>
+											</div>
+											<div className="row p-2"></div>
+											<div className="row">
+												<div className="col-3">Pendapatan Lainnya</div>
+												<div className="col-3"></div>
+												<div className="col-3"></div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.other.interest_income.toFixed(2)
+													)}
+												</div>
+											</div>
+											<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+												<div className="col-3 fw-bold">Total Income</div>
+												<div className="col-3"></div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.total_income.interest_income.toFixed(2)
+													)}
+												</div>
+											</div>
+											<div className="row p-2"></div>
+											<div className="row bg-danger bg-opacity-10 border border-info border-start-0 rounded">
+												<div className="col-3 fw-bold">Third-Party Funds</div>
+												<div className="col-3"></div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">Interest Cost</div>
+											</div>
+											<div className="row">
+												<div className="col-3">DPK</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.dpk.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3">
+													{dataCabang[1][key].Data.dpk.rate.toFixed(2)}%
+												</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.dpk.interest_income.toFixed(
+															2
+														)
+													)}
+												</div>
+											</div>
+											<div className="row">
+												<div className="col-3">Borrowing Inter Office</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.bio.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3">
+													{dataCabang[1][key].Data.bio.rate.toFixed(2)}%
+												</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.bio.interest_income.toFixed(
+															2
+														)
+													)}
+												</div>
+											</div>
+											<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.total_interest.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.total_interest.interest_income.toFixed(2)
+													)}
+												</div>
+											</div>
+											<div className="row p-2"></div>
+											<div className="row">
+												<div className="col-3 bg-info bg-opacity-10 border border-info border-start-0 rounded fw-bold">
+													NET INTEREST INCOME
+												</div>
+												<div className="col-3"></div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.net.interest_income.toFixed(
+															2
+														)
+													)}
+												</div>
+											</div>
+											<div className="row p-2"></div>
+											<div className="row">
+												<div className="col-3 bg-danger bg-opacity-10 border border-info border-start-0 rounded fw-bold">
+													Operational COST :
+												</div>
+												<div className="col-3"></div>
+												<div className="col-3"></div>
+												<div className="col-3"></div>
+											</div>
+											<div className="row">
+												<div className="col-3">1. Salary</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.salary.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold"></div>
+											</div>
+											<div className="row">
+												<div className="col-3">2. Rental cost of building</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.rental.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold"></div>
+											</div>
+											<div className="row">
+												<div className="col-3">3. Biaya CKPN</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.ckpn.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3">
+													{dataCabang[1][key].Data.ckpn.rate.toFixed(2)}%
+												</div>
+												<div className="col-3 fw-bold"></div>
+											</div>
+											<div className="row">
+												<div className="col-3">4. Operational Expenses</div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][key].Data.operational.balance.toFixed(
+															2
+														)
+													)}
+												</div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold"></div>
+											</div>
+											<div className="row">
+												<div className="col-3">5. Non Operational </div>
+												<div className="col-3">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.non_operational.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold"></div>
+											</div>
+											<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.total_op_cost.balance.toFixed(2)
+													)}
+												</div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.total_op_cost.interest_income.toFixed(2)
+													)}
+												</div>
+											</div>
+											<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded mt-2">
+												<div className="col-3 fw-bold">Total Cost</div>
+												<div className="col-3"></div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.total_cost.interest_income.toFixed(2)
+													)}
+												</div>
+											</div>
+											<div className="row p-2"></div>
+											<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+												<div className="col-3 fw-bold">Profit and Loss</div>
+												<div className="col-3"></div>
+												<div className="col-3"></div>
+												<div className="col-3 fw-bold">
+													Rp.{" "}
+													{new Intl.NumberFormat().format(
+														dataCabang[1][
+															key
+														].Data.profit.interest_income.toFixed(2)
+													)}
+												</div>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
