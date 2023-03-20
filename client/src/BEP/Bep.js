@@ -9,10 +9,19 @@ function Bep() {
 	const [loading, setLoading] = useState(true);
 	const [startDate, setStartDate] = useState(new Date());
 	const [branch, setBranch] = useState([]);
+	const d = new Date();
+	const [profit, setProfit] = useState();
+	const [ftp, setFtp] = useState();
 
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8000/api/get/bep?year=2023&month=2", {})
+			.get(
+				"http://127.0.0.1:8000/api/get/bep?year=" +
+					d.getFullYear() +
+					"&month=" +
+					d.getMonth(),
+				{}
+			)
 			.then((response) => {
 				setDataCabang(response.data);
 				setLoading(false);
@@ -31,10 +40,6 @@ function Bep() {
 			.then((response) => {
 				setBranch(response.data);
 				setLoading(false);
-				// console.log(response.data[0]);
-				// console.log(response.data["Yellow"][0].Nama_Cabang);
-				// setDataBalance(response.data.Data);
-				// console.log(dataBalance);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -55,15 +60,23 @@ function Bep() {
 			</div>
 		);
 	}
-
+	// console.log(dataCabang);
 	const handleSubmit = (event) => {
 		event.preventDefault();
+		console.log(ftp);
+		console.log(profit);
+
 		axios
 			.get(
 				"http://127.0.0.1:8000/api/get/bep?year=2023&month=" +
-					startDate.getMonth() +
-					1 + "year=" + startDate.getFullYear() + "profit=1000"
-				
+					(startDate.getMonth() +
+					1) +
+					"&year=" +
+					startDate.getFullYear() +
+					"&profit=" +
+					profit  +
+					"&ftp=" +
+					ftp
 			)
 			.then((response) => {
 				setDataCabang(response.data);
@@ -91,6 +104,21 @@ function Bep() {
 						dateFormat="MM/yyyy"
 						showMonthYearPicker
 						showIcon
+					/>
+
+					<input
+						className="form-control mb-2 shadow"
+						placeholder="FTP Parameter"
+						onChange={(event) => setFtp(event.target.value)}
+						name="ftp"
+						id="ftp"
+					/>
+					<input
+						className="form-control mb-2 shadow"
+						placeholder="Profit Parameter"
+						onChange={(event) => setProfit(event.target.value )}
+						name="profit"
+						id="profit"
 					/>
 					<button onClick={handleSubmit} className="btn btn-secondary">
 						Search
@@ -134,7 +162,7 @@ function Bep() {
 							role="tabpanel"
 							aria-labelledby={"nav-" + brn.branch_code + "-tab"}
 						>
-							<div className="scrolling-wrapper row flex-row flex-nowrap mt-4 pb-4 pt-2 ">
+							<div className="scrolling-wrapper row flex-nowrap mt-4 pb-4 pt-2 ">
 								<div className="col">
 									<div className="card mb-3 " style={{ width: "900px" }}>
 										<div className="card-body p-4">
