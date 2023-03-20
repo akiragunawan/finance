@@ -14,11 +14,9 @@ function Bep() {
 	const [ftp, setFtp] = useState();
 	// console.log(d);
 	useEffect(() => {
-		console.log(d.getDate(),d.getMonth()+1,d.getFullYear());
+		console.log(d.getDate(), d.getMonth() + 1, d.getFullYear());
 		axios
-			.get(
-				"http://127.0.0.1:8000/api/get/bep"
-			)
+			.get("http://127.0.0.1:8000/api/get/bep")
 			.then((response) => {
 				setDataCabang(response.data);
 				setLoading(false);
@@ -57,34 +55,39 @@ function Bep() {
 			</div>
 		);
 	}
-	// console.log(dataCabang);
+	// console.log(startDate);
 	const handleSubmit = (event) => {
 		event.preventDefault();
 		console.log(ftp);
 		console.log(profit);
 
-		axios
-			.get(
-				"http://127.0.0.1:8000/api/get/bep?year=2023&month=" +
-					(startDate.getMonth() + 1) +
-					"&year=" +
-					startDate.getFullYear() +
-					"&profit=" +
-					profit +
-					"&ftp=" +
-					ftp
-			)
-			.then((response) => {
-				setDataCabang(response.data);
-				setLoading(false);
-				console.log(response);
-				// setDataBalance(response.data.Data);
-				// console.log(dataBalance);
-			})
-			.catch((error) => {
-				console.log(error);
-				setLoading(false);
-			});
+		if (startDate.getMonth() + 1 > d.getMonth() + 1) {
+			return <div>bulan blm ada</div>;
+		} else {
+			axios
+				.get(
+					"http://127.0.0.1:8000/api/get/bep?year=2023&month=" +
+						(startDate.getMonth() + 1) +
+						"&year=" +
+						startDate.getFullYear() +
+						"&profit=" +
+						profit +
+						"&ftp=" +
+						ftp
+				)
+				.then((response) => {
+					setDataCabang(response.data);
+					setLoading(false);
+					console.log(response);
+
+					// setDataBalance(response.data.Data);
+					// console.log(dataBalance);
+				})
+				.catch((error) => {
+					console.log(error);
+					setLoading(false);
+				});
+		}
 	};
 
 	return (
