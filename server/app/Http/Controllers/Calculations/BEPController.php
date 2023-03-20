@@ -35,13 +35,19 @@ class BEPController extends BSController
     private $PLCOA_13_3 = '58000000';
     private $PLCOA_14 = '59000000';
     public function queryBEP(Request $request){
-        $month = $request->input('month');
-        $year = $request->input('year');
-        $date = Carbon::create($year, $month)->endOfMonth();
         
-        // $date_origin = Carbon::today();
-        // if(!$date_origin->isSameDay(Carbon::today()->endOfMonth())) $date_origin->subMonthNoOverflow();
-        // $date_origin->endOfMonth();
+        $date_origin = Carbon::today();
+        if(!$date_origin->isSameDay(Carbon::today()->endOfMonth())) $date_origin->subMonthNoOverflow();
+        $date_origin->endOfMonth();
+        $date = $date_origin;
+
+        if($request->filled('month') && $request->filled('year')) {
+            $month = $request->input('month');
+            $year = $request->input('year');
+            $date = Carbon::create($year, $month)->endOfMonth();
+            if($date_origin->lessThan($date)) $date = $date_origin;
+        }
+        dd($date->toDateString());
         $res = array();
         $branch = $this->getBranch();
         $all = $this->getAverageAll($date);
