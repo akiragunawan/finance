@@ -62,8 +62,8 @@ function Bep() {
 			.get(
 				"http://127.0.0.1:8000/api/get/bep?year=2023&month=" +
 					startDate.getMonth() +
-					1,
-				{}
+					1 + "year=" + startDate.getFullYear() + "profit=1000"
+				
 			)
 			.then((response) => {
 				setDataCabang(response.data);
