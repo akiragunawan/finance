@@ -101,11 +101,13 @@ class BEPController extends BSController
         // $green = clone $yellow;
         $green = unserialize(serialize($yellow));
         foreach($branch as $index => $b){
-
+            
             $profit = $yellow[$index]["Data"]["profit"]["interest_income"];
             if(is_null($this->profit)) $profit = round(($profit+1000) / 1000) * 1000;
             else $profit = $this->profit;
+            // if($index==3) dd($profit);
             if($green[$index]["Data"]["pio"]["rate"] == 0 && $green[$index]["Data"]["pio"]["balance"] > 0){
+                // dd('a');
                 $green[$index]["Data"]->splice(0, $green[$index]["Data"]->count());
             }
             else if($this->ftp != null) $green[$index]["Data"]["pio"]["rate"] = $this->ftp;
@@ -113,6 +115,7 @@ class BEPController extends BSController
                 switch ($key){
                     case "loan":
                         $bal = $this->calculate($profit, $month, $green[$index]);
+                        // if($index==3) dd($bal);
                         $c->put("balance", $bal);
                         $c->put('interest_income', ($c["rate"]/100)*$c["balance"]*$month/12);
                         break;
@@ -363,17 +366,17 @@ class BEPController extends BSController
         //Instantiate your class
         $goalseek = new GoalSeekController();
         //$goalseek->debug = true;
-
+        
         //I want to know which input needs callbackTest to give me 301
         $rate = $box["Data"]["loan"]["rate"]/100;
         $IC = $box["Data"]["total_interest"]["interest_income"];
-        $PIO = $box["Data"]["pio"]["balance"] * $box["Data"]["pio"]["rate"] * $month / 12;
+        $PIO = $box["Data"]["pio"]["balance"] * $box["Data"]["pio"]["rate"]/100 * $month / 12;
         
         $S = $box["Data"]["salary"]["balance"] + $box["Data"]["rental"]["balance"]
         + $box["Data"]["operational"]["balance"] + $box["Data"]["non_operational"]["balance"];
         $C = $box["Data"]["other"]["interest_income"];
         $CKPN_Prev =  $box["Data"]["ckpn"]["balance"];
-        // if($box["Kode_Cabang"] == 1105)dd($expected_result, $rate, $IC, $PIO, $S, $C, $CKPN_Prev);
+        // if($box["Kode_Cabang"] == 1106)dd($expected_result, $rate, $IC, $PIO, $S, $C, $CKPN_Prev);
         //Calculate the input to get you goal, with accuracy
         $input = $goalseek->calculate('callbackTest', $expected_result, 10, $rate, $IC, $PIO, $S, $C, $CKPN_Prev, $month);
         
