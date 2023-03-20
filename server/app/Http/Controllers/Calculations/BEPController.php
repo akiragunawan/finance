@@ -409,5 +409,55 @@ class BEPController extends BSController
         return $coas->where('coa', $coa->AccountNo)->first()->bs_pl == 2;
     }
 
+    public function queryScenario(Request $request){
+        $month = $request->input('month');
+        $year = $request->input('year');
+        $date = Carbon::create($year, $month)->endOfMonth();
+
+        $branch = $this->getBranch();
+        $all = $this->getAverageAll($date);
+        $yellow = $this->getYellow($date, $branch, $all);
+        $resource = collect();
+        $temp = "month";
+        $resource->month = $month;
+        foreach (['loan_bal', 'loan_rate', 'pio_bal', 'pio_rate', 'dpk_rate', 'ckpn_rate', 'profit'] as $param) {
+            if ($request->filled($param)) {
+                $resource->put($param, $request->input($param));
+            }
+        }
+        return $this->getCustom($resource, $yellow);
+    }
+    public function getCustom($resource, $yellow)
+    {   
+        // dd($yellow);
+        
+
+        
+
+        return $this->getFromResources($resource, $yellow);
+    }
+
+    public function getFromResources($resource, $yellow){
+        $res = unserialize(serialize($yellow));
+        $loan_bal = $resource->has('loan_bal') ? $resource['loan_bal'] : $yellow['0']['Data']['loan']['balance'];
+        $loan_rate = $resource->has('loan_rate') ? $resource['loan_rate'] : $yellow['0']['Data']['loan']['rate'];
+        $pio_bal = $resource->has('pio_bal') ? $resource['pio_bal'] : $yellow['0']['Data']['pio']['balance'];
+        $pio_rate = $resource->has('pio_rate') ? $resource['pio_rate'] : $yellow['0']['Data']['pio']['rate'];
+        $dpk_rate = $resource->has('dpk_rate') ? $resource['dpk_rate'] : $yellow['0']['Data']['dpk']['rate'];
+        $ckpn_rate = $resource->has('ckpn_rate') ? $resource['ckpn_rate'] : 1;
+
+        $res['0']['Data']['loan']['balance'] = (float)$loan_bal;
+        $res['0']['Data']['loan']['rate'] = (float)$loan_rate;
+        $res['0']['Data']['loan']['interest_income'] = (float)$loan_rate*$loan_bal*$resource->month/12;
+        $res['0']['Data']['pio']['balance'] = (float)$pio_bal;
+        $res['0']['Data']['pio']['rate'] = (float)$pio_rate;
+        $res['0']['Data']['pio']['interest_income'] = (float)$pio_rate*$pio_bal*$resource->month/12;
+        $res['0']['Data']['dpk']['balance'] = (float)$dpk_rate;
+        $res['0']['Data']['dpk']['rate'] = (float)$dpk_rate;
+        $res['0']['Data']['dpk']['interest_income'] = (float)$dpk_rate;
+        $res['0']['Data']['ckpn']['rate'] = (float)$ckpn_rate;
+        
+        return $res;
+    }
     
 }
