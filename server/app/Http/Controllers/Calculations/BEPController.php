@@ -15,7 +15,7 @@ class BEPController extends BSController
 {   
     private $month = 0;
     private $profit = null;
-    private $ftp = null;
+    private $projection_month = 0;
     private $query_count = 0;
     private $BSCOA_1 = '15420000';
     private $PLCOA_1 = '41000000';
@@ -40,7 +40,8 @@ class BEPController extends BSController
         if(!$date_origin->isSameDay(Carbon::today()->endOfMonth())) $date_origin->subMonthNoOverflow();
         $date_origin->endOfMonth();
         $date = $date_origin;
-
+        $this->month = $date->month;
+        
         if($request->filled('month') && $request->filled('year')) {
             $month = $request->input('month');
             $year = $request->input('year');
@@ -51,9 +52,13 @@ class BEPController extends BSController
         $res = array();
         $branch = $this->getBranch();
         $all = $this->getAverageAll($date);
-        
-        if ($request->filled('profit')) $this->profit = $request->input('profit');
-        if ($request->filled('ftp')) $this->ftp = (float)$request->input('ftp');
+
+        $this->ifFilledThenInput('profit',$request);
+
+        if($request->filled('branch')){
+            $branch = $this->getBranch()->where('branch_code', $request->get('branch'));
+            return $this->getYellow($date, collect($branch), $all);
+        }
         $yellow = $this->getYellow($date, $branch, $all);
         $green = $this->getGreen($date, $branch, $yellow);
         $res[0] = $yellow;
@@ -62,7 +67,6 @@ class BEPController extends BSController
     }
 
     public function getYellow($date, $branch, $all){
-        
         $row_name = DB::connection('mysql')
         ->table('bep_row')
         ->select('*')
@@ -70,7 +74,6 @@ class BEPController extends BSController
         ->pluck('row_name');
         $process_number = count($row_name);
         $result = collect();
-        $this->month = Carbon::createFromDate($all->first()->first()->COADate)->month;
         foreach($branch as $index => $b){
             //first loop run code per branch
             $col = collect();
@@ -98,8 +101,7 @@ class BEPController extends BSController
         return $result;
         
     }
-    public function getGreen($date, $branch, $yellow)
-    {
+    public function getGreen($date, $branch, $yellow){
         $result = array();
         $profit = 0;
         $yellow = collect($yellow);
@@ -107,14 +109,10 @@ class BEPController extends BSController
         // $green = clone $yellow;
         $green = unserialize(serialize($yellow));
         foreach($branch as $index => $b){
-            
             $profit = $yellow[$index]["Data"]["profit"]["interest_income"];
             if(is_null($this->profit)) $profit = round(($profit+1000) / 1000) * 1000;
             else $profit = $this->profit;
-            // if($green[$index]["Data"]["pio"]["rate"] == 0 && $green[$index]["Data"]["pio"]["balance"] > 0){
-            //     $green[$index]["Data"]->splice(0, $green[$index]["Data"]->count());
-            // }
-            // else if($this->ftp != null) $green[$index]["Data"]["pio"]["rate"] = $this->ftp;
+            
             foreach($green[$index]["Data"] as $key => $c) {
                 switch ($key){
                     case "loan":
@@ -183,11 +181,8 @@ class BEPController extends BSController
                         
                         break;
                 }
-            }
-            // $green[$index]->dd();
+            }   
         }
-        
-        
         return $green;
     }
     
@@ -345,13 +340,6 @@ class BEPController extends BSController
             }
         
         }
-        // $arr = array();
-        // foreach($resBM as $i => $RB){
-        //     foreach($RB as $j => $RM){
-        //         $arr[$i][$j] = count($RM);
-        //     }
-        // }
-        // dd($arr);
         return $resBM;
     }
     public function calculate($target, $month, $box)
@@ -421,13 +409,16 @@ class BEPController extends BSController
         $year = $request->input('year');
         $branch = $request->input('branch');
         $date = Carbon::create($year, $month)->endOfMonth();
-
+        $this->month = $month;
         $branch = $this->getBranch()->where('branch_code', $branch);
         $all = $this->getAverageAll($date);
         $yellow = $this->getYellow($date, $branch, $all);
         $resource = collect();
         $resource->month = $month;
         $resource->branch = $branch->first()->branch_code;
+        $this->ifFilledThenInput('projection_month', $request);
+        $resource->projection_month = $this->projection_month;
+        // dd($resource->projection_month);
         // dd($resource);
         foreach (['loan_bal', 'loan_rate', 'pio_bal', 'pio_rate', 'dpk_bal','dpk_rate', 'bio_bal', 'bio_rate','ckpn_rate'] as $param) {
             if ($request->filled($param)) {
@@ -436,13 +427,8 @@ class BEPController extends BSController
         }
         return $this->getCustom($resource, $yellow);
     }
-    public function getCustom($resource, $yellow)
-    {   
+    public function getCustom($resource, $yellow){   
         // dd($yellow);
-        
-
-        
-
         return $this->getFromResources($resource, $yellow);
     }
 
@@ -458,30 +444,31 @@ class BEPController extends BSController
         $bio_bal = $resource->has('bio_bal') ? $resource['bio_bal'] : null;
         $bio_rate = $resource->has('bio_rate') ? $resource['bio_rate'] : $yellow[$index]['Data']['bio']['rate'];
         $ckpn_rate = $resource->has('ckpn_rate') ? $resource['ckpn_rate'] : 1;
-
         
-        
-        
-        $res[$index]['Data']['loan']['balance'] = (float)$loan_bal;
+        $res[$index]['Data']['loan']['balance'] = $this->hasProjection() ? 
+        (float)$loan_bal/$resource->month * $this->projection_month : (float)$loan_bal;
         $res[$index]['Data']['loan']['rate'] = (float)$loan_rate;
-        $res[$index]['Data']['loan']['interest_income'] = (float)$loan_rate/100*$loan_bal*$resource->month/12;
+        $res[$index]['Data']['loan']['interest_income'] = $this->hasProjection() ? 
+        (float)$loan_rate/100*$res[$index]['Data']['loan']['balance'] : (float)$loan_rate/100*$loan_bal*$resource->month/12;
 
         $res[$index]['Data']['pio']['balance'] = (float)$pio_bal;
-        $res[$index]['Data']['pio']['rate'] = (float)$pio_rate;
+        $res[$index]['Data']['pio']['rate'] = $pio_bal==0 ? 0 : (float)$pio_rate;
         $res[$index]['Data']['pio']['interest_income'] = (float)$pio_rate/100*$pio_bal*$resource->month/12;
         
         $res[$index]['Data']['total']['balance'] = (float)$res[$index]['Data']['loan']['balance']+$res[$index]['Data']['pio']['balance'];
         $res[$index]['Data']['total']['interest_income'] = (float)$res[$index]['Data']['loan']['interest_income']+$res[$index]['Data']['pio']['interest_income'];
-
+        
         $res[$index]['Data']['total_income']['interest_income'] = (float)$res[$index]['Data']['total']['interest_income']+$res[$index]['Data']['other']['interest_income'];
         
-        $res[$index]['Data']['dpk']['balance'] = (float)$dpk_bal;
-        $res[$index]['Data']['dpk']['rate'] = (float)$dpk_rate;
-        $res[$index]['Data']['dpk']['interest_income'] = (float)$dpk_rate/100*$res[$index]['Data']['dpk']['balance']*$resource->month/12;
+        $res[$index]['Data']['dpk']['balance'] = $this->hasProjection() ?
+        (float)$dpk_bal/$resource->month * $this->projection_month : (float)$dpk_bal;
+        $res[$index]['Data']['dpk']['rate'] = $dpk_bal==0 ? 0 :(float)$dpk_rate;
+        $res[$index]['Data']['dpk']['interest_income'] = $this->hasProjection() ?
+        (float)$dpk_rate/100*$res[$index]['Data']['dpk']['balance']: (float)$dpk_rate/100*$res[$index]['Data']['dpk']['balance']*$resource->month/12;
 
         if($bio_bal == null) $bio_bal = $res[$index]['Data']['total']['balance'] - $res[$index]['Data']['dpk']['balance'];
         $res[$index]['Data']['bio']['balance'] = (float)$bio_bal;
-        $res[$index]['Data']['bio']['rate'] = (float)$bio_rate;
+        $res[$index]['Data']['bio']['rate'] = $bio_bal==0 ? 0 :(float)$bio_rate;
         $res[$index]['Data']['bio']['interest_income'] = (float)$bio_rate/100*$res[$index]['Data']['bio']['balance']*$resource->month/12;
         
         $res[$index]['Data']['total_interest']['balance'] = (float)$res[$index]['Data']['dpk']['balance']+$res[$index]['Data']['bio']['balance'];
@@ -489,7 +476,14 @@ class BEPController extends BSController
 
         $res[$index]['Data']['net']['interest_income'] = (float)$res[$index]['Data']['total']['interest_income'] - $res[$index]['Data']['total_interest']['interest_income'];
         
-        $res[$index]['Data']['ckpn']['balance'] = (float)max($res[$index]['Data']['ckpn']['balance'], $res[$index]['Data']['loan']["balance"]*($res[$index]['Data']['ckpn']['rate']/100)*$resource->month/12);
+        if($this->hasProjection()) $res[$index]['Data']['salary']['balance'] = (float)$res[$index]['Data']['salary']['balance']/$resource->month*$this->projection_month;
+        if($this->hasProjection()) $res[$index]['Data']['rental']['balance'] = (float)$res[$index]['Data']['rental']['balance']/$resource->month*$this->projection_month;
+        if($this->hasProjection()) $res[$index]['Data']['operational']['balance'] = (float)$res[$index]['Data']['operational']['balance']/$resource->month*$this->projection_month;
+        if($this->hasProjection()) $res[$index]['Data']['non_operational']['balance'] = (float)$res[$index]['Data']['non_operational']['balance']/$resource->month*$this->projection_month;
+
+        $res[$index]['Data']['ckpn']['balance'] = $this->hasProjection() ?
+        (float)max($res[$index]['Data']['ckpn']['balance'], $res[$index]['Data']['loan']["balance"]*($res[$index]['Data']['ckpn']['rate']/100)):
+        (float)max($res[$index]['Data']['ckpn']['balance'], $res[$index]['Data']['loan']["balance"]*($res[$index]['Data']['ckpn']['rate']/100)*$resource->month/12);
         $res[$index]['Data']['ckpn']['rate'] = (float)$ckpn_rate;  
         
         $res[$index]['Data']['total_op_cost']['balance'] = (float)$res[$index]['Data']['salary']['balance']+$res[$index]['Data']['rental']['balance']
@@ -502,5 +496,11 @@ class BEPController extends BSController
 
         return $res[$index];
     }
-    
+    private function ifFilledThenInput($string, Request $request){
+        
+        if ($request->filled($string)) $this->$string = $request->input($string);
+    }
+    private function hasProjection(){
+        return $this->projection_month!=0;
+    }
 }
