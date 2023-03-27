@@ -111,12 +111,10 @@ class BEPController extends BSController
             $profit = $yellow[$index]["Data"]["profit"]["interest_income"];
             if(is_null($this->profit)) $profit = round(($profit+1000) / 1000) * 1000;
             else $profit = $this->profit;
-            // if($index==3) dd($profit);
-            if($green[$index]["Data"]["pio"]["rate"] == 0 && $green[$index]["Data"]["pio"]["balance"] > 0){
-                // dd('a');
-                $green[$index]["Data"]->splice(0, $green[$index]["Data"]->count());
-            }
-            else if($this->ftp != null) $green[$index]["Data"]["pio"]["rate"] = $this->ftp;
+            // if($green[$index]["Data"]["pio"]["rate"] == 0 && $green[$index]["Data"]["pio"]["balance"] > 0){
+            //     $green[$index]["Data"]->splice(0, $green[$index]["Data"]->count());
+            // }
+            // else if($this->ftp != null) $green[$index]["Data"]["pio"]["rate"] = $this->ftp;
             foreach($green[$index]["Data"] as $key => $c) {
                 switch ($key){
                     case "loan":
@@ -421,15 +419,17 @@ class BEPController extends BSController
     public function queryScenario(Request $request){
         $month = $request->input('month');
         $year = $request->input('year');
+        $branch = $request->input('branch');
         $date = Carbon::create($year, $month)->endOfMonth();
 
-        $branch = $this->getBranch();
+        $branch = $this->getBranch()->where('branch_code', $branch);
         $all = $this->getAverageAll($date);
         $yellow = $this->getYellow($date, $branch, $all);
         $resource = collect();
-        $temp = "month";
         $resource->month = $month;
-        foreach (['loan_bal', 'loan_rate', 'pio_bal', 'pio_rate', 'dpk_rate', 'ckpn_rate', 'profit'] as $param) {
+        $resource->branch = $branch->first()->branch_code;
+        // dd($resource);
+        foreach (['loan_bal', 'loan_rate', 'pio_bal', 'pio_rate', 'dpk_bal','dpk_rate', 'bio_bal', 'bio_rate','ckpn_rate'] as $param) {
             if ($request->filled($param)) {
                 $resource->put($param, $request->input($param));
             }
@@ -448,25 +448,59 @@ class BEPController extends BSController
 
     public function getFromResources($resource, $yellow){
         $res = unserialize(serialize($yellow));
-        $loan_bal = $resource->has('loan_bal') ? $resource['loan_bal'] : $yellow['0']['Data']['loan']['balance'];
-        $loan_rate = $resource->has('loan_rate') ? $resource['loan_rate'] : $yellow['0']['Data']['loan']['rate'];
-        $pio_bal = $resource->has('pio_bal') ? $resource['pio_bal'] : $yellow['0']['Data']['pio']['balance'];
-        $pio_rate = $resource->has('pio_rate') ? $resource['pio_rate'] : $yellow['0']['Data']['pio']['rate'];
-        $dpk_rate = $resource->has('dpk_rate') ? $resource['dpk_rate'] : $yellow['0']['Data']['dpk']['rate'];
+        $index = $yellow->where("Kode_Cabang", (string)$resource->branch)->keys()->first();
+        $loan_bal = $resource->has('loan_bal') ? $resource['loan_bal'] : $yellow[$index]['Data']['loan']['balance'];
+        $loan_rate = $resource->has('loan_rate') ? $resource['loan_rate'] : $yellow[$index]['Data']['loan']['rate'];
+        $pio_bal = $resource->has('pio_bal') ? $resource['pio_bal'] : $yellow[$index]['Data']['pio']['balance'];
+        $pio_rate = $resource->has('pio_rate') ? $resource['pio_rate'] : $yellow[$index]['Data']['pio']['rate'];
+        $dpk_bal = $resource->has('dpk_bal') ? $resource['dpk_bal'] : $yellow[$index]['Data']['dpk']['balance'];
+        $dpk_rate = $resource->has('dpk_rate') ? $resource['dpk_rate'] : $yellow[$index]['Data']['dpk']['rate'];
+        $bio_bal = $resource->has('bio_bal') ? $resource['bio_bal'] : null;
+        $bio_rate = $resource->has('bio_rate') ? $resource['bio_rate'] : $yellow[$index]['Data']['bio']['rate'];
         $ckpn_rate = $resource->has('ckpn_rate') ? $resource['ckpn_rate'] : 1;
 
-        $res['0']['Data']['loan']['balance'] = (float)$loan_bal;
-        $res['0']['Data']['loan']['rate'] = (float)$loan_rate;
-        $res['0']['Data']['loan']['interest_income'] = (float)$loan_rate*$loan_bal*$resource->month/12;
-        $res['0']['Data']['pio']['balance'] = (float)$pio_bal;
-        $res['0']['Data']['pio']['rate'] = (float)$pio_rate;
-        $res['0']['Data']['pio']['interest_income'] = (float)$pio_rate*$pio_bal*$resource->month/12;
-        $res['0']['Data']['dpk']['balance'] = (float)$dpk_rate;
-        $res['0']['Data']['dpk']['rate'] = (float)$dpk_rate;
-        $res['0']['Data']['dpk']['interest_income'] = (float)$dpk_rate;
-        $res['0']['Data']['ckpn']['rate'] = (float)$ckpn_rate;
         
-        return $res;
+        
+        
+        $res[$index]['Data']['loan']['balance'] = (float)$loan_bal;
+        $res[$index]['Data']['loan']['rate'] = (float)$loan_rate;
+        $res[$index]['Data']['loan']['interest_income'] = (float)$loan_rate/100*$loan_bal*$resource->month/12;
+
+        $res[$index]['Data']['pio']['balance'] = (float)$pio_bal;
+        $res[$index]['Data']['pio']['rate'] = (float)$pio_rate;
+        $res[$index]['Data']['pio']['interest_income'] = (float)$pio_rate/100*$pio_bal*$resource->month/12;
+        
+        $res[$index]['Data']['total']['balance'] = (float)$res[$index]['Data']['loan']['balance']+$res[$index]['Data']['pio']['balance'];
+        $res[$index]['Data']['total']['interest_income'] = (float)$res[$index]['Data']['loan']['interest_income']+$res[$index]['Data']['pio']['interest_income'];
+
+        $res[$index]['Data']['total_income']['interest_income'] = (float)$res[$index]['Data']['total']['interest_income']+$res[$index]['Data']['other']['interest_income'];
+        
+        $res[$index]['Data']['dpk']['balance'] = (float)$dpk_bal;
+        $res[$index]['Data']['dpk']['rate'] = (float)$dpk_rate;
+        $res[$index]['Data']['dpk']['interest_income'] = (float)$dpk_rate/100*$res[$index]['Data']['dpk']['balance']*$resource->month/12;
+
+        if($bio_bal == null) $bio_bal = $res[$index]['Data']['total']['balance'] - $res[$index]['Data']['dpk']['balance'];
+        $res[$index]['Data']['bio']['balance'] = (float)$bio_bal;
+        $res[$index]['Data']['bio']['rate'] = (float)$bio_rate;
+        $res[$index]['Data']['bio']['interest_income'] = (float)$bio_rate/100*$res[$index]['Data']['bio']['balance']*$resource->month/12;
+        
+        $res[$index]['Data']['total_interest']['balance'] = (float)$res[$index]['Data']['dpk']['balance']+$res[$index]['Data']['bio']['balance'];
+        $res[$index]['Data']['total_interest']['interest_income'] = (float)$res[$index]['Data']['dpk']['interest_income']+$res[$index]['Data']['bio']['interest_income'];
+
+        $res[$index]['Data']['net']['interest_income'] = (float)$res[$index]['Data']['total']['interest_income'] - $res[$index]['Data']['total_interest']['interest_income'];
+        
+        $res[$index]['Data']['ckpn']['balance'] = (float)max($res[$index]['Data']['ckpn']['balance'], $res[$index]['Data']['loan']["balance"]*($res[$index]['Data']['ckpn']['rate']/100)*$resource->month/12);
+        $res[$index]['Data']['ckpn']['rate'] = (float)$ckpn_rate;  
+        
+        $res[$index]['Data']['total_op_cost']['balance'] = (float)$res[$index]['Data']['salary']['balance']+$res[$index]['Data']['rental']['balance']
+        +$res[$index]['Data']['ckpn']['balance']+$res[$index]['Data']['operational']['balance'];
+        $res[$index]['Data']['total_op_cost']['interest_income'] = $res[$index]['Data']['total_op_cost']['balance'];
+
+        $res[$index]['Data']['total_cost']['interest_income'] = $res[$index]['Data']['total_interest']['interest_income'] + $res[$index]['Data']['total_op_cost']['interest_income'];
+
+        $res[$index]['Data']['profit']['interest_income'] = $res[$index]['Data']['total_income']['interest_income'] - $res[$index]['Data']['total_cost']['interest_income'];
+
+        return $res[$index];
     }
     
 }
