@@ -10,16 +10,14 @@ function Bep() {
 	const [startDate, setStartDate] = useState(new Date());
 	const [branch, setBranch] = useState([]);
 	const d = new Date();
-	const [profit, setProfit] = useState();
-	const [ftp, setFtp] = useState();
+	const [profit, setProfit] = useState(null);
+	// const [ftp, setFtp] = useState();
 	const [error, setError] = useState(0);
-	const [url_search, setUrl_search] = useState(
-		"http://127.0.0.1:8000/api/get/bep"
-	);
+	const [url_search, setUrl_search] = useState();
 
 	// console.log(d);
 	useEffect(() => {
-		console.log(d.getDate(), d.getMonth() + 1, d.getFullYear());
+		// console.log(d.getDate(), d.getMonth() + 1, d.getFullYear());
 		axios
 			.get("http://127.0.0.1:8000/api/get/bep")
 			.then((response) => {
@@ -46,6 +44,54 @@ function Bep() {
 				setLoading(false);
 			});
 	}, []);
+
+	// console.log(branch);
+	useEffect(() => {
+		// console.log(url_search);
+		if (url_search !== undefined) {
+			if (
+				startDate.getMonth() + 1 > d.getMonth() + 1 ||
+				startDate.getFullYear > d.getFullYear()
+			) {
+				setError(1);
+			} else {
+				if (startDate.getMonth() + 1 === d.getMonth() + 1) {
+					if (isLastDate(d) === true) {
+						setError(0);
+						axios
+							.get(url_search)
+							.then((response) => {
+								setDataCabang(response.data);
+								setLoading(false);
+								console.log(response);
+							})
+							.catch((error) => {
+								console.log(error);
+								setLoading(false);
+							});
+					} else {
+						setError(1);
+					}
+				} else {
+					setError(0);
+					axios
+						.get(url_search)
+						.then((response) => {
+							setDataCabang(response.data);
+							setLoading(false);
+							console.log(response);
+
+							// setDataBalance(response.data.Data);
+							// console.log(dataBalance);
+						})
+						.catch((error) => {
+							console.log(error);
+							setLoading(false);
+						});
+				}
+			}
+		}
+	}, [url_search]);
 	// console.log(dataCabang);
 	if (loading) {
 		return (
@@ -71,66 +117,34 @@ function Bep() {
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-		if (profit == null && ftp == null) {
-			console.log('non')
-			setUrl_search("http://127.0.0.1:8000/api/get/bep");
+		if (profit === null 
+			// && ftp == null
+			) {
+			console.log("non");
+			setUrl_search(
+				"http://127.0.0.1:8000/api/get/bep?month=" +
+					(startDate.getMonth() + 1) +
+					"&year=" +
+					startDate.getFullYear() 
+			)
 		} else {
-			console.log('parameter')
+			console.log("parameter");
 			setUrl_search(
 				"http://127.0.0.1:8000/api/get/bep?month=" +
 					(startDate.getMonth() + 1) +
 					"&year=" +
 					startDate.getFullYear() +
 					"&profit=" +
-					profit +
-					"&ftp=" +
-					ftp
+					profit 
+					// "&ftp=" +
+					// ftp
 			);
 		}
 
-		if (
-			startDate.getMonth() + 1 > d.getMonth() + 1 ||
-			startDate.getFullYear > d.getFullYear()
-		) {
-			setError(1);
-		} else {
-			if (startDate.getMonth() + 1 == d.getMonth() + 1) {
-				if (isLastDate(d) == true) {
-					setError(0);
-					axios
-						.get(url_search)
-						.then((response) => {
-							setDataCabang(response.data);
-							setLoading(false);
-							console.log(response);
-						})
-						.catch((error) => {
-							console.log(error);
-							setLoading(false);
-						});
-				} else {
-					setError(1);
-				}
-			} else {
-				setError(0);
-				axios
-					.get(url_search)
-					.then((response) => {
-						setDataCabang(response.data);
-						setLoading(false);
-						console.log(response);
-
-						// setDataBalance(response.data.Data);
-						// console.log(dataBalance);
-					})
-					.catch((error) => {
-						console.log(error);
-						setLoading(false);
-					});
-			}
-		}
+		
 	};
-	if (error == 1) {
+	// console.log(dataCabang);
+	if (error === 1) {
 		return (
 			<div className="container">
 				<h4 className="fw-bold">BEP ANALISYS</h4>
@@ -145,13 +159,13 @@ function Bep() {
 						showIcon
 					/>
 
-					<input
+					{/* <input
 						className="form-control mb-2 shadow"
 						placeholder="FTP Parameter"
 						onChange={(event) => setFtp(event.target.value)}
 						name="ftp"
 						id="ftp"
-					/>
+					/> */}
 					<input
 						className="form-control mb-2 shadow"
 						placeholder="Profit Parameter"
@@ -170,7 +184,7 @@ function Bep() {
 				</div>
 			</div>
 		);
-	} else if (error == 0) {
+	} else if (error === 0) {
 		return (
 			<div className="mt-5">
 				<div className="container">
@@ -186,13 +200,13 @@ function Bep() {
 							showIcon
 						/>
 
-						<input
+						{/* <input
 							className="form-control mb-2 shadow"
 							placeholder="FTP Parameter"
 							onChange={(event) => setFtp(event.target.value)}
 							name="ftp"
 							id="ftp"
-						/>
+						/> */}
 						<input
 							className="form-control mb-2 shadow"
 							placeholder="Profit Parameter"
@@ -240,6 +254,7 @@ function Bep() {
 								className="tab-pane fade"
 								id={"nav-" + brn.branch_code}
 								role="tabpanel"
+								key={brn.branch_code}
 								aria-labelledby={"nav-" + brn.branch_code + "-tab"}
 							>
 								<div className="scrolling-wrapper row flex-nowrap mt-4 pb-4 pt-2 ">

@@ -63,6 +63,11 @@ const Sidebar = () => {
                 Final BEP
               </NavLink>
             </li>
+            <li className="dropdown-items">
+              <NavLink to="/cs" className="dropdown-link" activeClassName="active">
+                Custom Scenario
+              </NavLink>
+            </li>
           </ul>
         </li>
         <li className="sidebar-nav-item">
