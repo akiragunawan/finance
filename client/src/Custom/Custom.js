@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import XLSX from "xlsx";
+
+// import { saveAs } from "file-saver";
 
 function Custom() {
 	const [startDate, setStartDate] = useState(new Date());
@@ -16,10 +19,41 @@ function Custom() {
 	const [biob, setBiob] = useState("");
 	const [bior, setBior] = useState("");
 	const [ckpnr, setCkpnr] = useState("");
-	const [showSce, setShowsce] = useState(true);
+
+	// const [ilb, setiLb] = useState("");
+	// const [ilr, setiLr] = useState("");
+	// const [ipiob, setiPiob] = useState("");
+	// const [ipior, setiPior] = useState("");
+	// const [idpkb, setiDpkb] = useState("");
+	// const [idpkr, setiDpkr] = useState("");
+	// const [ibiob, setiBiob] = useState("");
+	// const [ibior, setiBior] = useState("");
+	// const [ickpnr, setiCkpnr] = useState("");
+
+	let ilb = "";
+	let ilr = "";
+	let ipiob = "";
+	let ipior = "";
+	let idpkb = "";
+	let idpkr = "";
+	let ibiob = "";
+	let ibior = "";
+	let ickpnr = "";
+
+	// const [showSce, setShowsce] = useState(true);
 	const d = new Date();
-	const [error, setError] = useState(1);
+	// const [error, setError] = useState(1);
 	const [sceData, setScedata] = useState([]);
+
+	const [elb, setElb] = useState(false);
+	const [elr, setElr] = useState(false);
+	const [ePiob, setEpiob] = useState(false);
+	const [ePior, setEpior] = useState(false);
+	const [eDpkb, setEdpkb] = useState(false);
+	const [eDpkr, setEdpkr] = useState(false);
+	const [eBiob, setEbiob] = useState(false);
+	const [eBior, setEbior] = useState(false);
+	const [eCkpnr, setEckpnr] = useState(false);
 
 	// const
 	const isLastDate = (date) => {
@@ -127,53 +161,95 @@ function Custom() {
 	};
 
 	const Calculate = (e) => {
-		// console.log(lb);
-		if (lb === 0) {
+		console.log(lb);
+		console.log(ilb);
+
+		if (elb) {
+			// setiLb(lb);
+			ilb = lb;
+		}
+
+		if (elr) {
+			// setiLr(lr);
+			ilr = lr;
+		}
+		if (ePiob) {
+			// setiPiob(piob);
+			ipiob = piob;
+		}
+		if (ePior) {
+			// setiPior(pior);
+			ipior = pior;
+		}
+		if (eDpkb) {
+			// setiDpkb(dpkb);
+			idpkb = dpkb;
+		}
+		if (eDpkr) {
+			// setiDpkr(dpkr);
+			idpkr = dpkr;
+		}
+		if (eBiob) {
+			// setiBiob(biob);
+			ibiob = biob;
+		}
+		if (eBior) {
+			// setiBior(bior);
+			ibior = bior;
+		}
+		if (eCkpnr) {
+			// setiCkpnr(ckpnr);
+			ickpnr = ckpnr;
+		}
+
+		if (selBranch === 0) {
+			alert("Please Select Branch and date for Data Initiation First");
+		} else if (lb === "" && elb) {
 			alert("Loan Balance must bee fill");
-		} else if (lr === undefined) {
+		} else if (lr === "" && elr) {
 			alert("Loan Rate must be fill");
-		} else if (piob === undefined) {
+		} else if (piob === "" && ePiob) {
 			alert("Placement Inter Office Balance must be fill");
-		} else if (pior === undefined) {
+		} else if (pior === "" && ePior) {
 			alert("Placement Inter Office Rate must be fill");
-		} else if (dpkb === undefined) {
+		} else if (dpkb === "" && eDpkb) {
 			alert("DPK Balance must be fill");
-		} else if (dpkr === undefined) {
+		} else if (dpkr === "" && eDpkr) {
 			alert("DPK Rate must be fill");
-		} else if (biob === undefined) {
+		} else if (biob === "" && eBiob) {
 			alert("Borrowing Inter Office Balance must be fill");
-		} else if (bior === undefined) {
+		} else if (bior === "" && eBior) {
 			alert("Borrwing Iner Office Rate must be fill");
-		} else if (ckpnr === undefined) {
+		} else if (ckpnr === "" && eCkpnr) {
 			alert("CKPN Rate must be fill");
 		} else {
 			axios
 				.get(
-					"http://127.0.0.1:8000/api/get/scenario?year=" +
-						startDate.getFullYear() +
-						"&month=" +
-						startDate.getMonth() +
-						1 +
-						"&loan_bal=" +
-						lb +
-						"&loan_rate=" +
-						lr +
-						"&pio_bal=" +
-						piob +
-						"&pio_rate=" +
-						pior +
-						"&dpk_bal=" +
-						dpkb +
-						"&dpk_rate=" +
-						dpkr +
-						"&bio_bal=" +
-						biob +
-						"&bio_rate=" +
-						bior +
-						"&ckpn_rate=" +
-						ckpnr +
-						"&branch=" +
-						selBranch,
+					`http://127.0.0.1:8000/api/get/scenario?year= 
+						${startDate.getFullYear()} 
+						&month= 
+						${startDate.getMonth() + 1} 
+						&loan_bal=
+						${ilb}
+						
+						&loan_rate=
+						${ilr}
+						&pio_bal=
+						${ipiob}
+						&pio_rate=
+						${ipior}
+						&dpk_bal=
+						${idpkb}
+						&dpk_rate=
+						${idpkr}
+						&bio_bal=
+						${ibiob} 
+						&bio_rate=
+						${ibior}
+						&ckpn_rate=
+						${ickpnr} 
+						&branch=
+						${selBranch}`,
 
 					{}
 				)
@@ -187,7 +263,7 @@ function Custom() {
 				});
 		}
 	};
-	// console.log(sceData.Data.loan);
+
 	return (
 		<div className="container mt-5">
 			<div>
@@ -209,7 +285,7 @@ function Custom() {
 								required
 								className="w-100 form-select"
 								value={selBranch}
-								onChange={(e) => setSelBranch(e.target.value)}
+								onChange={(e) => {setSelBranch(e.target.value) }}
 							>
 								<option value="0" disabled>
 									.:: Branch ::.
@@ -240,10 +316,32 @@ function Custom() {
 								</h5>
 							</div>
 							<div className="">
-								<label className="form-label mt-3">Loan balance (.000)</label>
+								<div className="d-flex justify-content-between my-2">
+									<label className="form-label my-auto">
+										Loan balance (.000)
+									</label>
+									<div className="form-check form-switch my-auto">
+										<input
+											className="form-check-input"
+											type="checkbox"
+											id={"LoanBCheckChecked"}
+											onChange={(e) => {
+												setElb(!elb);
+											}}
+											checked={elb}
+										></input>
+										<label
+											className="form-check-label"
+											htmlFor="LoanBCheckChecked"
+										>
+											{elb ? "Enable" : "Disable"}
+										</label>
+									</div>
+								</div>
 								<div className="input-group">
 									<span className="input-group-text">Rp.</span>
 									<input
+										disabled={!elb}
 										value={lb.toLocaleString(undefined, {
 											minimumFractionDigits: 2,
 											maximumFractionDigits: 2,
@@ -255,9 +353,29 @@ function Custom() {
 									></input>
 								</div>
 							</div>
-							<label className="form-label mt-3">Loan Rate (%)</label>
+							<div className="d-flex justify-content-between my-2">
+								<label className="form-label my-auto">Loan Rate (%)</label>
+								<div className="form-check form-switch my-auto">
+									<input
+										className="form-check-input"
+										type="checkbox"
+										id="LoanRCheckChecked"
+										onChange={(e) => {
+											setElr(!elr);
+										}}
+										checked={elr}
+									></input>
+									<label
+										className="form-check-label"
+										htmlFor="LoanRCheckChecked"
+									>
+										{elr ? "Enable" : "Disable"}
+									</label>
+								</div>
+							</div>
 							<div className="input-group">
 								<input
+									disabled={!elr}
 									value={lr.toLocaleString(undefined, {
 										minimumFractionDigits: 2,
 										maximumFractionDigits: 2,
@@ -270,12 +388,33 @@ function Custom() {
 								<span className="input-group-text">%</span>
 							</div>
 							<div className="">
-								<label className="form-label mt-3">
-									Placement Inter Office Balance (.000)
-								</label>
+								<div className="d-flex justify-content-between my-2">
+									<label className="form-label my-auto">
+										Placement Inter Office Balance (.000)
+									</label>
+
+									<div className="form-check form-switch my-auto">
+										<input
+											className="form-check-input"
+											type="checkbox"
+											id="piobCheckChecked"
+											onChange={(e) => {
+												setEpiob(!ePiob);
+											}}
+											checked={ePiob}
+										></input>
+										<label
+											className="form-check-label"
+											htmlFor="piobCheckChecked"
+										>
+											{ePiob ? "Enable" : "Disable"}
+										</label>
+									</div>
+								</div>
 								<div className="input-group">
 									<span className="input-group-text">Rp.</span>
 									<input
+										disabled={!ePiob}
 										value={piob.toLocaleString(undefined, {
 											minimumFractionDigits: 2,
 											maximumFractionDigits: 2,
@@ -289,11 +428,32 @@ function Custom() {
 									></input>
 								</div>
 							</div>
-							<label className="form-label mt-3">
-								Placement Inter Office Rate (%)
-							</label>
+							<div className="d-flex justify-content-between my-2">
+								<label className="form-label my-auto">
+									Placement Inter Office Rate (%)
+								</label>
+								<div className="form-check form-switch my-auto">
+									<input
+										className="form-check-input"
+										type="checkbox"
+										id="piorCheckChecked"
+										onChange={(e) => {
+											setEpior(!ePior);
+										}}
+										checked={ePior}
+									></input>
+									<label
+										className="form-check-label"
+										htmlFor="piorCheckChecked"
+									>
+										{ePior ? "Enable" : "Disable"}
+									</label>
+								</div>
+							</div>
+
 							<div className="input-group">
 								<input
+									disabled={!ePior}
 									value={pior.toLocaleString(undefined, {
 										minimumFractionDigits: 2,
 										maximumFractionDigits: 2,
@@ -308,10 +468,32 @@ function Custom() {
 								<span className="input-group-text">%</span>
 							</div>
 							<div className="">
-								<label className="form-label mt-3">DPK Balance (.000)</label>
+								<div className="d-flex justify-content-between my-2">
+									<label className="form-label my-auto">
+										DPK Balance (.000)
+									</label>
+									<div className="form-check form-switch my-auto">
+										<input
+											className="form-check-input"
+											type="checkbox"
+											id="dpkbCheckChecked"
+											onChange={(e) => {
+												setEdpkb(!eDpkb);
+											}}
+											checked={eDpkb}
+										></input>
+										<label
+											className="form-check-label"
+											htmlFor="dpkbCheckChecked"
+										>
+											{eDpkb ? "Enable" : "Disable"}
+										</label>
+									</div>
+								</div>
 								<div className="input-group">
 									<span className="input-group-text">Rp.</span>
 									<input
+										disabled={!eDpkb}
 										value={dpkb.toLocaleString(undefined, {
 											minimumFractionDigits: 2,
 											maximumFractionDigits: 2,
@@ -325,9 +507,29 @@ function Custom() {
 									></input>
 								</div>
 							</div>
-							<label className="form-label mt-3">DPK Rate (%)</label>
+							<div className="d-flex justify-content-between my-2">
+								<label className="form-label my-auto">DPK Rate (%)</label>
+								<div className="form-check form-switch my-auto">
+									<input
+										className="form-check-input"
+										type="checkbox"
+										id="dpkrCheckChecked"
+										onChange={(e) => {
+											setEdpkr(!eDpkr);
+										}}
+										checked={eDpkr}
+									></input>
+									<label
+										className="form-check-label"
+										htmlFor="dpkrCheckChecked"
+									>
+										{eDpkr ? "Enable" : "Disable"}
+									</label>
+								</div>
+							</div>
 							<div className="input-group">
 								<input
+									disabled={!eDpkr}
 									value={dpkr.toLocaleString(undefined, {
 										minimumFractionDigits: 2,
 										maximumFractionDigits: 2,
@@ -342,12 +544,32 @@ function Custom() {
 								<span className="input-group-text">%</span>
 							</div>
 							<div className="">
-								<label className="form-label mt-3">
-									Borrowing Inter Office Balance (.000)
-								</label>
+								<div className="d-flex justify-content-between my-2">
+									<label className="form-label my-auto">
+										Borrowing Inter Office Balance (.000)
+									</label>
+									<div className="form-check form-switch my-auto">
+										<input
+											className="form-check-input"
+											type="checkbox"
+											id="biobCheckChecked"
+											onChange={(e) => {
+												setEbiob(!eBiob);
+											}}
+											checked={eBiob}
+										></input>
+										<label
+											className="form-check-label"
+											htmlFor="biobCheckChecked"
+										>
+											{eBiob ? "Enable" : "Disable"}
+										</label>
+									</div>
+								</div>
 								<div className="input-group">
 									<span className="input-group-text">Rp.</span>
 									<input
+										disabled={!eBiob}
 										value={biob.toLocaleString(undefined, {
 											minimumFractionDigits: 2,
 											maximumFractionDigits: 2,
@@ -361,11 +583,31 @@ function Custom() {
 									></input>
 								</div>
 							</div>
-							<label className="form-label mt-3">
-								Borrowing Inter Office Rate(%)
-							</label>
+							<div className="d-flex justify-content-between my-2">
+								<label className="form-label my-auto">
+									Borrowing Inter Office Rate(%)
+								</label>
+								<div className="form-check form-switch my-auto">
+									<input
+										className="form-check-input"
+										type="checkbox"
+										id="biorCheckChecked"
+										onChange={(e) => {
+											setEbior(!eBior);
+										}}
+										checked={eBior}
+									></input>
+									<label
+										className="form-check-label"
+										htmlFor="biorCheckChecked"
+									>
+										{eBiob ? "Enable" : "Disable"}
+									</label>
+								</div>
+							</div>
 							<div className="input-group">
 								<input
+									disabled={!eBior}
 									value={bior.toLocaleString(undefined, {
 										minimumFractionDigits: 2,
 										maximumFractionDigits: 2,
@@ -379,9 +621,30 @@ function Custom() {
 								></input>
 								<span className="input-group-text">%</span>
 							</div>
-							<label className="form-label mt-3">CKPN Rate (%)</label>
+
+							<div className="d-flex justify-content-between my-2">
+								<label className="form-label my-auto">CKPN Rate (%)</label>
+								<div className="form-check form-switch my-auto">
+									<input
+										className="form-check-input"
+										type="checkbox"
+										id="ckpnrCheckChecked"
+										onChange={(e) => {
+											setEckpnr(!eCkpnr);
+										}}
+										checked={eCkpnr}
+									></input>
+									<label
+										className="form-check-label"
+										htmlFor="ckpnrCheckChecked"
+									>
+										{eCkpnr ? "Enable" : "Disable"}
+									</label>
+								</div>
+							</div>
 							<div className="input-group">
 								<input
+									disabled={!eCkpnr}
 									value={ckpnr.toLocaleString(undefined, {
 										minimumFractionDigits: 2,
 										maximumFractionDigits: 2,
@@ -416,10 +679,219 @@ function Custom() {
 				<div className="card mt-3 mb-3">
 					<div className="card-body p-4">
 						<div className="row">
-							<div className="col-6 text-start ">
+							<div className="col-6 text-start my-auto">
 								Scenario BASE ON FINANCIAL REPORT 2023
 							</div>
-							<div className="col-6 text-end ">(In Million Rp)</div>
+							<div className="col-6 text-end ">
+								(In Million Rp)<br></br>
+								<button
+									onClick={async () => {
+										const htmlTable = `
+  <table>
+    <thead>
+      <tr>
+        <th>BEP Analisys</th>
+      </tr>
+	  <tr>
+		<th>${selBranch}</th>
+	  </tr>
+	  <tr>
+	  <th>Base On Financial Report 2023</th>
+	</tr>
+	<tr>
+	  <th>Exixting</th>
+	</tr>
+	<tr>
+	  <th>COA Name</th>
+	  <th>Balance</th>
+	  <th>Rate</th>
+	  <th>Interest Income</th>
+
+	</tr>
+	<tr>
+	  <th></th>
+	  <th></th>
+	  <th></th>
+	  <th></th>
+
+	</tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Loan</td>
+        <td>${sceData.Data.loan.balance}</td>
+        <td>${sceData.Data.loan.rate}</td>
+        <td>${sceData.Data.loan.interest_income}</td>
+
+      </tr>
+      <tr>
+	  	<td>Placement Inter Office</td>
+	  	<td>${sceData.Data.pio.balance}</td>
+	  	<td>${sceData.Data.pio.rate}</td>
+	  	<td>${sceData.Data.pio.interest_income}</td>
+      </tr>
+      <tr>
+	  	<td></td>
+	  	<td>${sceData.Data.total.balance}</td>
+	  	<td></td>
+	  	<td>${sceData.Data.total.interest_income}</td>
+      </tr>
+	  <tr>
+	  	<td></td>
+	  	<td>${sceData.Data.total.balance}</td>
+	  	<td></td>
+	  	<td>${sceData.Data.total.interest_income}</td>
+      </tr>
+	  <tr>
+	  	<td>Pendapatan Lainnya</td>
+	  	<td></td>
+	  	<td></td>
+	  	<td>${sceData.Data.other.interest_income}</td>
+      </tr>
+	  <tr>
+	  	<td>Pendapatan Lainnya</td>
+	  	<td></td>
+	  	<td></td>
+	  	<td>${sceData.Data.total_income.interest_income}</td>
+      </tr>
+	  <tr>
+	  	<td></td>
+	  	<td></td>
+	  	<td></td>
+	  	<td></td>
+      </tr>
+	  <tr>
+	  	<td>Third-Party Funds</td>
+	  	<td></td>
+	  	<td></td>
+	  	<td></td>
+      </tr>
+	  <tr>
+	  	<td>DPK</td>
+	  	<td>${sceData.Data.dpk.balance}</td>
+	  	<td>${sceData.Data.dpk.rate}</td>
+	  	<td>${sceData.Data.dpk.interest_income}</td>
+      </tr>
+	  <tr>
+	  	<td>Borrowing Inter Office</td>
+	  	<td>${sceData.Data.bio.balance}</td>
+	  	<td>${sceData.Data.bio.rate}</td>
+	  	<td>${sceData.Data.bio.interest_income}</td>
+      </tr>
+	  <tr>
+	  	<td></td>
+	  	<td>${sceData.Data.total_interest.balance}</td>
+	  	<td></td>
+	  	<td>${sceData.Data.total_interest.interest_income}</td>
+      </tr>
+	  <tr>
+	  	<td></td>
+	  	<td></td>
+	  	<td></td>
+	  	<td></td>
+      </tr>
+	  <tr>
+	  	<td>NET INTEREST INCOME</td>
+	  	<td></td>
+	  	<td></td>
+	  	<td>${sceData.Data.net.interest_income}</td>
+      </tr>
+	  <tr>
+	  	<td></td>
+	  	<td></td>
+	  	<td></td>
+	  	<td></td>
+      </tr>
+	  <tr>
+	  	<td>OPERATIONAL COST :</td>
+	  	<td></td>
+	  	<td></td>
+	  	<td></td>
+      </tr>
+	  <tr>
+	  	<td>1. Salary</td>
+	  	<td>${sceData.Data.salary.balance}</td>
+	  	<td></td>
+	  	<td></td>
+  	  </tr>
+		<tr>
+		<td>2. Rental Cost Of Building</td>
+		<td>${sceData.Data.rental.balance}</td>
+		<td></td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td>3. Biaya CKPN</td>
+		<td>${sceData.Data.ckpn.balance}</td>
+		<td>${sceData.Data.ckpn.rate}</td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td>4. Operational Expenses</td>
+		<td>${sceData.Data.operational.balance}</td>
+		<td></td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td>5. Non Operational</td>
+		<td>${sceData.Data.non_operational.balance}</td>
+		<td></td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td></td>
+		<td>${sceData.Data.total_op_cost.balance}</td>
+		<td></td>
+		<td>${sceData.Data.total_op_cost.interest_income}</td>
+	  </tr>
+	  <tr>
+		<td>Total COST : </td>
+		<td></td>
+		<td></td>
+		<td>${sceData.Data.total_cost.interest_income}</td>
+	  </tr>
+	  <tr>
+		<td>Profit And Loss</td>
+		<td></td>
+		<td></td>
+		<td>${sceData.Data.profit.interest_income}</td>
+	  </tr>
+    </tbody>
+  </table>
+`;
+
+										// Parse the HTML table and create a worksheet
+										const table = document.createElement("table");
+										table.innerHTML = htmlTable;
+
+										const sheet = XLSX.utils.table_to_sheet(table);
+
+										// Set column widths
+										sheet["!cols"] = [
+											{ width: 30,color:'yellow' },
+											{ width: 20 },
+											{ width: 20 },
+											{ width: 20 },
+											
+										];
+
+										// Set row background color
+										// XLSX.utils.sheet_set_range_style(sheet, "A1:C1", {
+										// 	fill: { fgColor: { rgb: "FFC000" } },
+										// });
+
+										// Create a workbook and add the worksheet
+										const workbook = XLSX.utils.book_new();
+										XLSX.utils.book_append_sheet(workbook, sheet, "Sheet1");
+
+										// Save the workbook to a file
+										XLSX.writeFile(workbook, "output.xlsx");
+									}}
+									className="btn btn-success mt-3"
+								>
+									Export to Excel
+								</button>
+							</div>
 						</div>
 						<div className="row">
 							<div
@@ -427,6 +899,7 @@ function Custom() {
 								style={{ fontSize: "30px" }}
 							>
 								SCENARIO
+								<hr></hr>
 							</div>
 						</div>
 						<div className="row bg-opacity-50 bg-success rounded-2 text-dark fw-bolder">
