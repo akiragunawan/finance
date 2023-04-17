@@ -19,10 +19,11 @@ class BSController extends Controller
         
         $month = $date_origin->month;
         $date = Carbon::createFromDate($date_origin);
+        $branches = DB::table('branch')->select('*')->get();
+        $coas = DB::table('coa')->select('*')->get()->pluck('coa');
         for($curr_month = 1; $curr_month <= $month; $curr_month++){
             $result=collect();
-            $branches = DB::table('branch')->select('*')->get();
-            $coas = DB::table('coa')->select('*')->get()->pluck('coa');
+            
             
             foreach($coas as $c){
                 $temp_date = Carbon::create($date->year, $curr_month)->endOfMonth()->toDateString();
