@@ -11,7 +11,6 @@ function Bep() {
 	const [branch, setBranch] = useState([]);
 	const d = new Date();
 	const [profit, setProfit] = useState(null);
-	// const [ftp, setFtp] = useState();
 	const [error, setError] = useState(0);
 	const [url_search, setUrl_search] = useState();
 

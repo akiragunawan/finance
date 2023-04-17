@@ -34,7 +34,7 @@ const Sidebar = () => {
       </div>
       <ul className="sidebar-nav">
         <li className="sidebar-nav-item">
-          <NavLink to="/" className="sidebar-nav-link" activeClassName="active">
+          <NavLink to="/" className="sidebar-nav-link" activeclassname="active">
             <i className="fas fa-home mr-2"></i>
             <span>Home</span>
           </NavLink>
@@ -49,29 +49,29 @@ const Sidebar = () => {
           </a>
           <ul className={`dropdown ${isDropdownOpen ? 'open' : ''}`}>
             <li className="dropdown-items">
-              <NavLink to="/bs" className="dropdown-link" activeClassName="active">
+              <NavLink to="/bs" className="dropdown-link" activeclassname="active">
                 BS
               </NavLink>
             </li>
             <li className="dropdown-items">
-              <NavLink to="/pl" className="dropdown-link" activeClassName="active">
+              <NavLink to="/pl" className="dropdown-link" activeclassname="active">
                 PL
               </NavLink>
             </li>
             <li className="dropdown-items">
-              <NavLink to="/Bep" className="dropdown-link" activeClassName="active">
+              <NavLink to="/Bep" className="dropdown-link" activeclassname="active">
                 Final BEP
               </NavLink>
             </li>
             <li className="dropdown-items">
-              <NavLink to="/cs" className="dropdown-link" activeClassName="active">
+              <NavLink to="/cs" className="dropdown-link" activeclassname="active">
                 Custom Scenario
               </NavLink>
             </li>
           </ul>
         </li>
         <li className="sidebar-nav-item">
-          <NavLink to="/settings" className="sidebar-nav-link" activeClassName="active">
+          <NavLink to="/settings" className="sidebar-nav-link" activeclassname="active">
             <i className="fas fa-cog mr-2"></i>
             <span>Settings</span>
           </NavLink>

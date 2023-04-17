@@ -6,7 +6,7 @@ function Bs() {
 
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8000/api/get/bs?year=2023&month=1", {})
+			.get("http://127.0.0.1:8000/api/get/bs", {})
 			.then((response) => {
 				setData(response.data);
 				console.log(response.data);
