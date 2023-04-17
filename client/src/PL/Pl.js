@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-function Bs() {
+function Pl() {
 	const [data, setData] = useState([]);
 
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8000/api/get/bs?year=2023&month=1", {})
+			.get("http://127.0.0.1:8000/api/get/pl?year=2023&month=1", {})
 			.then((response) => {
 				setData(response.data);
 				console.log(response.data);
@@ -24,9 +24,7 @@ function Bs() {
 					{data.map((subitem) => (
 						<div className="d-flex flex-row">
 							<div>
-                                
 								{subitem.map((item) => (
-                                    
 									<div
 										key={item.COA_num}
 										className="card p-3 m-3 shadow p-3  bg-body rounded"
@@ -81,4 +79,4 @@ function Bs() {
 	);
 }
 
-export default Bs;
+export default Pl;
