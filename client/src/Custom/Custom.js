@@ -3,6 +3,7 @@ import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import XLSX from "xlsx";
+import {Renderer} from 'xlsx-renderer';
 
 // import { saveAs } from "file-saver";
 
@@ -285,7 +286,9 @@ function Custom() {
 								required
 								className="w-100 form-select"
 								value={selBranch}
-								onChange={(e) => {setSelBranch(e.target.value) }}
+								onChange={(e) => {
+									setSelBranch(e.target.value);
+								}}
 							>
 								<option value="0" disabled>
 									.:: Branch ::.
@@ -738,9 +741,9 @@ function Custom() {
       </tr>
 	  <tr>
 	  	<td></td>
-	  	<td>${sceData.Data.total.balance}</td>
 	  	<td></td>
-	  	<td>${sceData.Data.total.interest_income}</td>
+	  	<td></td>
+	  	<td></td>
       </tr>
 	  <tr>
 	  	<td>Pendapatan Lainnya</td>
@@ -748,12 +751,7 @@ function Custom() {
 	  	<td></td>
 	  	<td>${sceData.Data.other.interest_income}</td>
       </tr>
-	  <tr>
-	  	<td>Pendapatan Lainnya</td>
-	  	<td></td>
-	  	<td></td>
-	  	<td>${sceData.Data.total_income.interest_income}</td>
-      </tr>
+	  
 	  <tr>
 	  	<td></td>
 	  	<td></td>
@@ -868,20 +866,114 @@ function Custom() {
 
 										// Set column widths
 										sheet["!cols"] = [
-											{ width: 30,color:'yellow' },
+											{ width: 30 },
 											{ width: 20 },
 											{ width: 20 },
 											{ width: 20 },
-											
 										];
+										sheet["!merges"] = [
+											{
+												s: { r: 0, c: 0 },
+												e: { r: 0, c: 3 },
+											},
+											{
+												s: { r: 1, c: 0 },
+												e: { r: 1, c: 3 },
+											},
+											{
+												s: { r: 2, c: 0 },
+												e: { r: 2, c: 3 },
+											},
+											{
+												s: { r: 3, c: 0 },
+												e: { r: 3, c: 3 },
+											},
+										];
+										const currencyFormatCurr = "Rp #,##0.00";
+										for (let row = 6; row < 28; row++) {
+											for (let col = 1; col < 2; col++) {
+												const cell = XLSX.utils.encode_cell({ r: row, c: col });
+												const value = sheet[cell]?.v;
+												if (typeof value === "number") {
+													sheet[cell] = {
+														...sheet[cell],
+														t: "n",
+														z: currencyFormatCurr,
+													};
+												}
+											}
+										}
 
-										// Set row background color
-										// XLSX.utils.sheet_set_range_style(sheet, "A1:C1", {
-										// 	fill: { fgColor: { rgb: "FFC000" } },
-										// });
+										const currencyFormatCurr2 = "Rp #,##0.00";
+										for (let row = 6; row < 28; row++) {
+											for (let col = 3; col < 4; col++) {
+												const cell = XLSX.utils.encode_cell({ r: row, c: col });
+												const value = sheet[cell]?.v;
+												if (typeof value === "number") {
+													sheet[cell] = {
+														...sheet[cell],
+														t: "n",
+														z: currencyFormatCurr2,
+													};
+												}
+											}
+										}
 
+										const currencyFormatrate = "0\\.00%";
+										for (let row = 6; row < 28; row++) {
+											for (let col = 2; col < 3; col++) {
+												const cellrate = XLSX.utils.encode_cell({
+													r: row,
+													c: col,
+												});
+												const value = sheet[cellrate]?.v;
+												if (typeof value === "number") {
+													sheet[cellrate] = {
+														...sheet[cellrate],
+														t: "n",
+														z: currencyFormatrate,
+													};
+												}
+											}
+										}
+										const style = {
+											font: {
+											  bold: true,
+											  color: '#ffffff',
+											  size: 16,
+											},
+											fill: {
+											  type: 'pattern',
+											  patternType: 'solid',
+											  fgColor: '#008000',
+											},
+											alignment: {
+											  horizontal: 'center',
+											  vertical: 'center',
+											},
+											border: {
+											  top: {
+												style: 'thin',
+												color: '#000000',
+											  },
+											  bottom: {
+												style: 'thin',
+												color: '#000000',
+											  },
+											  left: {
+												style: 'thin',
+												color: '#000000',
+											  },
+											  right: {
+												style: 'thin',
+												color: '#000000',
+											  },
+											},
+										  };
+										  sheet.getCell('A1').setStyle(style);
 										// Create a workbook and add the worksheet
 										const workbook = XLSX.utils.book_new();
+							
 										XLSX.utils.book_append_sheet(workbook, sheet, "Sheet1");
 
 										// Save the workbook to a file
