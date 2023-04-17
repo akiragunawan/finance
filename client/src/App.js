@@ -7,6 +7,7 @@ import Cs from "./Custom/Custom.js";
 import "./App.css";
 import Callback from "./Callback/Callback";
 import Home from "./Home/Home";
+import Pl from "./PL/Pl"
 
 function App() {
 	return (
@@ -16,6 +17,7 @@ function App() {
 				<Route path="/" element={<Home />} />
 
 				<Route path="/bs" element={<Bs />} />
+				<Route path="/pl" element={<Pl />} />
 				<Route path="/bep" element={<Bep />} />
 				<Route path="/cs" element={<Cs />} />
 
