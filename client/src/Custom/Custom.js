@@ -970,7 +970,7 @@ function Custom() {
 											  },
 											},
 										  };
-										  sheet.getCell('A1').setStyle(style);
+										//   sheet.getCell('A1').setStyle(style);
 										// Create a workbook and add the worksheet
 										const workbook = XLSX.utils.book_new();
 							

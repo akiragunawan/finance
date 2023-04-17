@@ -18,7 +18,7 @@ function Bs() {
 	// console.log(data)
 	return (
 		<div className="container p-5">
-			<h2 className="fw-bold text-uppercase ">Balance Sheet</h2>
+			<h2 className="fw-bold text-uppercase ">Profit And Loss</h2>
 			<div className="mt-5">
 				<div className="card shadow p-3 mb-5 bg-body rounded d-flex flex-row">
 					{data.map((subitem) => (
