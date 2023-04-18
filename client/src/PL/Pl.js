@@ -3,10 +3,10 @@ import axios from "axios";
 
 function Pl() {
 	const [data, setData] = useState([]);
-
+	const d = new Date();
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8000/api/get/pl?year=2023&month=1", {})
+			.get("http://127.0.0.1:8000/api/get/pl?year=2023&month="+ d.getMonth(), {})
 			.then((response) => {
 				setData(response.data);
 				console.log(response.data);

@@ -584,7 +584,7 @@ function Bep() {
 														className="col-12 text-center fw-bold"
 														style={{ fontSize: "30px" }}
 													>
-														Scenario 1
+														BEP / INCREASE PROFIT
 													</div>
 												</div>
 												<div className="row bg-opacity-50 bg-success rounded-2 text-dark fw-bolder">
