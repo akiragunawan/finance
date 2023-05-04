@@ -18,7 +18,7 @@ function Bep() {
 	useEffect(() => {
 		// console.log(d.getDate(), d.getMonth() + 1, d.getFullYear());
 		axios
-			.get("http://127.0.0.1:8000/api/get/bep")
+			.get("http://127.0.0.1:8001/api/get/bep")
 			.then((response) => {
 				setDataCabang(response.data);
 				setLoading(false);
@@ -33,7 +33,7 @@ function Bep() {
 	}, []);
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8000/api/get/branch", {})
+			.get("http://127.0.0.1:8001/api/get/branch", {})
 			.then((response) => {
 				setBranch(response.data);
 				setLoading(false);
@@ -121,7 +121,7 @@ function Bep() {
 			) {
 			console.log("non");
 			setUrl_search(
-				"http://127.0.0.1:8000/api/get/bep?month=" +
+				"http://127.0.0.1:8001/api/get/bep?month=" +
 					(startDate.getMonth() + 1) +
 					"&year=" +
 					startDate.getFullYear() 
@@ -129,7 +129,7 @@ function Bep() {
 		} else {
 			console.log("parameter");
 			setUrl_search(
-				"http://127.0.0.1:8000/api/get/bep?month=" +
+				"http://127.0.0.1:8001/api/get/bep?month=" +
 					(startDate.getMonth() + 1) +
 					"&year=" +
 					startDate.getFullYear() +
@@ -584,7 +584,7 @@ function Bep() {
 														className="col-12 text-center fw-bold"
 														style={{ fontSize: "30px" }}
 													>
-														Scenario 1
+														BEP / INCREASE PROFIT
 													</div>
 												</div>
 												<div className="row bg-opacity-50 bg-success rounded-2 text-dark fw-bolder">

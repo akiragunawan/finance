@@ -3,10 +3,10 @@ import axios from "axios";
 
 function Bs() {
 	const [data, setData] = useState([]);
-
+	const d = new Date();
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8000/api/get/bs", {})
+			.get("http://127.0.0.1:8001/api/get/bs?year=2023&month="+ d.getMonth(), {})
 			.then((response) => {
 				setData(response.data);
 				console.log(response.data);
@@ -20,7 +20,7 @@ function Bs() {
 		<div className="container p-5">
 			<h2 className="fw-bold text-uppercase ">Balance Sheet</h2>
 			<div className="mt-5">
-				<div className="card shadow p-3 mb-5 bg-body rounded d-flex flex-row">
+				<div className="card shadow  mb-2 bg-body rounded d-flex flex-row">
 					{data.map((subitem) => (
 						<div className="d-flex flex-row">
 							<div>
@@ -29,7 +29,7 @@ function Bs() {
 										key={item.COA_num}
 										className="card p-3 m-3 shadow p-3  bg-body rounded"
 									>
-										<div className="d-flex justify-content-between card-title mt-3 ms-4 me-4">
+										<div className="d-flex justify-content-between card-title mt-3 mx-3">
 											<div className="d-flex flex-column ">
 												<div className="fw-bold" style={{ fontSize: "20px" }}>
 													{item.COA_name}
@@ -42,7 +42,7 @@ function Bs() {
 												</div>
 											</div>
 											<div>
-												<p className="text-muted">{item.COA_date}</p>
+												<p className="text-muted text-break">{item.COA_date}</p>
 											</div>
 										</div>
 										<div className="d-flex flex-wrap justify-content-start card-body">

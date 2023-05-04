@@ -20,6 +20,7 @@ function Custom() {
 	const [biob, setBiob] = useState("");
 	const [bior, setBior] = useState("");
 	const [ckpnr, setCkpnr] = useState("");
+	const [profit, setProfit] = useState("");
 
 	// const [ilb, setiLb] = useState("");
 	// const [ilr, setiLr] = useState("");
@@ -40,6 +41,8 @@ function Custom() {
 	let ibiob = "";
 	let ibior = "";
 	let ickpnr = "";
+	let iprofit = "";
+
 
 	// const [showSce, setShowsce] = useState(true);
 	const d = new Date();
@@ -55,6 +58,8 @@ function Custom() {
 	const [eBiob, setEbiob] = useState(false);
 	const [eBior, setEbior] = useState(false);
 	const [eCkpnr, setEckpnr] = useState(false);
+	const [eProfit, setEprofit] = useState(false);
+
 
 	// const
 	const isLastDate = (date) => {
@@ -68,7 +73,7 @@ function Custom() {
 
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8000/api/get/branch", {})
+			.get("http://127.0.0.1:8001/api/get/branch", {})
 			.then((response) => {
 				setBranch(response.data);
 				// console.log(response.data);
@@ -94,7 +99,7 @@ function Custom() {
 				if (isLastDate(d) === true) {
 					axios
 						.get(
-							"http://127.0.0.1:8000/api/get/bep?year=" +
+							"http://127.0.0.1:8001/api/get/bep?year=" +
 								startDate.getFullYear() +
 								"&month=" +
 								(startDate.getMonth() + 1) +
@@ -132,7 +137,7 @@ function Custom() {
 				} else {
 					axios
 						.get(
-							"http://127.0.0.1:8000/api/get/bep?year=" +
+							"http://127.0.0.1:8001/api/get/bep?year=" +
 								startDate.getFullYear() +
 								"&month=" +
 								(startDate.getMonth() + 1) +
@@ -202,6 +207,9 @@ function Custom() {
 			// setiCkpnr(ckpnr);
 			ickpnr = ckpnr;
 		}
+		if(eProfit){
+			iprofit = profit;
+		}
 
 		if (selBranch === 0) {
 			alert("Please Select Branch and date for Data Initiation First");
@@ -223,10 +231,12 @@ function Custom() {
 			alert("Borrwing Iner Office Rate must be fill");
 		} else if (ckpnr === "" && eCkpnr) {
 			alert("CKPN Rate must be fill");
+		}else if(profit === "" && eProfit){
+			alert("Profit Must be fill");
 		} else {
 			axios
 				.get(
-					`http://127.0.0.1:8000/api/get/scenario?year= 
+					`http://127.0.0.1:8001/api/get/scenario?year= 
 						${startDate.getFullYear()} 
 						&month= 
 						${startDate.getMonth() + 1} 
@@ -330,6 +340,9 @@ function Custom() {
 											id={"LoanBCheckChecked"}
 											onChange={(e) => {
 												setElb(!elb);
+												if(eProfit == true){
+													setEprofit(false);
+												}
 											}}
 											checked={elb}
 										></input>
@@ -657,6 +670,46 @@ function Custom() {
 									}}
 									className="form-control"
 									id="CKPN_Rate"
+									placeholder="Input Number here without '%'"
+								></input>
+								<span className="input-group-text">%</span>
+							</div>
+
+							<div className="d-flex justify-content-between my-2">
+								<label className="form-label my-auto">Profit (.000)</label>
+								<div className="form-check form-switch my-auto">
+									<input
+										className="form-check-input"
+										type="checkbox"
+										id="profitCheckChecked"
+										onChange={(e) => {
+											setEprofit(!eProfit);
+											if(elb === true){
+												setElb(false)
+											}
+										}}
+										checked={eProfit}
+									></input>
+									<label
+										className="form-check-label"
+										htmlFor="profitCheckChecked"
+									>
+										{eProfit ? "Enable" : "Disable"}
+									</label>
+								</div>
+							</div>
+							<div className="input-group">
+								<input
+									disabled={!eProfit}
+									value={profit.toLocaleString(undefined, {
+										minimumFractionDigits: 2,
+										maximumFractionDigits: 2,
+									})}
+									onChange={(e) => {
+										setProfit(e.target.value);
+									}}
+									className="form-control"
+									id="Profit_rate"
 									placeholder="Input Number here without '%'"
 								></input>
 								<span className="input-group-text">%</span>
