@@ -70,12 +70,12 @@ const Sidebar = () => {
             </li>
           </ul>
         </li>
-        <li className="sidebar-nav-item">
+        {/* <li className="sidebar-nav-item">
           <NavLink to="/settings" className="sidebar-nav-link" activeclassname="active">
             <i className="fas fa-cog mr-2"></i>
             <span>Settings</span>
           </NavLink>
-        </li>
+        </li> */}
       </ul>
     </nav>
   );
