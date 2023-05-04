@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BSController;
+use App\Http\Controllers\SSO\SSOController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,7 +16,7 @@ use App\Http\Controllers\BSController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect(route('sso.login'));
 });
 
 Route::get('/get_bs', [BSController::class, 'queryBS'])->name('bs.view');
