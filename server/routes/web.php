@@ -25,3 +25,4 @@ Route::get('/get_pl', [PLController::class, 'queryPL'])->name('pl.view');
 Route::get("/sso/login",[SSOController::class,'getLogin'])->name('sso.login');
 Route::get("/callback",[SSOController::class,'getCallback'])->name('sso.callback');
 Route::get("/sso/connect",[SSOController::class,'connectUser'])->name('sso.connect');
+Route::get("/logged_in",[SSOController::class,'loggedIn']);
