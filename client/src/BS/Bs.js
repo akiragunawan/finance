@@ -1,9 +1,30 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+
 function Bs() {
 	const [data, setData] = useState([]);
 	const d = new Date();
+
+	
+	
+	useEffect(() => {
+		axios
+			.get("http://127.0.0.1:8001/api/logged_in", {})
+			.then((response) => {
+				console.log(response);
+				if(response.data == null){
+					window.location.replace(
+						"http://127.0.0.1:8001"
+					);
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+	}, []);
+
+
 	useEffect(() => {
 		axios
 			.get("http://127.0.0.1:8001/api/get/bs?year=2023&month="+ d.getMonth(), {})
