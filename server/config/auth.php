@@ -114,6 +114,6 @@ return [
     'callback' => env("SSO_CLIENT_CALLBACK"),
     'scopes' => env("SSO_SCOPES"),
     'sso_host' => env("SSO_HOST"),
-
+    'bep_client' => env("BEP_CLIENT")
 
 ];

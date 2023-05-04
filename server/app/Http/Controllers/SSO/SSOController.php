@@ -66,8 +66,13 @@ class SSOController extends Controller
       $user->save();
     }
     Auth::login($user);
-    return redirect(route('home'));
+    return redirect(config('auth.bep_client'));
   }
 
+  public function loggedIn()
+  {
+      if(auth()->user()) return json_encode(auth()->user());
+      else return json_encode(null);
+  }
 
 }
