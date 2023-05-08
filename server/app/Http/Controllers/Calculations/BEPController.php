@@ -14,7 +14,6 @@ use function PHPUnit\Framework\isNull;
 class BEPController extends BSController
 {   
     private $month = 0;
-    private $profit = null;
     private $projection_month = 0;
     private $query_count = 0;
     private $BSCOA_1 = '15420000';
@@ -110,9 +109,7 @@ class BEPController extends BSController
         $green = unserialize(serialize($yellow));
         foreach($branch as $index => $b){
             $profit = $yellow[$index]["Data"]["profit"]["interest_income"];
-            if(is_null($this->profit)) $profit = round(($profit+1000) / 1000) * 1000;
-            else $profit = $this->profit;
-            
+            $profit > 0 ? $profit = round(($profit+1000) / 1000) * 1000 : $profit = 0;
             foreach($green[$index]["Data"] as $key => $c) {
                 switch ($key){
                     case "loan":
@@ -420,7 +417,7 @@ class BEPController extends BSController
         $resource->projection_month = $this->projection_month;
         // dd($resource->projection_month);
         // dd($resource);
-        foreach (['loan_bal', 'loan_rate', 'pio_bal', 'pio_rate', 'dpk_bal','dpk_rate', 'bio_bal', 'bio_rate','ckpn_rate'] as $param) {
+        foreach (['profit', 'loan_bal', 'loan_rate', 'pio_bal', 'pio_rate', 'dpk_bal','dpk_rate', 'bio_bal', 'bio_rate','ckpn_rate'] as $param) {
             if ($request->filled($param)) {
                 $resource->put($param, $request->input($param));
             }
@@ -435,7 +432,18 @@ class BEPController extends BSController
     public function getFromResources($resource, $yellow){
         $res = unserialize(serialize($yellow));
         $index = $yellow->where("Kode_Cabang", (string)$resource->branch)->keys()->first();
-        $loan_bal = $resource->has('loan_bal') ? $resource['loan_bal'] : $yellow[$index]['Data']['loan']['balance'];
+        // dd($resource);
+        if($resource->has('profit')) {
+            $profit = $resource['profit'];
+            $loan_bal = $this->calculate($profit, $resource->month, $yellow[$index]);
+        }
+        else {
+            $loan_bal = $resource->has('loan_bal') ? $resource['loan_bal'] : $yellow[$index]['Data']['loan']['balance'];
+            $profit = null;
+            // dd($loan_bal);
+        }
+        
+        
         $loan_rate = $resource->has('loan_rate') ? $resource['loan_rate'] : $yellow[$index]['Data']['loan']['rate'];
         $pio_bal = $resource->has('pio_bal') ? $resource['pio_bal'] : $yellow[$index]['Data']['pio']['balance'];
         $pio_rate = $resource->has('pio_rate') ? $resource['pio_rate'] : $yellow[$index]['Data']['pio']['rate'];
@@ -445,6 +453,7 @@ class BEPController extends BSController
         $bio_rate = $resource->has('bio_rate') ? $resource['bio_rate'] : $yellow[$index]['Data']['bio']['rate'];
         $ckpn_rate = $resource->has('ckpn_rate') ? $resource['ckpn_rate'] : 1;
         
+
         $res[$index]['Data']['loan']['balance'] = $this->hasProjection() ? 
         (float)$loan_bal/$resource->month * $this->projection_month : (float)$loan_bal;
         $res[$index]['Data']['loan']['rate'] = (float)$loan_rate;
@@ -492,8 +501,9 @@ class BEPController extends BSController
 
         $res[$index]['Data']['total_cost']['interest_income'] = $res[$index]['Data']['total_interest']['interest_income'] + $res[$index]['Data']['total_op_cost']['interest_income'];
 
-        $res[$index]['Data']['profit']['interest_income'] = $res[$index]['Data']['total_income']['interest_income'] - $res[$index]['Data']['total_cost']['interest_income'];
-
+        if($profit==null) $profit = $res[$index]['Data']['total_income']['interest_income'] - $res[$index]['Data']['total_cost']['interest_income'];
+        $res[$index]['Data']['profit']['interest_income'] = (float)$profit;
+        
         return $res[$index];
     }
     private function ifFilledThenInput($string, Request $request){
