@@ -71,8 +71,8 @@ class SSOController extends Controller
 
   public function loggedIn()
   {
-      if(auth()->user()) return json_encode(auth()->user());
-      else return json_encode(null);
+    if(auth()->user()) return json_encode(auth()->user());
+    else return json_encode(null);
   }
 
 }
