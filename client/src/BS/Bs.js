@@ -1,33 +1,43 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-
 function Bs() {
 	const [data, setData] = useState([]);
 	const d = new Date();
 
-	
-	
+	const fetchUserData = () => {
+		fetch("http://127.0.0.1:8001/api/logged_in")
+		  .then(response => {
+		console.log(response)
+		  })
+		  .then(data => {
+			console.log(data)
+		  })
+	  }
+
 	useEffect(() => {
-		axios
-			.get("http://127.0.0.1:8001/api/logged_in", {})
-			.then((response) => {
-				console.log(response);
-				if(response.data == null){
-					window.location.replace(
-						"http://127.0.0.1:8001"
-					);
-				}
-			})
-			.catch((error) => {
-				console.log(error);
-			});
+		fetchUserData();
+		// axios
+		// 	.get("http://127.0.0.1:8001/api/logged_in", {})
+		// 	.then((response) => {
+		// 		console.log(response);
+		// 		if(response.data == null){
+		// 			window.location.replace(
+		// 				"http://127.0.0.1:8001"
+		// 			);
+		// 		}
+		// 	})
+		// 	.catch((error) => {
+		// 		console.log(error);
+		// 	});
 	}, []);
 
-
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8001/api/get/bs?year=2023&month="+ d.getMonth(), {})
+			.get(
+				"http://127.0.0.1:8001/api/get/bs?year=2023&month=" + d.getMonth(),
+				{}
+			)
 			.then((response) => {
 				setData(response.data);
 				console.log(response.data);
