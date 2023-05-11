@@ -13,7 +13,7 @@ class SSOController extends Controller
 {
   public function getLogin(Request $request)
   {
-    
+
     $request->session()->put("state", $state = Str::random(40));
     $query = http_build_query([
       "client_id" => config('auth.client_id'),
@@ -22,13 +22,13 @@ class SSOController extends Controller
       "scope" => "",
       "state" => $state,
     ]);
-    
+
     return redirect(config('auth.sso_host') . "/oauth/authorize?" . $query);
-}
+  }
   public function getCallback(Request $request)
   {
     $state = $request->session('state');
-    
+
     $response = Http::asForm()->post(config('auth.sso_host') . "/oauth/token", [
       "grant_type" => "authorization_code",
       "client_id" =>  config('auth.client_id'),
@@ -41,7 +41,7 @@ class SSOController extends Controller
   }
   public function connectUser(Request $request)
   {
-    
+
     $access_token = $request->session()->get("access_token");
     $response = Http::withHeaders([
       "Accept" => "application/json",
@@ -51,28 +51,42 @@ class SSOController extends Controller
     $userArray = $response->json();
     try {
       $email = $userArray['email'];
-    }catch(\Throwable $th){
+    } catch (\Throwable $th) {
       return redirect("login")->withError("Failed To get Information");
     }
 
-    $user= User::where("email",$email) ->first();
-    
+    $user = User::where("email", $email)->first();
+
     if (!$user) {
       $user = new User;
       $user->name = $userArray['name'];
-      $user->email= $userArray['email'];
+      $user->email = $userArray['email'];
 
-      $user->email_verified_at =$userArray['email_verified_at'];
+      $user->email_verified_at = $userArray['email_verified_at'];
       $user->save();
     }
     Auth::login($user);
-    return redirect(config('auth.bep_client'));
+    // dd(Auth::user());
+    return redirect(route('home'));
   }
 
-  public function loggedIn()
+  public function loggedIn(Request $req)
   {
-    if(auth()->user()) return json_encode(auth()->user());
-    else return json_encode(null);
-  }
+    // if (Auth::user()) return json_encode(Auth::user());
+    // else return json_encode(null);
+    // dd($req->input('client_id'));
+    $user = Auth::user();
+    return $user;
+    if(session()->get("access_token")) return session()->get("access_token");
+    else return 'b';
+    return 'a';
+    $response = Http::withHeaders([
+      'Accept' => 'application/json',
+      "Authorization" => "Bearer " . session()->get("access_token"),
+    ])->post(config('auth.sso_host') . "/api/checkUser", [
+      'email' => $user->email,
+    ]);
 
+    return redirect(config('auth.bep_client')->with);
+  }
 }

@@ -14,17 +14,21 @@ function generateString(length) {
 
 function Home() {
 
-	// useEffect(() => {
-	// 	const timeout = setTimeout(() => {
-	// 		// 👇️ redirects to an external URL
-            
-	// 		window.location.replace(
-	// 			"https://sso.okbank.co.id/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state="+ generateString(40)
-	// 		);
-	// 	});
 
-	// 	return () => clearTimeout(timeout);
-	// }, []);
+
+	
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			// 👇️ redirects to an external URL
+            
+			window.location.replace(
+				"http://127.0.0.1:8000/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state="+ generateString(40)
+			);
+		});
+
+		return () => clearTimeout(timeout);
+	}, []);
 	return <></>;
 }
 

@@ -260,7 +260,10 @@ function Custom() {
 						&ckpn_rate=
 						${ickpnr} 
 						&branch=
-						${selBranch}`,
+						${selBranch}
+						&profit=
+						${iprofit}`,
+						
 
 					{}
 				)

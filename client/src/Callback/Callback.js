@@ -8,13 +8,13 @@ function Callback() {
 	useEffect(() => {
 		axios({
 			method: "post",
-			url: "https://sso.okbank.co.id/oauth/token",
+			url: "http://127.0.0.1:8000/api/checkUser",
 			data: {
-				grant_type: "authorization_code",
-				client_id: "98907a23-7b34-4bc0-8220-dc6bf0fbb104",
-				client_secret: "9RaZC3IBZImb5r93hB0onyJkrTpgrC0S8wd5JuTG",
-				redirect_uri: "http://127.0.0.1:3000/callback",
-				code: searchParams.get("code").substring(5, 8),
+				// grant_type: "authorization_code",
+				// client_id: "98907a23-7b34-4bc0-8220-dc6bf0fbb104",
+				// client_secret: "9RaZC3IBZImb5r93hB0onyJkrTpgrC0S8wd5JuTG",
+				// redirect_uri: "http://127.0.0.1:8001/callback",
+				// code: searchParams.get("code").substring(5, 8),
 			},
 			headers: {
 				"Access-Control-Allow-Origin": "*",

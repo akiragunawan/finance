@@ -6,6 +6,7 @@ use App\Http\Controllers\Calculations\BSController;
 use App\Http\Controllers\Calculations\PLController;
 use App\Http\Controllers\SSO\SSOController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -27,4 +28,4 @@ Route::get('/get/branch', [BranchController::class, 'queryBranch'])->name('branc
 Route::get('/get/bep', [BEPController::class, 'queryBEP'])->name('bep.get');
 Route::get('/get/scenario', [BEPController::class, 'queryScenario'])->name('scenario.get');
 Route::get('/get/calculation', [BEPController::class, 'calculate']);
-Route::get('/logged_in', [SSOController::class, 'loggedIn']);
+Route::post('/logged_in', [SSOController::class, 'loggedIn']);
