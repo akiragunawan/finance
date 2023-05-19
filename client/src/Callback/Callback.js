@@ -1,36 +1,86 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { json, useSearchParams } from "react-router-dom";
 import axios from "axios";
 function Callback() {
-	const [searchParams, setSearchParams] = useSearchParams();
-
+	const urlParams = new URLSearchParams(window.location.search);
+	const code = urlParams.get("code");
+	// const [searchParams, setSearchParams] = useSearchParams();
 
 	useEffect(() => {
+		// window.location.replace(
+		// 	"http://127.0.0.1:8000/oauth/authorize?grant_type=authorization_code&client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&client_secret=9RaZC3IBZImb5r93hB0onyJkrTpgrC0S8wd5JuTG&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&code=" +
+		// 		code
+		// );
+		// var url =
+		// 	"http://127.0.0.1:8000/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&code=" +
+		// 	code;
+
+		// var form = $(
+		// 	'<form action="' +
+		// 		url +
+		// 		'" method="post">' +
+		// 		'<input type="text" name="api_url" value="' +
+		// 		Return_URL +
+		// 		'" />' +
+		// 		"</form>"
+		// );
+		// $("body").append(form);
+		// form.submit();
+
 		axios({
 			method: "post",
-			url: "http://127.0.0.1:8000/api/checkUser",
+			url: "http://127.0.0.1:8000/oauth/token",
 			data: {
-				// grant_type: "authorization_code",
-				// client_id: "98907a23-7b34-4bc0-8220-dc6bf0fbb104",
-				// client_secret: "9RaZC3IBZImb5r93hB0onyJkrTpgrC0S8wd5JuTG",
-				// redirect_uri: "http://127.0.0.1:8001/callback",
-				// code: searchParams.get("code").substring(5, 8),
+				grant_type: "authorization_code",
+				client_id: "98907a23-7b34-4bc0-8220-dc6bf0fbb104",
+				client_secret: "9RaZC3IBZImb5r93hB0onyJkrTpgrC0S8wd5JuTG",
+				redirect_uri: "http://127.0.0.1:3000/callback",
+				code: code,
 			},
 			headers: {
 				"Access-Control-Allow-Origin": "*",
 				"Access-Control-Allow-Headers": "*",
 				"Access-Control-Allow-Credentials": "true",
-                'Content-Type': 'application/json',
+				"Content-Type": "application/json",
 			},
 		})
 			.then(function (e) {
-                console.log(e);
-            })
+				console.log(e.data);
+				axios({
+					method: "post",
+					url: "http://127.0.0.1:8000/api/userToken",
+					data: {
+						access_token: e.data.access_token,
+					},
+					headers: {
+						"Access-Control-Allow-Origin": "*",
+						"Access-Control-Allow-Headers": "*",
+						"Access-Control-Allow-Credentials": "true",
+						"Content-Type": "application/json",
+						Authorization: "Bearer " + e.data.access_token,
+					},
+				})
+					.then(function (b) {
+						console.log(b.data);
+						if (b.data) {
+							sessionStorage.setItem("_token", b.data.token);
+							sessionStorage.setItem("_sestoken", e.data.access_token);
+							window.location.replace("http://127.0.0.1:3000/");
+						} else {
+							sessionStorage.removeItem("_token");
+							sessionStorage.removeItem("_sestoken");
+							window.location.replace("http://127.0.0.1:3000/");
+						}
+					})
+					.catch(function (c) {
+						console.log(c);
+					});
+			})
 			.catch(function (e) {
-                console.log(e);
-            });
+				console.log(e);
+			});
 	}, []);
-	return <div>data: </div>;
+	return <></>;
 }
 
 export default Callback;
