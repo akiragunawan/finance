@@ -1,33 +1,91 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-
 function Bs() {
 	const [data, setData] = useState([]);
 	const d = new Date();
+	const characters =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	function generateString(length) {
+		let result = " ";
+		const charactersLength = characters.length;
+		for (let i = 0; i < length; i++) {
+			result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
 
-	
-	
+		return result;
+	}
+
 	useEffect(() => {
-		axios
-			.get("http://127.0.0.1:8001/api/logged_in", {})
-			.then((response) => {
-				console.log(response);
-				if(response.data == null){
-					window.location.replace(
-						"http://127.0.0.1:8001"
-					);
-				}
-			})
-			.catch((error) => {
-				console.log(error);
-			});
+		const timeout = setTimeout(() => {
+			// 👇️ redirects to an external URL
+			if (
+				!sessionStorage.getItem("_token") ||
+				!sessionStorage.getItem("_sestoken")
+			) {
+				window.location.replace(
+					"http://127.0.0.1:8000/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state=" +
+						generateString(40)
+				);
+			} else {
+				axios({
+					method: "post",
+					url: "http://127.0.0.1:8000/api/userToken",
+					data: {
+						access_token: sessionStorage.getItem("_sestoken"),
+					},
+					headers: {
+						"Access-Control-Allow-Origin": "*",
+						"Access-Control-Allow-Headers": "*",
+						"Access-Control-Allow-Credentials": "true",
+						"Content-Type": "application/json",
+						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+					},
+				})
+					.then(function (b) {
+						console.log(b.data);
+						if (b.data) {
+							sessionStorage.setItem("_token", b.data.token);
+						} else {
+							sessionStorage.removeItem("_token");
+							sessionStorage.removeItem("_sestoken");
+							window.location.replace("http://127.0.0.1:3000/");
+						}
+					})
+					.catch(function (c) {
+						console.log(c);
+						sessionStorage.removeItem("_token");
+						sessionStorage.removeItem("_sestoken");
+						window.location.replace("http://127.0.0.1:3000/");
+					});
+			}
+		});
+
+		return () => clearTimeout(timeout);
 	}, []);
 
+	useEffect(() => {
+		// axios
+		// 	.get("http://127.0.0.1:8001/api/logged_in", {})
+		// 	.then((response) => {
+		// 		console.log(response);
+		// 		if(response.data == null){
+		// 			window.location.replace(
+		// 				"http://127.0.0.1:8001"
+		// 			);
+		// 		}
+		// 	})
+		// 	.catch((error) => {
+		// 		console.log(error);
+		// 	});
+	}, []);
 
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8001/api/get/bs?year=2023&month="+ d.getMonth(), {})
+			.get(
+				"http://127.0.0.1:8001/api/get/bs?year=2023&month=" + d.getMonth(),
+				{}
+			)
 			.then((response) => {
 				setData(response.data);
 				console.log(response.data);

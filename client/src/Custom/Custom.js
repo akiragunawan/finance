@@ -3,11 +3,73 @@ import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import XLSX from "xlsx";
-import {Renderer} from 'xlsx-renderer';
+// import { Renderer } from "xlsx-renderer";
+import './Custom.css'
 
 // import { saveAs } from "file-saver";
 
 function Custom() {
+	const characters =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	function generateString(length) {
+		let result = " ";
+		const charactersLength = characters.length;
+		for (let i = 0; i < length; i++) {
+			result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+
+		return result;
+	}
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			// 👇️ redirects to an external URL
+			if (
+				!sessionStorage.getItem("_token") ||
+				!sessionStorage.getItem("_sestoken")
+			) {
+				window.location.replace(
+					"http://127.0.0.1:8000/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state=" +
+						generateString(40)
+				);
+			} else {
+				axios({
+					method: "post",
+					url: "http://127.0.0.1:8000/api/userToken",
+					data: {
+						access_token: sessionStorage.getItem("_sestoken"),
+					},
+					headers: {
+						"Access-Control-Allow-Origin": "*",
+						"Access-Control-Allow-Headers": "*",
+						"Access-Control-Allow-Credentials": "true",
+						"Content-Type": "application/json",
+						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+					},
+				})
+					.then(function (b) {
+						console.log(b.data);
+						if (b.data) {
+							sessionStorage.setItem("_token", b.data.token);
+						} else {
+							sessionStorage.removeItem("_token");
+							sessionStorage.removeItem("_sestoken");
+							window.location.replace("http://127.0.0.1:3000/");
+						}
+					})
+					.catch(function (c) {
+						console.log(c);
+						sessionStorage.removeItem("_token");
+						sessionStorage.removeItem("_sestoken");
+						window.location.replace("http://127.0.0.1:3000/");
+					});
+			}
+		});
+
+		return () => clearTimeout(timeout);
+	}, []);
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	const [startDate, setStartDate] = useState(new Date());
 	const [branch, setBranch] = useState([]);
 	const [selBranch, setSelBranch] = useState(0);
@@ -21,6 +83,7 @@ function Custom() {
 	const [bior, setBior] = useState("");
 	const [ckpnr, setCkpnr] = useState("");
 	const [profit, setProfit] = useState("");
+	const [projection, setProjection] = useState("");
 
 	// const [ilb, setiLb] = useState("");
 	// const [ilr, setiLr] = useState("");
@@ -42,7 +105,7 @@ function Custom() {
 	let ibior = "";
 	let ickpnr = "";
 	let iprofit = "";
-
+	let iProjection = "";
 
 	// const [showSce, setShowsce] = useState(true);
 	const d = new Date();
@@ -59,7 +122,7 @@ function Custom() {
 	const [eBior, setEbior] = useState(false);
 	const [eCkpnr, setEckpnr] = useState(false);
 	const [eProfit, setEprofit] = useState(false);
-
+	const [eProjection, setEprojection] = useState(false);
 
 	// const
 	const isLastDate = (date) => {
@@ -207,8 +270,11 @@ function Custom() {
 			// setiCkpnr(ckpnr);
 			ickpnr = ckpnr;
 		}
-		if(eProfit){
+		if (eProfit) {
 			iprofit = profit;
+		}
+		if (eProjection) {
+			iProjection = projection;
 		}
 
 		if (selBranch === 0) {
@@ -231,8 +297,10 @@ function Custom() {
 			alert("Borrwing Iner Office Rate must be fill");
 		} else if (ckpnr === "" && eCkpnr) {
 			alert("CKPN Rate must be fill");
-		}else if(profit === "" && eProfit){
+		} else if (profit === "" && eProfit) {
 			alert("Profit Must be fill");
+		} else if (projection === "" && eProjection) {
+			alert("Projection Month Must be fill");
 		} else {
 			axios
 				.get(
@@ -260,7 +328,11 @@ function Custom() {
 						&ckpn_rate=
 						${ickpnr} 
 						&branch=
-						${selBranch}`,
+						${selBranch}
+						&profit=
+						${iprofit}
+						&projection_month=
+						${iProjection}`,
 
 					{}
 				)
@@ -340,7 +412,7 @@ function Custom() {
 											id={"LoanBCheckChecked"}
 											onChange={(e) => {
 												setElb(!elb);
-												if(eProfit == true){
+												if (eProfit == true) {
 													setEprofit(false);
 												}
 											}}
@@ -684,8 +756,8 @@ function Custom() {
 										id="profitCheckChecked"
 										onChange={(e) => {
 											setEprofit(!eProfit);
-											if(elb === true){
-												setElb(false)
+											if (elb === true) {
+												setElb(false);
 											}
 										}}
 										checked={eProfit}
@@ -714,6 +786,42 @@ function Custom() {
 								></input>
 								<span className="input-group-text">%</span>
 							</div>
+
+							<div className="d-flex justify-content-between my-2">
+								<label className="form-label my-auto">
+									12 Month Projection
+								</label>
+								<div className="form-check form-switch my-auto">
+									<input
+										className="form-check-input"
+										type="checkbox"
+										id="Projection"
+										onChange={(e) => {
+											setEprojection(!eProjection);
+										}}
+										checked={eProjection}
+									></input>
+									<label
+										className="form-check-label"
+										htmlFor="Projection"
+									>
+										{eProjection ? "Enable" : "Disable"}
+									</label>
+								</div>
+							</div>
+							<div className="input-group">
+								<input
+									disabled={!eProjection}
+									value={projection}
+									onChange={(e) => {
+										setProjection(e.target.value);
+									}}
+									className="form-control"
+									id="Projection_input"
+									placeholder="Input Number here without '%'"
+								></input>
+								<span className="input-group-text">%</span>
+							</div>
 							<div>
 								<button
 									className="btn btn-primary d-block w-100 mt-4"
@@ -732,7 +840,7 @@ function Custom() {
 			{sceData.length === 0 ? (
 				""
 			) : (
-				<div className="card mt-3 mb-3">
+				<div className="card mt-3 mb-3 ">
 					<div className="card-body p-4">
 						<div className="row">
 							<div className="col-6 text-start my-auto">
@@ -991,42 +1099,42 @@ function Custom() {
 										}
 										const style = {
 											font: {
-											  bold: true,
-											  color: '#ffffff',
-											  size: 16,
+												bold: true,
+												color: "#ffffff",
+												size: 16,
 											},
 											fill: {
-											  type: 'pattern',
-											  patternType: 'solid',
-											  fgColor: '#008000',
+												type: "pattern",
+												patternType: "solid",
+												fgColor: "#008000",
 											},
 											alignment: {
-											  horizontal: 'center',
-											  vertical: 'center',
+												horizontal: "center",
+												vertical: "center",
 											},
 											border: {
-											  top: {
-												style: 'thin',
-												color: '#000000',
-											  },
-											  bottom: {
-												style: 'thin',
-												color: '#000000',
-											  },
-											  left: {
-												style: 'thin',
-												color: '#000000',
-											  },
-											  right: {
-												style: 'thin',
-												color: '#000000',
-											  },
+												top: {
+													style: "thin",
+													color: "#000000",
+												},
+												bottom: {
+													style: "thin",
+													color: "#000000",
+												},
+												left: {
+													style: "thin",
+													color: "#000000",
+												},
+												right: {
+													style: "thin",
+													color: "#000000",
+												},
 											},
-										  };
+										};
 										//   sheet.getCell('A1').setStyle(style);
 										// Create a workbook and add the worksheet
 										const workbook = XLSX.utils.book_new();
-							
+
 										XLSX.utils.book_append_sheet(workbook, sheet, "Sheet1");
 
 										// Save the workbook to a file
