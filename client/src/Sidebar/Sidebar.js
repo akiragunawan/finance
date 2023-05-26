@@ -26,7 +26,7 @@ function Sidebar() {
 				"Access-Control-Allow-Headers": "*",
 				"Access-Control-Allow-Credentials": "true",
 				"Content-Type": "application/json",
-				// Authorization: "Bearer " + e.data.access_token,
+				Authorization: "Bearer " + sessionStorage.getItem('_sestoken'),
 			},
 		})
 			.then(function (b) {
