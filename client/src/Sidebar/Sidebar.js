@@ -4,6 +4,7 @@ import { faBars, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./Sidebar.css";
 import { NavLink } from "react-router-dom";
+import axios from "axios";
 
 function Sidebar() {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -14,38 +15,37 @@ function Sidebar() {
 	};
 
 	const logout = () => {
-		// axios({
-		// 	method: "post",
-		// 	url: "http://127.0.0.1:8000/api/userToken",
-		// 	data: {
-		// 		access_token: e.data.access_token,
-		// 	},
-		// 	headers: {
-		// 		"Access-Control-Allow-Origin": "*",
-		// 		"Access-Control-Allow-Headers": "*",
-		// 		"Access-Control-Allow-Credentials": "true",
-		// 		"Content-Type": "application/json",
-		// 		Authorization: "Bearer " + e.data.access_token,
-		// 	},
-		// })
-		// 	.then(function (b) {
-		// 		console.log(b.data);
-		// 		if (b.data) {
-		// 			sessionStorage.setItem("_token", b.data.token);
-		// 			sessionStorage.setItem("_sestoken", e.data.access_token);
-		// 			window.location.replace("http://127.0.0.1:3000/");
-		// 		} else {
-		// 			sessionStorage.removeItem("_token");
-		// 			sessionStorage.removeItem("_sestoken");
-		// 			window.location.replace("http://127.0.0.1:3000/");
-		// 		}
-		// 	})
-		// 	.catch(function (c) {
-		// 		console.log(c);
-		// 	});
+		axios({
+			method: "post",
+			url: "http://127.0.0.1:8000/api/logoutToken",
+			data: {
+				access_token: sessionStorage.getItem('_sestoken'),
+			},
+			headers: {
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Headers": "*",
+				"Access-Control-Allow-Credentials": "true",
+				"Content-Type": "application/json",
+				// Authorization: "Bearer " + e.data.access_token,
+			},
+		})
+			.then(function (b) {
+				console.log(b.data);
+				// if (b.data) {
+				
+				// 	window.location.replace("http://127.0.0.1:3000/");
+				// } else {
+				// 	sessionStorage.removeItem("_token");
+				// 	sessionStorage.removeItem("_sestoken");
+				// 	window.location.replace("http://127.0.0.1:3000/");
+				// }
+			})
+			.catch(function (c) {
+				console.log(c);
+			});
 
-		sessionStorage.removeItem("_token");
-		sessionStorage.removeItem("_sestoken");
+		// sessionStorage.removeItem("_token");
+		// sessionStorage.removeItem("_sestoken");
 	};
 
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);

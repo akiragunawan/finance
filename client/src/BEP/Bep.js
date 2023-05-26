@@ -45,33 +45,30 @@ function Bep() {
 					"http://127.0.0.1:8000/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state=" +
 						generateString(40)
 				);
-			}else{
+			} else {
 				axios({
 					method: "post",
 					url: "http://127.0.0.1:8000/api/userToken",
 					data: {
-						access_token: sessionStorage.getItem('_sestoken'),
+						access_token: sessionStorage.getItem("_sestoken"),
 					},
 					headers: {
 						"Access-Control-Allow-Origin": "*",
 						"Access-Control-Allow-Headers": "*",
 						"Access-Control-Allow-Credentials": "true",
 						"Content-Type": "application/json",
-						"Authorization": "Bearer " + sessionStorage.getItem('_sestoken'),
+						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
 					},
 				})
 					.then(function (b) {
 						console.log(b.data);
-						if(b.data){
-							sessionStorage.setItem('_token',b.data.token);
-							
-						}else{
-							sessionStorage.removeItem('_token');
-							sessionStorage.removeItem('_sestoken');
-							window.location.replace(
-								"http://127.0.0.1:3000/");
+						if (b.data) {
+							sessionStorage.setItem("_token", b.data.token);
+						} else {
+							sessionStorage.removeItem("_token");
+							sessionStorage.removeItem("_sestoken");
+							window.location.replace("http://127.0.0.1:3000/");
 						}
-						
 					})
 					.catch(function (c) {
 						console.log(c);
@@ -333,7 +330,7 @@ function Bep() {
 					<div className="tab-content" id="nav-tabContent">
 						{branch.map((brn, key) => (
 							<div
-								className="tab-pane fade"
+								className="tab-pane fade section-to-print"
 								id={"nav-" + brn.branch_code}
 								role="tabpanel"
 								key={brn.branch_code}
