@@ -4,6 +4,7 @@ import "../BEP/Bep.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+
 function Bep() {
 	const [dataCabang, setDataCabang] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -13,12 +14,14 @@ function Bep() {
 	const [profit, setProfit] = useState(null);
 	const [error, setError] = useState(0);
 	const [url_search, setUrl_search] = useState();
+	var linkserver = process.env.REACT_APP_LINK_API_SERVER;
+	var linksso = process.env.REACT_APP_LINK_API_SSO;
 
 	// console.log(d);
 
 	// useEffect(() => {
 	// 	window.location.replace(
-	// 		"http://127.0.0.1:8001/logged_in"
+	// 		linkserver+"/logged_in"
 	// 	);
 	// }, []);
 
@@ -42,13 +45,13 @@ function Bep() {
 				!sessionStorage.getItem("_sestoken")
 			) {
 				window.location.replace(
-					"http://127.0.0.1:8000/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state=" +
+					linksso+"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state=" +
 						generateString(40)
 				);
 			} else {
 				axios({
 					method: "post",
-					url: "http://127.0.0.1:8000/api/userToken",
+					url: linksso+"/api/userToken",
 					data: {
 						access_token: sessionStorage.getItem("_sestoken"),
 					},
@@ -57,7 +60,7 @@ function Bep() {
 						"Access-Control-Allow-Headers": "*",
 						"Access-Control-Allow-Credentials": "true",
 						"Content-Type": "application/json",
-						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+						"Authorization": "Bearer " + sessionStorage.getItem("_sestoken"),
 					},
 				})
 					.then(function (b) {
@@ -85,7 +88,7 @@ function Bep() {
 	useEffect(() => {
 		// console.log(d.getDate(), d.getMonth() + 1, d.getFullYear());
 		axios
-			.get("http://127.0.0.1:8001/api/get/bep")
+			.get(linkserver+"/api/get/bep")
 			.then((response) => {
 				console.log(response.data);
 
@@ -107,7 +110,7 @@ function Bep() {
 	}, []);
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8001/api/get/branch", {})
+			.get(linkserver+'/api/get/branch', {})
 			.then((response) => {
 				setBranch(response.data);
 				setLoading(false);
@@ -201,7 +204,7 @@ function Bep() {
 		) {
 			console.log("non");
 			setUrl_search(
-				"http://127.0.0.1:8001/api/get/bep?month=" +
+				linkserver+"/api/get/bep?month=" +
 					(startDate.getMonth() + 1) +
 					"&year=" +
 					startDate.getFullYear()
@@ -209,7 +212,7 @@ function Bep() {
 		} else {
 			console.log("parameter");
 			setUrl_search(
-				"http://127.0.0.1:8001/api/get/bep?month=" +
+				linkserver+"/api/get/bep?month=" +
 					(startDate.getMonth() + 1) +
 					"&year=" +
 					startDate.getFullYear() +

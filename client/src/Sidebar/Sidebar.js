@@ -9,43 +9,52 @@ import axios from "axios";
 function Sidebar() {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 	// const [paddingValue, setPaddingValue] = useState("0");
-
+	var linksso = process.env.REACT_APP_LINK_API_SSO;
 	const handleSidebarToggle = () => {
 		setIsSidebarOpen(!isSidebarOpen);
 	};
 
 	const logout = () => {
-		axios({
-			method: "post",
-			url: "http://127.0.0.1:8000/api/logoutToken",
-			data: {
-				access_token: sessionStorage.getItem('_sestoken'),
-			},
-			headers: {
-				"Access-Control-Allow-Origin": "*",
-				"Access-Control-Allow-Headers": "*",
-				"Access-Control-Allow-Credentials": "true",
-				"Content-Type": "application/json",
-				Authorization: "Bearer " + sessionStorage.getItem('_sestoken'),
-			},
-		})
-			.then(function (b) {
-				console.log(b.data);
-				// if (b.data) {
-				
-				// 	window.location.replace("http://127.0.0.1:3000/");
-				// } else {
-				// 	sessionStorage.removeItem("_token");
-				// 	sessionStorage.removeItem("_sestoken");
-				// 	window.location.replace("http://127.0.0.1:3000/");
-				// }
-			})
-			.catch(function (c) {
-				console.log(c);
-			});
 
-		// sessionStorage.removeItem("_token");
-		// sessionStorage.removeItem("_sestoken");
+		sessionStorage.removeItem("_token");
+		sessionStorage.removeItem("_sestoken");
+
+		window.location.replace(
+			linksso+"/logout"
+		);
+		// axios({
+		// 	method: "post",
+		// 	url: linksso+"/api/logoutToken",
+		// 	data: new URLSearchParams({
+		// 		access_token: sessionStorage.getItem("_token"),
+		// 	}),
+
+		// 	headers: {
+		// 		"Access-Control-Allow-Origin": "*",
+		// 		"Access-Control-Allow-Headers": "*",
+		// 		"Access-Control-Allow-Credentials": "true",
+		// 		"Content-Type": "application/x-www-form-urlencoded",
+		// 		"Authorization": "Bearer " + sessionStorage.getItem("_token"),
+		// 	},
+		// })
+		// 	.then(function (b) {
+		// 		console.log(b.data);
+		// 		sessionStorage.removeItem("_token");
+		// 		sessionStorage.removeItem("_sestoken");
+		// 		// if (b.data) {
+
+		// 		// 	window.location.replace("http://127.0.0.1:3000/");
+		// 		// } else {
+		// 		// 	sessionStorage.removeItem("_token");
+		// 		// 	sessionStorage.removeItem("_sestoken");
+		// 		// 	window.location.replace("http://127.0.0.1:3000/");
+		// 		// }
+		// 	})
+		// 	.catch(function (c) {
+		// 		console.log(c);
+		// 	});
+
+		
 	};
 
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);

@@ -4,15 +4,16 @@ import axios from "axios";
 function Callback() {
 	const urlParams = new URLSearchParams(window.location.search);
 	const code = urlParams.get("code");
+	var linksso = process.env.REACT_APP_LINK_API_SSO;
 	// const [searchParams, setSearchParams] = useSearchParams();
 
 	useEffect(() => {
 		// window.location.replace(
-		// 	"http://127.0.0.1:8000/oauth/authorize?grant_type=authorization_code&client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&client_secret=9RaZC3IBZImb5r93hB0onyJkrTpgrC0S8wd5JuTG&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&code=" +
+		// 	linksso+"/oauth/authorize?grant_type=authorization_code&client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&client_secret=9RaZC3IBZImb5r93hB0onyJkrTpgrC0S8wd5JuTG&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&code=" +
 		// 		code
 		// );
 		// var url =
-		// 	"http://127.0.0.1:8000/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&code=" +
+		// 	linksso+"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&code=" +
 		// 	code;
 
 		// var form = $(
@@ -29,7 +30,7 @@ function Callback() {
 
 		axios({
 			method: "post",
-			url: "http://127.0.0.1:8000/oauth/token",
+			url: linksso+"/oauth/token",
 			data: {
 				grant_type: "authorization_code",
 				client_id: "98907a23-7b34-4bc0-8220-dc6bf0fbb104",
@@ -48,7 +49,7 @@ function Callback() {
 				console.log(e.data);
 				axios({
 					method: "post",
-					url: "http://127.0.0.1:8000/api/userToken",
+					url: linksso+"/api/userToken",
 					data: {
 						access_token: e.data.access_token,
 					},

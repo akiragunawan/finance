@@ -13,6 +13,8 @@ function generateString(length) {
 }
 
 function Home() {
+	var linkserver = process.env.REACT_APP_LINK_API_SERVER;
+	var linksso = process.env.REACT_APP_LINK_API_SSO;
 
 
 
@@ -23,7 +25,7 @@ function Home() {
 			// 👇️ redirects to an external URL
             if(!sessionStorage.getItem('_token') || !sessionStorage.getItem('_sestoken')){
 				window.location.replace(
-					"http://127.0.0.1:8000/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state="+ generateString(40)
+					linksso+"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state="+ generateString(40)
 				);
 			}
 			

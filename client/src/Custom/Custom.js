@@ -9,6 +9,8 @@ import './Custom.css'
 // import { saveAs } from "file-saver";
 
 function Custom() {
+	var linkserver = process.env.REACT_APP_LINK_API_SERVER;
+	var linksso = process.env.REACT_APP_LINK_API_SSO;
 	const characters =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	function generateString(length) {
@@ -29,13 +31,13 @@ function Custom() {
 				!sessionStorage.getItem("_sestoken")
 			) {
 				window.location.replace(
-					"http://127.0.0.1:8000/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state=" +
+					linksso+"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state=" +
 						generateString(40)
 				);
 			} else {
 				axios({
 					method: "post",
-					url: "http://127.0.0.1:8000/api/userToken",
+					url: linksso+"/api/userToken",
 					data: {
 						access_token: sessionStorage.getItem("_sestoken"),
 					},
@@ -44,7 +46,7 @@ function Custom() {
 						"Access-Control-Allow-Headers": "*",
 						"Access-Control-Allow-Credentials": "true",
 						"Content-Type": "application/json",
-						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+						"Authorization": "Bearer " + sessionStorage.getItem("_sestoken"),
 					},
 				})
 					.then(function (b) {
@@ -136,7 +138,7 @@ function Custom() {
 
 	useEffect(() => {
 		axios
-			.get("http://127.0.0.1:8001/api/get/branch", {})
+			.get(linkserver+"/api/get/branch", {})
 			.then((response) => {
 				setBranch(response.data);
 				// console.log(response.data);
@@ -162,7 +164,7 @@ function Custom() {
 				if (isLastDate(d) === true) {
 					axios
 						.get(
-							"http://127.0.0.1:8001/api/get/bep?year=" +
+							linkserver+"/api/get/bep?year=" +
 								startDate.getFullYear() +
 								"&month=" +
 								(startDate.getMonth() + 1) +
@@ -200,7 +202,7 @@ function Custom() {
 				} else {
 					axios
 						.get(
-							"http://127.0.0.1:8001/api/get/bep?year=" +
+							linkserver+"/api/get/bep?year=" +
 								startDate.getFullYear() +
 								"&month=" +
 								(startDate.getMonth() + 1) +
