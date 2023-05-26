@@ -48,7 +48,7 @@ class BSController extends Controller
                 $i = 0;
                 foreach($branches as $b){
                     $b_array['branch_name'] = $b_data['branch_name'][$i];
-                    $b_array['branch_code'] = $b_data['branch_code'][$i];
+                    $b_array['branch_code'] = $b_data['branch_code'][$i];   
                     if($b_array['branch_code']=='1108'){
                         $temp = $this->getBSPerBranch($temp_date, $c, '1108')->first();
                         $temp = collect($temp);
