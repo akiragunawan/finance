@@ -4,8 +4,10 @@ import axios from "axios";
 function Pl() {
 	const [data, setData] = useState([]);
 	const d = new Date();
-	var linkserver = process.env.REACT_APP_LINK_API_SERVER;
-	var linksso = process.env.REACT_APP_LINK_API_SSO;
+	const linksso = process.env.REACT_APP_LINK_API_SSO;
+	const linkserver = process.env.REACT_APP_LINK_API_SERVER;
+	const linkclientper = process.env.REACT_APP_LINK_CLIENT_PER;
+	const linkclient = process.env.REACT_APP_LINK_CLIENT;
 
 	const characters =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -27,16 +29,16 @@ function Pl() {
 				!sessionStorage.getItem("_sestoken")
 			) {
 				window.location.replace(
-					process.env.REACT_APP_LINK_SSO +
+					process.env.REACT_APP_LINK_API_SSO+
 						"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=" +
-						+process.env.REACT_APP_LINK_CLIENT_PER +
+						+process.env.REACT_APP_LINK_CLIENT_PER+
 						+"2Fcallback&response_type=code&scope=&state=" +
 						generateString(40)
 				);
 			} else {
 				axios({
 					method: "post",
-					url: process.env.REACT_APP_LINK_SSO + "/api/userToken",
+					url: process.env.REACT_APP_LINK_API_SSO+ "/api/userToken",
 					data: {
 						access_token: sessionStorage.getItem("_sestoken"),
 					},
@@ -45,7 +47,7 @@ function Pl() {
 						"Access-Control-Allow-Headers": "*",
 						"Access-Control-Allow-Credentials": "true",
 						"Content-Type": "application/json",
-						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+						"Authorization": "Bearer " + sessionStorage.getItem("_sestoken"),
 					},
 				})
 					.then(function (b) {
@@ -55,14 +57,14 @@ function Pl() {
 						} else {
 							sessionStorage.removeItem("_token");
 							sessionStorage.removeItem("_sestoken");
-							window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+							window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
 						}
 					})
 					.catch(function (c) {
 						console.log(c);
 						sessionStorage.removeItem("_token");
 						sessionStorage.removeItem("_sestoken");
-						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+						window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
 					});
 			}
 		});
@@ -72,7 +74,7 @@ function Pl() {
 	useEffect(() => {
 		axios
 			.get(
-				process.env.REACT_APP_LINK_SERVER +
+				process.env.REACT_APP_LINK_API_SERVER+
 					"/api/get/pl?year=2023&month=" +
 					d.getMonth(),
 				{}

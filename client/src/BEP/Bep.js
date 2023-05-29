@@ -13,14 +13,15 @@ function Bep() {
 	const [profit, setProfit] = useState(null);
 	const [error, setError] = useState(0);
 	const [url_search, setUrl_search] = useState();
-	var linkserver = process.env.REACT_APP_LINK_API_SERVER;
-	var linksso = process.env.REACT_APP_LINK_API_SSO;
-
+	const linksso = process.env.REACT_APP_LINK_API_SSO;
+	const linkserver = process.env.REACT_APP_LINK_API_SERVER;
+	const linkclientper = process.env.REACT_APP_LINK_CLIENT_PER;
+	const linkclient = process.env.REACT_APP_LINK_CLIENT;
 	// console.log(d);
 
 	// useEffect(() => {
 	// 	window.location.replace(
-	// 		process.env.REACT_APP_LINK_SERVER+"/logged_in"
+	// 		linkserver+"/logged_in"
 	// 	);
 	// }, []);
 
@@ -44,16 +45,16 @@ function Bep() {
 				!sessionStorage.getItem("_sestoken")
 			) {
 				window.location.replace(
-					process.env.REACT_APP_LINK_SSO +
+					process.env.REACT_APP_LINK_API_SSO+
 						"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=" +
-						+process.env.REACT_APP_LINK_CLIENT_PER +
+						+process.env.REACT_APP_LINK_CLIENT_PER+
 						+"2Fcallback&response_type=code&scope=&state=" +
 						generateString(40)
 				);
 			} else {
 				axios({
 					method: "post",
-					url: process.env.REACT_APP_LINK_SSO + "/api/userToken",
+					url: process.env.REACT_APP_LINK_API_SSO+ "/api/userToken",
 					data: {
 						access_token: sessionStorage.getItem("_sestoken"),
 					},
@@ -62,7 +63,7 @@ function Bep() {
 						"Access-Control-Allow-Headers": "*",
 						"Access-Control-Allow-Credentials": "true",
 						"Content-Type": "application/json",
-						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+						"Authorization": "Bearer " + sessionStorage.getItem("_sestoken"),
 					},
 				})
 					.then(function (b) {
@@ -72,14 +73,14 @@ function Bep() {
 						} else {
 							sessionStorage.removeItem("_token");
 							sessionStorage.removeItem("_sestoken");
-							window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+							window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
 						}
 					})
 					.catch(function (c) {
 						console.log(c);
 						sessionStorage.removeItem("_token");
 						sessionStorage.removeItem("_sestoken");
-						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+						window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
 					});
 			}
 		});
@@ -90,7 +91,7 @@ function Bep() {
 	useEffect(() => {
 		// console.log(d.getDate(), d.getMonth() + 1, d.getFullYear());
 		axios
-			.get(process.env.REACT_APP_LINK_SERVER + "/api/get/bep")
+			.get(process.env.REACT_APP_LINK_API_SERVER+ "/api/get/bep")
 			.then((response) => {
 				console.log(response.data);
 
@@ -112,7 +113,7 @@ function Bep() {
 	}, []);
 	useEffect(() => {
 		axios
-			.get(linkserver + "/api/get/branch", {})
+			.get(process.env.REACT_APP_LINK_API_SERVER + "/api/get/branch", {})
 			.then((response) => {
 				setBranch(response.data);
 				setLoading(false);
@@ -206,7 +207,7 @@ function Bep() {
 		) {
 			console.log("non");
 			setUrl_search(
-				process.env.REACT_APP_LINK_SERVER +
+				process.env.REACT_APP_LINK_API_SERVER+
 					"/api/get/bep?month=" +
 					(startDate.getMonth() + 1) +
 					"&year=" +
@@ -215,7 +216,7 @@ function Bep() {
 		} else {
 			console.log("parameter");
 			setUrl_search(
-				process.env.REACT_APP_LINK_SERVER +
+				process.env.REACT_APP_LINK_API_SERVER+
 					"/api/get/bep?month=" +
 					(startDate.getMonth() + 1) +
 					"&year=" +

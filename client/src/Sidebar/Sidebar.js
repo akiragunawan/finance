@@ -7,6 +7,10 @@ import { NavLink } from "react-router-dom";
 import axios from "axios";
 
 function Sidebar() {
+	const linksso = process.env.REACT_APP_LINK_API_SSO;
+	const linkserver = process.env.REACT_APP_LINK_API_SERVER;
+	const linkclientper = process.env.REACT_APP_LINK_CLIENT_PER;
+	const linkclient = process.env.REACT_APP_LINK_CLIENT;
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 	const handleSidebarToggle = () => {
 		setIsSidebarOpen(!isSidebarOpen);
@@ -16,7 +20,7 @@ function Sidebar() {
 		sessionStorage.removeItem("_token");
 		sessionStorage.removeItem("_sestoken");
 
-		window.location.replace(process.env.REACT_APP_LINK_SSO + "/logout");
+		window.location.replace(process.env.REACT_APP_LINK_API_SSO+ "/logout");
 	};
 
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);

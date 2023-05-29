@@ -6,8 +6,12 @@ function Bs() {
 	const d = new Date();
 	const characters =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	var linkserver = process.env.REACT_APP_LINK_API_SERVER;
-	var linksso = process.env.REACT_APP_LINK_API_SSO;
+
+	const linksso = process.env.REACT_APP_LINK_API_SSO;
+	const linkserver = process.env.REACT_APP_LINK_API_SERVER;
+	const linkclientper = process.env.REACT_APP_LINK_CLIENT_PER;
+	const linkclient = process.env.REACT_APP_LINK_CLIENT;
+
 	function generateString(length) {
 		let result = " ";
 		const charactersLength = characters.length;
@@ -25,17 +29,18 @@ function Bs() {
 				!sessionStorage.getItem("_token") ||
 				!sessionStorage.getItem("_sestoken")
 			) {
+
 				window.location.replace(
-					process.env.REACT_APP_LINK_SSO +
-						"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=" +
-						+process.env.REACT_APP_LINK_CLIENT_PER +
-						+"2Fcallback&response_type=code&scope=&state=" +
+					process.env.REACT_APP_LINK_API_SSO+
+						'/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=' +
+						+process.env.REACT_APP_LINK_CLIENT_PER+
+						+'2Fcallback&response_type=code&scope=&state=' +
 						generateString(40)
 				);
 			} else {
 				axios({
 					method: "post",
-					url: process.env.REACT_APP_LINK_SSO + "/api/userToken",
+					url: process.env.REACT_APP_LINK_API_SSO+ "/api/userToken",
 					data: {
 						access_token: sessionStorage.getItem("_sestoken"),
 					},
@@ -44,7 +49,7 @@ function Bs() {
 						"Access-Control-Allow-Headers": "*",
 						"Access-Control-Allow-Credentials": "true",
 						"Content-Type": "application/json",
-						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+						"Authorization": "Bearer " + sessionStorage.getItem("_sestoken"),
 					},
 				})
 					.then(function (b) {
@@ -54,14 +59,14 @@ function Bs() {
 						} else {
 							sessionStorage.removeItem("_token");
 							sessionStorage.removeItem("_sestoken");
-							window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+							window.location.replace(linkclient + "/");
 						}
 					})
 					.catch(function (c) {
 						console.log(c);
 						sessionStorage.removeItem("_token");
 						sessionStorage.removeItem("_sestoken");
-						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+						window.location.replace(linkclient + "/");
 					});
 			}
 		});
@@ -71,12 +76,12 @@ function Bs() {
 
 	useEffect(() => {
 		// axios
-		// 	.get(process.env.REACT_APP_LINK_SERVER+"/api/logged_in", {})
+		// 	.get(linkserver+"/api/logged_in", {})
 		// 	.then((response) => {
 		// 		console.log(response);
 		// 		if(response.data == null){
 		// 			window.location.replace(
-		// 				process.env.REACT_APP_LINK_SERVER+""
+		// 				linkserver+""
 		// 			);
 		// 		}
 		// 	})
@@ -87,7 +92,7 @@ function Bs() {
 
 	useEffect(() => {
 		axios
-			.get(linkserver + "/api/get/bs?year=2023&month=" + d.getMonth(), {})
+			.get(process.env.REACT_APP_LINK_API_SERVER+ "/api/get/bs?year=2023&month=" + d.getMonth(), {})
 			.then((response) => {
 				setData(response.data);
 				console.log(response.data);
