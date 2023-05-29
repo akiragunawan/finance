@@ -4,7 +4,6 @@ import "../BEP/Bep.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-
 function Bep() {
 	const [dataCabang, setDataCabang] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -21,7 +20,7 @@ function Bep() {
 
 	// useEffect(() => {
 	// 	window.location.replace(
-	// 		linkserver+"/logged_in"
+	// 		process.env.REACT_APP_LINK_SERVER+"/logged_in"
 	// 	);
 	// }, []);
 
@@ -45,13 +44,16 @@ function Bep() {
 				!sessionStorage.getItem("_sestoken")
 			) {
 				window.location.replace(
-					linksso+"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=&state=" +
+					process.env.REACT_APP_LINK_SSO +
+						"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=" +
+						REACT_APP_LINK_CLIENT_PER +
+						"2Fcallback&response_type=code&scope=&state=" +
 						generateString(40)
 				);
 			} else {
 				axios({
 					method: "post",
-					url: linksso+"/api/userToken",
+					url: process.env.REACT_APP_LINK_SSO + "/api/userToken",
 					data: {
 						access_token: sessionStorage.getItem("_sestoken"),
 					},
@@ -60,7 +62,7 @@ function Bep() {
 						"Access-Control-Allow-Headers": "*",
 						"Access-Control-Allow-Credentials": "true",
 						"Content-Type": "application/json",
-						"Authorization": "Bearer " + sessionStorage.getItem("_sestoken"),
+						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
 					},
 				})
 					.then(function (b) {
@@ -70,14 +72,14 @@ function Bep() {
 						} else {
 							sessionStorage.removeItem("_token");
 							sessionStorage.removeItem("_sestoken");
-							window.location.replace("http://127.0.0.1:3000/");
+							window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
 						}
 					})
 					.catch(function (c) {
 						console.log(c);
 						sessionStorage.removeItem("_token");
 						sessionStorage.removeItem("_sestoken");
-						window.location.replace("http://127.0.0.1:3000/");
+						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
 					});
 			}
 		});
@@ -88,7 +90,7 @@ function Bep() {
 	useEffect(() => {
 		// console.log(d.getDate(), d.getMonth() + 1, d.getFullYear());
 		axios
-			.get(linkserver+"/api/get/bep")
+			.get(process.env.REACT_APP_LINK_SERVER + "/api/get/bep")
 			.then((response) => {
 				console.log(response.data);
 
@@ -110,7 +112,7 @@ function Bep() {
 	}, []);
 	useEffect(() => {
 		axios
-			.get(linkserver+'/api/get/branch', {})
+			.get(linkserver + "/api/get/branch", {})
 			.then((response) => {
 				setBranch(response.data);
 				setLoading(false);
@@ -204,7 +206,8 @@ function Bep() {
 		) {
 			console.log("non");
 			setUrl_search(
-				linkserver+"/api/get/bep?month=" +
+				process.env.REACT_APP_LINK_SERVER +
+					"/api/get/bep?month=" +
 					(startDate.getMonth() + 1) +
 					"&year=" +
 					startDate.getFullYear()
@@ -212,7 +215,8 @@ function Bep() {
 		} else {
 			console.log("parameter");
 			setUrl_search(
-				linkserver+"/api/get/bep?month=" +
+				process.env.REACT_APP_LINK_SERVER +
+					"/api/get/bep?month=" +
 					(startDate.getMonth() + 1) +
 					"&year=" +
 					startDate.getFullYear() +
