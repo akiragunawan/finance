@@ -33,8 +33,8 @@ function Custom() {
 				window.location.replace(
 					process.env.REACT_APP_LINK_SSO +
 						"/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=" +
-						REACT_APP_LINK_CLIENT_PER +
-						"2Fcallback&response_type=code&scope=&state=" +
+						+process.env.REACT_APP_LINK_CLIENT_PER +
+						+"2Fcallback&response_type=code&scope=&state=" +
 						generateString(40)
 				);
 			} else {
