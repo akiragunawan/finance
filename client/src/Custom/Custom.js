@@ -310,7 +310,7 @@ function Custom() {
 		} else {
 			axios
 				.get(
-					`http://127.0.0.1:8001/api/get/scenario?year= 
+					`${process.env.REACT_APP_LINK_API_SERVER}/api/get/scenario?year= 
 						${startDate.getFullYear()} 
 						&month= 
 						${startDate.getMonth() + 1} 
