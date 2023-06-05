@@ -330,6 +330,7 @@ class BEPController extends BSController
             ->whereIn('Branch', $this->getBranch()->pluck('branch_code'))
             ->orderBy('AccountNo')
             ->get();
+        // dd(count($COAs), count($this->getBranch()), $res);
         $res = $res->sortBy(function ($item) {
             return [$item->COADate, $item->Branch];
         });

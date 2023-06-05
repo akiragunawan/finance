@@ -12,21 +12,25 @@ class PLController extends Controller
     public function queryPL(Request $request)
     {   
         $wrapper = collect();
-        $year = $request->input('year');
-        $month = $request->input('month');
-        $date = Carbon::createFromDate($year, $month, Carbon::create($year,$month)->endOfMonth()->day)->toDateString();
-        
+        $date_origin = Carbon::today();
+        if(!$date_origin->isSameDay(Carbon::today()->endOfMonth())) $date_origin->subMonthNoOverflow();
+        $date_origin->endOfMonth();
+
+        $month = $date_origin->month;
+        $date = Carbon::createFromDate($date_origin);
         $branches = DB::table('branch')->select('*')->get();
         $coas = DB::table('coa')->select('*')->get()->pluck('coa');
         for($curr_month = 1; $curr_month <= $month; $curr_month++){
             $result=collect();
             foreach($coas as $c){
+                $temp_date = Carbon::create($date->year, $curr_month)->endOfMonth()->toDateString();
                 $res = DB::connection('sqlsrv')->
                 table('T_Inoan_COAAllBranch')
                 ->select('*')
-                ->where('COADate', $date)
+                ->where('COADate', $temp_date)
                 ->where('AccountNo', $c)
                 ->first();
+                if($curr_month == 4)dd($res);
                 $res = collect($res);
                 $COA_query = collect()->toArray();
                 $COA_query['COA_date'] = $res->get("COADate");

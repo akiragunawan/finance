@@ -75,8 +75,8 @@ function Bep() {
 			}
 		});
 
-	// 	return () => clearTimeout(timeout);
-	// }, []);
+		return () => clearTimeout(timeout);
+	}, []);
 	///////////////////////////////////////////////////////
 
 	useEffect(  () => {
