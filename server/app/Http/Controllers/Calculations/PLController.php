@@ -30,7 +30,7 @@ class PLController extends Controller
                 ->where('COADate', $temp_date)
                 ->where('AccountNo', $c)
                 ->first();
-                if($curr_month == 4)dd($res);
+                // if($curr_month == 4)dd($res);
                 $res = collect($res);
                 $COA_query = collect()->toArray();
                 $COA_query['COA_date'] = $res->get("COADate");
