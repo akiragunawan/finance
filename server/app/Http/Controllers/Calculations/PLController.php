@@ -46,7 +46,10 @@ class PLController extends Controller
                         $temp = collect($temp);
                         $b_array['value'] = number_format((float)$temp->get('IDRBalance')/1000000);
                     }
-                    else $b_array['value'] = number_format((float)($res[$b->branch_code])/1000000);
+                    else if(@$res[$b->branch_code]){
+                        $b_array['value'] = number_format((float)($res[$b->branch_code])/1000000);
+                    }
+                    else $b_array['value'] = "0";
                     array_push($branch_array, $b_array);
                     $i++;
                 }
