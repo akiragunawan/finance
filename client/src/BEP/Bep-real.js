@@ -13,7 +13,18 @@ function Bep() {
 	const [profit, setProfit] = useState(null);
 	const [error, setError] = useState(0);
 	const [url_search, setUrl_search] = useState();
-	//////////////////////////////////////////////////////////
+	const linksso = process.env.REACT_APP_LINK_API_SSO;
+	const linkserver = process.env.REACT_APP_LINK_API_SERVER;
+	const linkclientper = process.env.REACT_APP_LINK_CLIENT_PER;
+	const linkclient = process.env.REACT_APP_LINK_CLIENT;
+	// console.log(d);
+
+	// useEffect(() => {
+	// 	window.location.replace(
+	// 		linkserver+"/logged_in"
+	// 	);
+	// }, []);
+
 	const characters =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	function generateString(length) {
@@ -33,18 +44,15 @@ function Bep() {
 				!sessionStorage.getItem("_token") ||
 				!sessionStorage.getItem("_sestoken")
 			) {
+
 				// console.log(`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`)
 				window.location.replace(
-					`${
-						process.env.REACT_APP_LINK_API_SSO
-					}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
-						process.env.REACT_APP_LINK_CLIENT_PER
-					}/callback&response_type=code&scope=&state=${generateString(40)}`
+					`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`
 				);
 			} else {
 				axios({
 					method: "post",
-					url: process.env.REACT_APP_LINK_API_SSO + "/api/userToken",
+					url: process.env.REACT_APP_LINK_API_SSO+ "/api/userToken",
 					data: {
 						access_token: sessionStorage.getItem("_sestoken"),
 					},
@@ -53,7 +61,7 @@ function Bep() {
 						"Access-Control-Allow-Headers": "*",
 						"Access-Control-Allow-Credentials": "true",
 						"Content-Type": "application/json",
-						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+						"Authorization": "Bearer " + sessionStorage.getItem("_sestoken"),
 					},
 				})
 					.then(function (b) {
@@ -63,57 +71,50 @@ function Bep() {
 						} else {
 							sessionStorage.removeItem("_token");
 							sessionStorage.removeItem("_sestoken");
-							window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+							window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
 						}
 					})
 					.catch(function (c) {
 						console.log(c);
 						sessionStorage.removeItem("_token");
 						sessionStorage.removeItem("_sestoken");
-						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+						window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
 					});
 			}
 		});
 
 		return () => clearTimeout(timeout);
 	}, []);
-	///////////////////////////////////////////////////////
 
-	useEffect(  () => {
-		fetchData();
-	}, []);
-
-	const fetchData = async () => {
-		await axios
-			.get(process.env.REACT_APP_LINK_API_SERVER + "/api/get/bep")
+	useEffect(() => {
+		// console.log(d.getDate(), d.getMonth() + 1, d.getFullYear());
+		axios
+			.get(process.env.REACT_APP_LINK_API_SERVER+ "/api/get/bep")
 			.then((response) => {
-				console.log('wah',response.data);
+				console.log(response.data);
 
-		
-				setDataCabang(...dataCabang,response.data);
-			
 				if (!response.data) {
 					window.location.reload(false);
 				} else {
-					
+					setDataCabang(response.data);
 					setLoading(false);
 				}
-			
+
+				// console.log(response.data["Yellow"][0].Nama_Cabang);
+				// setDataBalance(response.data.Data);
+				// console.log(dataBalance);
 			})
 			.catch((error) => {
 				console.log(error);
 				setLoading(true);
 			});
-		}
-
-
+	}, []);
 	useEffect(() => {
 		axios
 			.get(process.env.REACT_APP_LINK_API_SERVER + "/api/get/branch", {})
 			.then((response) => {
 				setBranch(response.data);
 				setLoading(false);
-				console.log(response)
 			})
 			.catch((error) => {
 				console.log(error);
@@ -121,12 +122,16 @@ function Bep() {
 			});
 	}, []);
 
-	// useEffect(() => {
-	const get_bep_final = () => {
+	// console.log(branch);
+	useEffect(() => {
 		// console.log(url_search);
 		if (url_search !== undefined) {
-		
-			
+			if (
+				startDate.getMonth() + 1 > d.getMonth() + 1 ||
+				startDate.getFullYear > d.getFullYear()
+			) {
+				setError(1);
+			} else {
 				if (startDate.getMonth() + 1 === d.getMonth() + 1) {
 					if (isLastDate(d) === true) {
 						setError(0);
@@ -166,9 +171,10 @@ function Bep() {
 						});
 				}
 			}
+		} else if (url_search === undefined) {
 		}
-	// }, []);
-
+	}, [url_search]);
+	// console.log(dataCabang);
 	if (loading) {
 		return (
 			<div className="position-absolute top-50 start-50 translate-middle">
@@ -198,41 +204,29 @@ function Bep() {
 			// && ftp == null
 		) {
 			console.log("non");
-			if (startDate.getMonth() + 1 === d.getMonth() + 1) {
-				setError(1);
-			} else {
-				setError(0);
-				setUrl_search(
-					process.env.REACT_APP_LINK_API_SERVER +
-						"/api/get/bep?month=" +
-						(startDate.getMonth() + 1) +
-						"&year=" +
-						startDate.getFullYear()
-				);
-				get_bep_final();
-			}
+			setUrl_search(
+				process.env.REACT_APP_LINK_API_SERVER+
+					"/api/get/bep?month=" +
+					(startDate.getMonth() + 1) +
+					"&year=" +
+					startDate.getFullYear()
+			);
 		} else {
 			console.log("parameter");
-			if (startDate.getMonth() + 1 === d.getMonth() + 1) {
-				setError(1);
-			} else {
-				setError(0);
-				setUrl_search(
-					process.env.REACT_APP_LINK_API_SERVER +
-						"/api/get/bep?month=" +
-						(startDate.getMonth() + 1) +
-						"&year=" +
-						startDate.getFullYear() +
-						"&profit=" +
-						profit
-					// "&ftp=" +
-					// ftp
-				);
-				get_bep_final();
-			}
+			setUrl_search(
+				process.env.REACT_APP_LINK_API_SERVER+
+					"/api/get/bep?month=" +
+					(startDate.getMonth() + 1) +
+					"&year=" +
+					startDate.getFullYear() +
+					"&profit=" +
+					profit
+				// "&ftp=" +
+				// ftp
+			);
 		}
 	};
-	dataCabang.length > 0 && console.log('wahset',dataCabang);
+	// console.log(dataCabang);
 	if (error === 1) {
 		return (
 			<div className="container">
@@ -340,7 +334,7 @@ function Bep() {
 
 				<div className="container">
 					<div className="tab-content" id="nav-tabContent">
-						{dataCabang.length > 0 && branch.map((brn, key) => (
+						{branch.map((brn, key) => (
 							<div
 								className="tab-pane fade section-to-print"
 								id={"nav-" + brn.branch_code}
