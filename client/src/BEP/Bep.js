@@ -39,7 +39,7 @@ function Bep() {
 						process.env.REACT_APP_LINK_API_SSO
 					}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
 						process.env.REACT_APP_LINK_CLIENT_PER
-					}2Fcallback&response_type=code&scope=&state=${generateString(40)}`
+					}/callback&response_type=code&scope=&state=${generateString(40)}`
 				);
 			} else {
 				axios({
@@ -79,24 +79,33 @@ function Bep() {
 	}, []);
 	///////////////////////////////////////////////////////
 
-	useEffect(() => {
-		axios
+	useEffect(  () => {
+		fetchData();
+	}, []);
+
+	const fetchData = async () => {
+		await axios
 			.get(process.env.REACT_APP_LINK_API_SERVER + "/api/get/bep")
 			.then((response) => {
-				console.log(response.data);
+				console.log('wah',response.data);
 
+		
+				setDataCabang(...dataCabang,response.data);
+			
 				if (!response.data) {
 					window.location.reload(false);
 				} else {
-					setDataCabang(response.data);
+					
 					setLoading(false);
 				}
+			
 			})
 			.catch((error) => {
 				console.log(error);
 				setLoading(true);
 			});
-	}, []);
+		}
+
 
 	useEffect(() => {
 		axios
@@ -223,7 +232,7 @@ function Bep() {
 			}
 		}
 	};
-	// console.log(dataCabang);
+	dataCabang.length > 0 && console.log('wahset',dataCabang);
 	if (error === 1) {
 		return (
 			<div className="container">
@@ -331,7 +340,7 @@ function Bep() {
 
 				<div className="container">
 					<div className="tab-content" id="nav-tabContent">
-						{branch.map((brn, key) => (
+						{dataCabang.length > 0 && branch.map((brn, key) => (
 							<div
 								className="tab-pane fade section-to-print"
 								id={"nav-" + brn.branch_code}
