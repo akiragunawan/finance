@@ -8,6 +8,7 @@ use App\Http\Controllers\GoalSeekController;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 use function PHPUnit\Framework\isNull;
 
@@ -267,7 +268,6 @@ class BEPController extends BSController
                 break;
             case 17:
                 $col->put('interest_income', $box[5]['interest_income'] - $box[16]['interest_income']);
-                // dd($col['interest_income'], $this->month, $branch);
                 break;
             default:
 
@@ -290,32 +290,48 @@ class BEPController extends BSController
         // dd($resBM[1101]->count());
         $keys = $resBM->keys(); // get the keys of the collection array
         $average = array();
+        $x = collect();
+        // dd($resBM);
         foreach ($resBM as $key => $branch) {
-            $months = array_values($branch->toArray());
-            $lastMonth = end($months);
-            $firstMonth = reset($months);
-
-            foreach ($lastMonth as $item) {
-                $accountNo = $item->AccountNo;
-                $idrBalance = $item->IDRBalance;
-                $count = 1;
-
-                foreach ($firstMonth as $item2) {
-                    if ($item2->AccountNo == $accountNo && !$this->isPL($item2)) {
-                        $idrBalance += $item2->IDRBalance;
-                        $count++;
+            $months = $branch;
+            $x = array();
+            $y = array();
+        
+            foreach ($months as $month) {
+                foreach ($month as $coa) {
+                    if (!$this->isPL($coa)) {
+                        if (!isset($x[$coa->AccountNo])) {
+                            $x[$coa->AccountNo] = new stdClass();
+                            $x[$coa->AccountNo]->IDRBalance = 0;
+                            $y[$coa->AccountNo] = 0;
+                        }
+        
+                        $x[$coa->AccountNo]->IDRBalance += $coa->IDRBalance;
+                        $y[$coa->AccountNo]++;
+        
+                        $x[$coa->AccountNo]->COADate = $coa->COADate;
+                        $x[$coa->AccountNo]->AccountNo = $coa->AccountNo;
+                        $x[$coa->AccountNo]->Branch = $coa->Branch;
+                    } else  {
+                        $x[$coa->AccountNo] = new stdClass();
+                        $x[$coa->AccountNo]->IDRBalance = $coa->IDRBalance;
+                        $x[$coa->AccountNo]->COADate = $coa->COADate;
+                        $x[$coa->AccountNo]->AccountNo = $coa->AccountNo;
+                        $x[$coa->AccountNo]->Branch = $coa->Branch;
                     }
                 }
-
-                $item->IDRBalance = $idrBalance / $count;
             }
-
-            $resBM[$key] = collect($lastMonth);
+        
+            foreach ($y as $k => $z) {
+                $x[$k]->IDRBalance = $x[$k]->IDRBalance / $z;
+            }
+        
+            $x = collect($x)->values();
+            $resBM[$key] = $x;
         }
-
-        // dd($resBM[1101]);
-
+        // dd($resBM);
         return $resBM;
+        
     }
 
     public function queryAll($dates)
@@ -328,9 +344,9 @@ class BEPController extends BSController
             ->whereIn('COADate', $dates)
             ->whereIn('AccountNo', $COAs->pluck('coa'))
             ->whereIn('Branch', $this->getBranch()->pluck('branch_code'))
-            ->orderBy('AccountNo')
+            ->orderBy('COADate')
             ->get();
-        // dd(count($COAs), count($this->getBranch()), $res);
+
         $res = $res->sortBy(function ($item) {
             return [$item->COADate, $item->Branch];
         });
@@ -341,13 +357,12 @@ class BEPController extends BSController
         }
 
         $resBM = $res->groupBy(['Branch', 'COADate']);
-        // dd($resBM);
         foreach ($resBM as $keyBM => $resB) {
             foreach ($resB as $keyB => $resM) {
                 if (count($COAs) != count($resM)) {
                     $plucked = $resM->pluck('AccountNo')->toArray();
                     $diff = array_diff($COAs->pluck('coa')->toArray(), $plucked);
-                    //dd($diff, $plucked,$COAs->pluck('coa')->toArray(), $perBranch->first()->Branch);
+
                     foreach ($diff as $d) {
                         $resM->push(clone $resM[0]);
                         $resM->last()->IDRBalance = 0;
