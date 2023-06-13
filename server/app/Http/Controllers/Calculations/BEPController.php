@@ -58,10 +58,16 @@ class BEPController extends BSController
         $branch = $this->getBranch();
         $all = $this->getAverageAll($date);
         // dd($all[1101][0]);
+
+        $branchCodes = $branch->pluck('branch_code');
+        $difference = $branchCodes->diff($all->keys());
+        $branch = $branch->reject(function ($item) use ($difference) {
+            return $difference->contains($item->branch_code);
+        });
         $this->ifFilledThenInput('profit', $request);
 
         if ($request->filled('branch')) {
-            $branch = $this->getBranch()->where('branch_code', $request->get('branch'));
+            $branch = $branch->where('branch_code', $request->get('branch'));
             return $this->getYellow($date, collect($branch), $all);
         }
         $yellow = $this->getYellow($date, $branch, $all);
@@ -285,18 +291,12 @@ class BEPController extends BSController
         while ($start->lte($date)) {
             array_push($date_arr, $start->addMonthNoOverflow()->endOfMonth()->toDateString());
         }
-        // dd($date_arr);
         $resBM = $this->queryAll($date_arr);
-        // dd($resBM[1101]->count());
-        $keys = $resBM->keys(); // get the keys of the collection array
-        $average = array();
-        $x = collect();
-        // dd($resBM);
         foreach ($resBM as $key => $branch) {
             $months = $branch;
             $x = array();
             $y = array();
-        
+
             foreach ($months as $month) {
                 foreach ($month as $coa) {
                     if (!$this->isPL($coa)) {
@@ -305,14 +305,14 @@ class BEPController extends BSController
                             $x[$coa->AccountNo]->IDRBalance = 0;
                             $y[$coa->AccountNo] = 0;
                         }
-        
+
                         $x[$coa->AccountNo]->IDRBalance += $coa->IDRBalance;
                         $y[$coa->AccountNo]++;
-        
+
                         $x[$coa->AccountNo]->COADate = $coa->COADate;
                         $x[$coa->AccountNo]->AccountNo = $coa->AccountNo;
                         $x[$coa->AccountNo]->Branch = $coa->Branch;
-                    } else  {
+                    } else {
                         $x[$coa->AccountNo] = new stdClass();
                         $x[$coa->AccountNo]->IDRBalance = $coa->IDRBalance;
                         $x[$coa->AccountNo]->COADate = $coa->COADate;
@@ -321,32 +321,31 @@ class BEPController extends BSController
                     }
                 }
             }
-        
+
             foreach ($y as $k => $z) {
                 $x[$k]->IDRBalance = $x[$k]->IDRBalance / $z;
             }
-        
+
             $x = collect($x)->values();
             $resBM[$key] = $x;
         }
         // dd($resBM);
         return $resBM;
-        
     }
 
     public function queryAll($dates)
     {
         //select IDRBalance & AccoutNo only
         $COAs = $this->getCOA();
+        $branches = $this->getBranch()->pluck('branch_code');
         $res = DB::connection('sqlsrv')
             ->table('T_Inoan_COAPerBranch')
             ->select('IDRBalance', 'COADate', 'AccountNo', 'Branch')
             ->whereIn('COADate', $dates)
             ->whereIn('AccountNo', $COAs->pluck('coa'))
-            ->whereIn('Branch', $this->getBranch()->pluck('branch_code'))
+            ->whereIn('Branch', $branches)
             ->orderBy('COADate')
             ->get();
-
         $res = $res->sortBy(function ($item) {
             return [$item->COADate, $item->Branch];
         });
@@ -357,6 +356,7 @@ class BEPController extends BSController
         }
 
         $resBM = $res->groupBy(['Branch', 'COADate']);
+        // dd($branches, $diff);
         foreach ($resBM as $keyBM => $resB) {
             foreach ($resB as $keyB => $resM) {
                 if (count($COAs) != count($resM)) {
@@ -450,6 +450,7 @@ class BEPController extends BSController
         $this->month = $month;
         $branch = $this->getBranch()->where('branch_code', $branch);
         $all = $this->getAverageAll($date);
+        if(!$all->keys()->contains($branch->first()->branch_code)) return [];
         $yellow = $this->getYellow($date, $branch, $all);
         $resource = collect();
         $resource->month = $month;
