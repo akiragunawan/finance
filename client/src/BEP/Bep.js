@@ -79,7 +79,7 @@ function Bep() {
 	}, []);
 	///////////////////////////////////////////////////////
 
-	useEffect(  () => {
+	useEffect(() => {
 		fetchData();
 	}, []);
 
@@ -87,33 +87,35 @@ function Bep() {
 		await axios
 			.get(process.env.REACT_APP_LINK_API_SERVER + "/api/get/bep")
 			.then((response) => {
-				console.log('wah',response.data);
+				console.log("wah", response.data);
 
-		
-				setDataCabang(...dataCabang,response.data);
-			
+				setDataCabang(...dataCabang, response.data);
+
 				if (!response.data) {
 					window.location.reload(false);
 				} else {
-					
 					setLoading(false);
 				}
-			
 			})
 			.catch((error) => {
 				console.log(error);
 				setLoading(true);
 			});
-		}
-
+	};
 
 	useEffect(() => {
 		axios
 			.get(process.env.REACT_APP_LINK_API_SERVER + "/api/get/branch", {})
 			.then((response) => {
-				setBranch(response.data);
+				// setBranch(response.data);
 				setLoading(false);
-				console.log(response)
+				console.log(response.data);
+
+				var filtered = response.data.filter(function (value, index, arr) {
+					// console.log(value)
+					return value > 15;
+				});
+				console.log(filtered);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -125,28 +127,8 @@ function Bep() {
 	const get_bep_final = () => {
 		// console.log(url_search);
 		if (url_search !== undefined) {
-		
-			
-				if (startDate.getMonth() + 1 === d.getMonth() + 1) {
-					if (isLastDate(d) === true) {
-						setError(0);
-						axios
-							.get(url_search)
-							.then((response) => {
-								if (response.data != null) {
-									setDataCabang(response.data);
-								}
-								setLoading(false);
-								console.log(response);
-							})
-							.catch((error) => {
-								console.log(error);
-								setLoading(false);
-							});
-					} else {
-						setError(1);
-					}
-				} else {
+			if (startDate.getMonth() + 1 === d.getMonth() + 1) {
+				if (isLastDate(d) === true) {
 					setError(0);
 					axios
 						.get(url_search)
@@ -156,17 +138,35 @@ function Bep() {
 							}
 							setLoading(false);
 							console.log(response);
-
-							// setDataBalance(response.data.Data);
-							// console.log(dataBalance);
 						})
 						.catch((error) => {
 							console.log(error);
 							setLoading(false);
 						});
+				} else {
+					setError(1);
 				}
+			} else {
+				setError(0);
+				axios
+					.get(url_search)
+					.then((response) => {
+						if (response.data != null) {
+							setDataCabang(response.data);
+						}
+						setLoading(false);
+						console.log(response);
+
+						// setDataBalance(response.data.Data);
+						// console.log(dataBalance);
+					})
+					.catch((error) => {
+						console.log(error);
+						setLoading(false);
+					});
 			}
 		}
+	};
 	// }, []);
 
 	if (loading) {
@@ -191,7 +191,9 @@ function Bep() {
 		return nextDay.getMonth() !== date.getMonth();
 	};
 
+	//onsearch click
 	const handleSubmit = (event) => {
+		console.log(startDate);
 		event.preventDefault();
 		if (
 			profit === null
@@ -232,7 +234,7 @@ function Bep() {
 			}
 		}
 	};
-	dataCabang.length > 0 && console.log('wahset',dataCabang);
+	dataCabang.length > 0 && console.log("wahset", dataCabang);
 	if (error === 1) {
 		return (
 			<div className="container">
@@ -340,796 +342,821 @@ function Bep() {
 
 				<div className="container">
 					<div className="tab-content" id="nav-tabContent">
-						{dataCabang.length > 0 && branch.map((brn, key) => (
-							<div
-								className="tab-pane fade section-to-print"
-								id={"nav-" + brn.branch_code}
-								role="tabpanel"
-								key={brn.branch_code}
-								aria-labelledby={"nav-" + brn.branch_code + "-tab"}
-							>
-								<div className=" ">
-									<div className="col">
-										<div className="card mb-3 " style={{ width: "900px" }}>
-											<div className="card-body p-4">
-												<div className="row">
-													<div className="col-6 text-start ">
-														Rate BASE ON FINANCIAL REPORT 2023
+						{dataCabang.length > 0 &&
+							branch.map((brn, key) => (
+								<div
+									className="tab-pane fade section-to-print"
+									id={"nav-" + brn.branch_code}
+									role="tabpanel"
+									key={brn.branch_code}
+									aria-labelledby={"nav-" + brn.branch_code + "-tab"}
+								>
+									<div className=" ">
+										<div className="col">
+											<div className="card mb-3 " style={{ width: "900px" }}>
+												<div className="card-body p-4">
+													<div className="row">
+														<div className="col-6 text-start ">
+															Rate BASE ON FINANCIAL REPORT 2023
+														</div>
+														<div className="col-6 text-end ">
+															(In Million Rp)
+														</div>
 													</div>
-													<div className="col-6 text-end ">(In Million Rp)</div>
-												</div>
-												<div className="row">
-													<div
-														className="col-12 text-center fw-bold"
-														style={{ fontSize: "30px" }}
-													>
-														EXISTING
+													<div className="row">
+														<div
+															className="col-12 text-center fw-bold"
+															style={{ fontSize: "30px" }}
+														>
+															EXISTING
+														</div>
 													</div>
-												</div>
-												<div className="row bg-opacity-50 bg-warning rounded-2 text-dark fw-bolder">
-													<div className="col-3 ">COA Name</div>
-													<div className="col-3">Balance</div>
-													<div className="col-3">Rate</div>
-													<div className="col-3">Interest Income</div>
-												</div>
-												<div className="row">
-													<div className="col-3">Loan</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][key].Data.loan.balance.toFixed(
-																		2
-																	)
-															  )}
+													<div className="row bg-opacity-50 bg-warning rounded-2 text-dark fw-bolder">
+														<div className="col-3 ">COA Name</div>
+														<div className="col-3">Balance</div>
+														<div className="col-3">Rate</div>
+														<div className="col-3">Interest Income</div>
 													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[0][key].Data.loan.rate.toFixed(2)}
-														%
+													<div className="row">
+														<div className="col-3">Loan</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.loan.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[0][key].Data.loan.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.loan.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.loan.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">Placement Inter Office</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][key].Data.pio.balance.toFixed(
+																			2
+																		)
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[0][key].Data.pio.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.pio.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row">
-													<div className="col-3">Placement Inter Office</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][key].Data.pio.balance.toFixed(2)
-															  )}
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.total.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.total.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[0][key].Data.pio.rate.toFixed(2)}
-														%
+													<div className="row p-2"></div>
+													<div className="row">
+														<div className="col-3">Pendapatan Lainnya</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.other.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.pio.interest_income.toFixed(2)
-															  )}
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3 fw-bold">Total Income</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.total_income.interest_income.toFixed(
+																			2
+																		)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][key].Data.total.balance.toFixed(
-																		2
-																	)
-															  )}
+													<div className="row p-2"></div>
+													<div className="row bg-danger bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3 fw-bold">
+															Third-Party Funds
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">Interest Cost</div>
 													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.total.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">DPK</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][key].Data.dpk.balance.toFixed(
+																			2
+																		)
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[0][key].Data.dpk.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.dpk.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row">
-													<div className="col-3">Pendapatan Lainnya</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.other.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">Borrowing Inter Office</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][key].Data.bio.balance.toFixed(
+																			2
+																		)
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[0][key].Data.bio.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.bio.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3 fw-bold">Total Income</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.total_income.interest_income.toFixed(2)
-															  )}
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.total_interest.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.total_interest.interest_income.toFixed(
+																			2
+																		)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row bg-danger bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3 fw-bold">Third-Party Funds</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">Interest Cost</div>
-												</div>
-												<div className="row">
-													<div className="col-3">DPK</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][key].Data.dpk.balance.toFixed(2)
-															  )}
+													<div className="row p-2"></div>
+													<div className="row">
+														<div className="col-3 bg-info bg-opacity-10 border border-info border-start-0 rounded fw-bold">
+															NET INTEREST INCOME
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.net.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[0][key].Data.dpk.rate.toFixed(2)}
-														%
+													<div className="row p-2"></div>
+													<div className="row">
+														<div className="col-3 bg-danger bg-opacity-10 border border-info border-start-0 rounded fw-bold">
+															Operational COST :
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
 													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.dpk.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">1. Salary</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.salary.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-												</div>
-												<div className="row">
-													<div className="col-3">Borrowing Inter Office</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][key].Data.bio.balance.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">
+															2. Rental cost of building
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.rental.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[0][key].Data.bio.rate.toFixed(2)}
-														%
+													<div className="row">
+														<div className="col-3">3. Biaya CKPN</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.ckpn.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[0][key].Data.ckpn.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.bio.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">4. Operational Expenses</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.operational.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.total_interest.balance.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">5. Non Operational </div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.non_operational.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.total_interest.interest_income.toFixed(
-																		2
-																	)
-															  )}
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.total_op_cost.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.total_op_cost.interest_income.toFixed(
+																			2
+																		)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row">
-													<div className="col-3 bg-info bg-opacity-10 border border-info border-start-0 rounded fw-bold">
-														NET INTEREST INCOME
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded mt-2">
+														<div className="col-3 fw-bold">Total Cost</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.total_cost.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.net.interest_income.toFixed(2)
-															  )}
-													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row">
-													<div className="col-3 bg-danger bg-opacity-10 border border-info border-start-0 rounded fw-bold">
-														Operational COST :
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">1. Salary</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.salary.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">
-														2. Rental cost of building
-													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.rental.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">3. Biaya CKPN</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][key].Data.ckpn.balance.toFixed(
-																		2
-																	)
-															  )}
-													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[0][key].Data.ckpn.rate.toFixed(2)}
-														%
-													</div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">4. Operational Expenses</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.operational.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">5. Non Operational </div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.non_operational.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.total_op_cost.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.total_op_cost.interest_income.toFixed(
-																		2
-																	)
-															  )}
-													</div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded mt-2">
-													<div className="col-3 fw-bold">Total Cost</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.total_cost.interest_income.toFixed(2)
-															  )}
-													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3 fw-bold">Profit and Loss</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[0][
-																		key
-																	].Data.profit.interest_income.toFixed(2)
-															  )}
+													<div className="row p-2"></div>
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3 fw-bold">Profit and Loss</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[0][
+																			key
+																		].Data.profit.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
 												</div>
 											</div>
 										</div>
-									</div>
-									<div className="col">
-										<div className="card mb-3 " style={{ width: "900px" }}>
-											<div className="card-body p-4">
-												<div className="row">
-													<div className="col-6 text-start ">
-														Scenario BASE ON FINANCIAL REPORT 2023
+										<div className="col">
+											<div className="card mb-3 " style={{ width: "900px" }}>
+												<div className="card-body p-4">
+													<div className="row">
+														<div className="col-6 text-start ">
+															Scenario BASE ON FINANCIAL REPORT 2023
+														</div>
+														<div className="col-6 text-end ">
+															(In Million Rp)
+														</div>
 													</div>
-													<div className="col-6 text-end ">(In Million Rp)</div>
-												</div>
-												<div className="row">
-													<div
-														className="col-12 text-center fw-bold"
-														style={{ fontSize: "30px" }}
-													>
-														BEP / INCREASE PROFIT
+													<div className="row">
+														<div
+															className="col-12 text-center fw-bold"
+															style={{ fontSize: "30px" }}
+														>
+															BEP / INCREASE PROFIT
+														</div>
 													</div>
-												</div>
-												<div className="row bg-opacity-50 bg-success rounded-2 text-dark fw-bolder">
-													<div className="col-3 ">COA Name</div>
-													<div className="col-3">Balance</div>
-													<div className="col-3">Rate</div>
-													<div className="col-3">Interest Income</div>
-												</div>
-												<div className="row">
-													<div className="col-3">Loan</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][key].Data.loan.balance
-															  )}
+													<div className="row bg-opacity-50 bg-success rounded-2 text-dark fw-bolder">
+														<div className="col-3 ">COA Name</div>
+														<div className="col-3">Balance</div>
+														<div className="col-3">Rate</div>
+														<div className="col-3">Interest Income</div>
 													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[1][key].Data.loan.rate.toFixed(2)}
-														%
+													<div className="row">
+														<div className="col-3">Loan</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][key].Data.loan.balance
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[1][key].Data.loan.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.loan.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.loan.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">Placement Inter Office</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][key].Data.pio.balance.toFixed(
+																			2
+																		)
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[1][key].Data.pio.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.pio.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row">
-													<div className="col-3">Placement Inter Office</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][key].Data.pio.balance.toFixed(2)
-															  )}
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.total.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.total.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[1][key].Data.pio.rate.toFixed(2)}
-														%
+													<div className="row p-2"></div>
+													<div className="row">
+														<div className="col-3">Pendapatan Lainnya</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.other.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.pio.interest_income.toFixed(2)
-															  )}
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3 fw-bold">Total Income</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.total_income.interest_income.toFixed(
+																			2
+																		)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][key].Data.total.balance.toFixed(
-																		2
-																	)
-															  )}
+													<div className="row p-2"></div>
+													<div className="row bg-danger bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3 fw-bold">
+															Third-Party Funds
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">Interest Cost</div>
 													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.total.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">DPK</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][key].Data.dpk.balance.toFixed(
+																			2
+																		)
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[1][key].Data.dpk.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.dpk.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row">
-													<div className="col-3">Pendapatan Lainnya</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.other.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">Borrowing Inter Office</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][key].Data.bio.balance.toFixed(
+																			2
+																		)
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[1][key].Data.bio.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.bio.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3 fw-bold">Total Income</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.total_income.interest_income.toFixed(2)
-															  )}
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.total_interest.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.total_interest.interest_income.toFixed(
+																			2
+																		)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row bg-danger bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3 fw-bold">Third-Party Funds</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">Interest Cost</div>
-												</div>
-												<div className="row">
-													<div className="col-3">DPK</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][key].Data.dpk.balance.toFixed(2)
-															  )}
+													<div className="row p-2"></div>
+													<div className="row">
+														<div className="col-3 bg-info bg-opacity-10 border border-info border-start-0 rounded fw-bold">
+															NET INTEREST INCOME
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.net.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[1][key].Data.dpk.rate.toFixed(2)}
-														%
+													<div className="row p-2"></div>
+													<div className="row">
+														<div className="col-3 bg-danger bg-opacity-10 border border-info border-start-0 rounded fw-bold">
+															Operational COST :
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
 													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.dpk.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">1. Salary</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.salary.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-												</div>
-												<div className="row">
-													<div className="col-3">Borrowing Inter Office</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][key].Data.bio.balance.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">
+															2. Rental cost of building
+														</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.rental.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[1][key].Data.bio.rate.toFixed(2)}
-														%
+													<div className="row">
+														<div className="col-3">3. Biaya CKPN</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.ckpn.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3">
+															{!dataCabang
+																? "null"
+																: dataCabang[1][key].Data.ckpn.rate.toFixed(2)}
+															%
+														</div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.bio.interest_income.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">4. Operational Expenses</div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.operational.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.total_interest.balance.toFixed(2)
-															  )}
+													<div className="row">
+														<div className="col-3">5. Non Operational </div>
+														<div className="col-3">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.non_operational.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold"></div>
 													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.total_interest.interest_income.toFixed(
-																		2
-																	)
-															  )}
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.total_op_cost.balance.toFixed(2)
+																  )}
+														</div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.total_op_cost.interest_income.toFixed(
+																			2
+																		)
+																  )}
+														</div>
 													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row">
-													<div className="col-3 bg-info bg-opacity-10 border border-info border-start-0 rounded fw-bold">
-														NET INTEREST INCOME
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded mt-2">
+														<div className="col-3 fw-bold">Total Cost</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.total_cost.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.net.interest_income.toFixed(2)
-															  )}
-													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row">
-													<div className="col-3 bg-danger bg-opacity-10 border border-info border-start-0 rounded fw-bold">
-														Operational COST :
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">1. Salary</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.salary.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">
-														2. Rental cost of building
-													</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.rental.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">3. Biaya CKPN</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][key].Data.ckpn.balance.toFixed(
-																		2
-																	)
-															  )}
-													</div>
-													<div className="col-3">
-														{!dataCabang
-															? "null"
-															: dataCabang[1][key].Data.ckpn.rate.toFixed(2)}
-														%
-													</div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">4. Operational Expenses</div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.operational.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row">
-													<div className="col-3">5. Non Operational </div>
-													<div className="col-3">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.non_operational.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold"></div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.total_op_cost.balance.toFixed(2)
-															  )}
-													</div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.total_op_cost.interest_income.toFixed(
-																		2
-																	)
-															  )}
-													</div>
-												</div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded mt-2">
-													<div className="col-3 fw-bold">Total Cost</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.total_cost.interest_income.toFixed(2)
-															  )}
-													</div>
-												</div>
-												<div className="row p-2"></div>
-												<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
-													<div className="col-3 fw-bold">Profit and Loss</div>
-													<div className="col-3"></div>
-													<div className="col-3"></div>
-													<div className="col-3 fw-bold">
-														Rp.{" "}
-														{!dataCabang
-															? "null"
-															: new Intl.NumberFormat().format(
-																	dataCabang[1][
-																		key
-																	].Data.profit.interest_income.toFixed(2)
-															  )}
+													<div className="row p-2"></div>
+													<div className="row bg-info bg-opacity-10 border border-info border-start-0 rounded">
+														<div className="col-3 fw-bold">Profit and Loss</div>
+														<div className="col-3"></div>
+														<div className="col-3"></div>
+														<div className="col-3 fw-bold">
+															Rp.{" "}
+															{!dataCabang
+																? "null"
+																: new Intl.NumberFormat().format(
+																		dataCabang[1][
+																			key
+																		].Data.profit.interest_income.toFixed(2)
+																  )}
+														</div>
 													</div>
 												</div>
 											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-						))}
+							))}
 					</div>
 				</div>
 			</div>
