@@ -15,71 +15,46 @@ function generateString(length) {
 }
 
 function Home() {
-	const linksso = process.env.REACT_APP_LINK_API_SSO;
-	const linkserver = process.env.REACT_APP_LINK_API_SERVER;
-	const linkclientper = process.env.REACT_APP_LINK_CLIENT_PER;
-	const linkclient = process.env.REACT_APP_LINK_CLIENT;
-
-	const [MinusProfit, setMinusProfit] = useState([]);
-	var arr = [];
 	const [Dts, setDts] = useState([]);
-	// var dts = [];
-	// useEffect(() => {
-	// 	const timeout = setTimeout(() => {
-	// 		// 👇️ redirects to an external URL
-	// 		if (
-	// 			!sessionStorage.getItem("_token") ||
-	// 			!sessionStorage.getItem("_sestoken")
-	// 		) {
-	// 			window.location.replace(
-	// 				`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}/callback&response_type=code&scope=&state=${generateString(40)}`
-	// 			);
-	// 		}
-	// 	});
-
-	// 	return () => clearTimeout(timeout);
-	// }, []);
-
+  
 	useEffect(() => {
-		getbep();
+	  getbep();
 	}, []);
-	var ddd = [];
+  
 	const getbep = async () => {
-		await axios
-			.get(
-				process.env.REACT_APP_LINK_API_SERVER + "/api/get/bep?year=2023&month=4"
-			)
-			.then((response) => {
-				for (var i = 0; i < response.data[0].length; i++) {
-					if (response.data[0][i].Data.profit.interest_income < 0) {
-						// console.log(response.data[0][i]);
-						 ddd = {
-							Nama_Cabang: response.data[0][i].Nama_Cabang,
-							Profit: response.data[0][i].Data.profit.interest_income,
-						};
-						// console.log(ddd)
-						// setDts([...Dts, ddd]);
-						// setDts(prevDTS => [...prevDTS, ddd]);
-						Dts.push(ddd)
-						// console.log(Dts)
-					}
-
-					// console.log(response.data[0][i]);
-				}
-			})
-			.catch((error) => {
-				console.log(error);
-			});
+	  try {
+		const response = await axios.get(
+		  `${process.env.REACT_APP_LINK_API_SERVER}/api/get/bep?year=2023&month=4`
+		);
+  
+		const filteredData = response.data[0].filter(
+		  item => item.Data.profit.interest_income < 0
+		);
+  
+		const updatedDts = filteredData.map(item => ({
+		  Nama_Cabang: item.Nama_Cabang,
+		  Profit: item.Data.profit.interest_income,
+		}));
+  
+		setDts(updatedDts);
+	  } catch (error) {
+		console.log(error);
+	  }
 	};
+  
 	console.log(Dts);
+  
 	return (
-		<>
-		s
-			<div>{Dts.map((item)=>{
-				{console.log(item.Nama_Cabang)}
-			})}</div>
-		</>
+	  <div>
+		{/* Render the Dts array */}
+		{Dts.map((item, index) => (
+		  <div key={index}>
+			<p>Nama Cabang: {item.Nama_Cabang}</p>
+			<p>Profit: {item.Profit}</p>
+		  </div>
+		))}
+	  </div>
 	);
-}
-
-export default Home;
+  }
+  
+  export default Home;
