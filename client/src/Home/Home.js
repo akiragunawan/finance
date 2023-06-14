@@ -57,10 +57,11 @@ function Home() {
 							Nama_Cabang: response.data[0][i].Nama_Cabang,
 							Profit: response.data[0][i].Data.profit.interest_income,
 						};
-						console.log(ddd)
+						// console.log(ddd)
 						// setDts([...Dts, ddd]);
-						setDts(prevDTS => [...prevDTS, ddd]);
-						
+						// setDts(prevDTS => [...prevDTS, ddd]);
+						Dts.push(ddd)
+						// console.log(Dts)
 					}
 
 					// console.log(response.data[0][i]);
@@ -73,7 +74,10 @@ function Home() {
 	console.log(Dts);
 	return (
 		<>
-			<div></div>
+		s
+			<div>{Dts.map((item)=>{
+				{console.log(item.Nama_Cabang)}
+			})}</div>
 		</>
 	);
 }
