@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 
 const characters =
@@ -21,7 +22,8 @@ function Home() {
 
 	const [MinusProfit, setMinusProfit] = useState([]);
 	var arr = [];
-	var dts = [];
+	const [Dts, setDts] = useState([]);
+	// var dts = [];
 	// useEffect(() => {
 	// 	const timeout = setTimeout(() => {
 	// 		// 👇️ redirects to an external URL
@@ -41,61 +43,37 @@ function Home() {
 	useEffect(() => {
 		getbep();
 	}, []);
-
+	var ddd = [];
 	const getbep = async () => {
-		
-		await fetch(
-			process.env.REACT_APP_LINK_API_SERVER +
-				"/api/get/bep?year=2023&month=4",
-			{
-				method: "GET",
-				// mode: "cors",
-				// cache: "no-cache",
-				// credentials: "same-origin",
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-					"Accept": "application/json",
-					"Access-Control-Allow-Origin": "*",
-					"Access-Control-Allow-Headers": "*",
-					"Access-Control-Allow-Credentials": "true",
-					// "Authorization":
-					// 	"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGgvbG9naW4iLCJpYXQiOjE2ODUwMDgxMjMsImV4cCI6MTY4NTA5NDUyMywibmJmIjoxNjg1MDA4MTIzLCJqdGkiOiJmUncwNnJSVDA5a0hXU0VQIiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.Ee_vG_iep7dwipDpQgXKCnbQ9Ok7PZHPqRfOPcWoRI4",
-					// // "Content-Type": "application/json",
-				},
-				// redirect: "follow",
-				// referrerPolicy: "no-referrer",
-				// body: new URLSearchParams(data),
-			}
-		).then((response) => {
-			response
-				.json()
-				.then((data) => {
-					console.log(data)
-					for (let i = 0; i < data[0].length; i++) {
-						if (data[0][i].Data.profit.interest_income < 0) {
-							console.log(
-								data[0][i].Nama_Cabang,
-								data[0][i].Data.profit.interest_income
-							);
-							dts.push(
-								data[0][i].Nama_Cabang,
-								data[0][i].Data.profit.interest_income
-							);
-						}
+		await axios
+			.get(
+				process.env.REACT_APP_LINK_API_SERVER + "/api/get/bep?year=2023&month=4"
+			)
+			.then((response) => {
+				for (var i = 0; i < response.data[0].length; i++) {
+					if (response.data[0][i].Data.profit.interest_income < 0) {
+						// console.log(response.data[0][i]);
+						 ddd = {
+							Nama_Cabang: response.data[0][i].Nama_Cabang,
+							Profit: response.data[0][i].Data.profit.interest_income,
+						};
+						console.log(ddd)
+						// setDts([...Dts, ddd]);
+						setDts(prevDTS => [...prevDTS, ddd]);
+						
 					}
-					console.log(dts);
-					// var decode = jwtDecode(data.access_token);
-					// var exp_date = new Date(decode.exp *1000);
-				})
-				.catch((err) => {
-					console.log(err);
-				});
-		});
-	};
 
+					// console.log(response.data[0][i]);
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+	};
+	console.log(Dts);
 	return (
 		<>
-			<div>{}</div>
+			<div></div>
 		</>
 	);
 }
