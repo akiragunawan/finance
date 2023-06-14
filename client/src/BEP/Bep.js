@@ -13,6 +13,7 @@ function Bep() {
 	const [profit, setProfit] = useState(null);
 	const [error, setError] = useState(0);
 	const [url_search, setUrl_search] = useState();
+
 	//////////////////////////////////////////////////////////
 	const characters =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -26,76 +27,71 @@ function Bep() {
 		return result;
 	}
 
-	useEffect(() => {
-		const timeout = setTimeout(() => {
-			// 👇️ redirects to an external URL
-			if (
-				!sessionStorage.getItem("_token") ||
-				!sessionStorage.getItem("_sestoken")
-			) {
-				// console.log(`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`)
-				window.location.replace(
-					`${
-						process.env.REACT_APP_LINK_API_SSO
-					}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
-						process.env.REACT_APP_LINK_CLIENT_PER
-					}/callback&response_type=code&scope=&state=${generateString(40)}`
-				);
-			} else {
-				axios({
-					method: "post",
-					url: process.env.REACT_APP_LINK_API_SSO + "/api/userToken",
-					data: {
-						access_token: sessionStorage.getItem("_sestoken"),
-					},
-					headers: {
-						"Access-Control-Allow-Origin": "*",
-						"Access-Control-Allow-Headers": "*",
-						"Access-Control-Allow-Credentials": "true",
-						"Content-Type": "application/json",
-						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
-					},
-				})
-					.then(function (b) {
-						console.log(b.data);
-						if (b.data) {
-							sessionStorage.setItem("_token", b.data.token);
-						} else {
-							sessionStorage.removeItem("_token");
-							sessionStorage.removeItem("_sestoken");
-							window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
-						}
-					})
-					.catch(function (c) {
-						console.log(c);
-						sessionStorage.removeItem("_token");
-						sessionStorage.removeItem("_sestoken");
-						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
-					});
-			}
-		});
+	// useEffect(() => {
+	// 	const timeout = setTimeout(() => {
+	// 		// 👇️ redirects to an external URL
+	// 		if (
+	// 			!sessionStorage.getItem("_token") ||
+	// 			!sessionStorage.getItem("_sestoken")
+	// 		) {
+	// 			// console.log(`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`)
+	// 			window.location.replace(
+	// 				`${
+	// 					process.env.REACT_APP_LINK_API_SSO
+	// 				}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
+	// 					process.env.REACT_APP_LINK_CLIENT_PER
+	// 				}/callback&response_type=code&scope=&state=${generateString(40)}`
+	// 			);
+	// 		} else {
+	// 			axios({
+	// 				method: "post",
+	// 				url: process.env.REACT_APP_LINK_API_SSO + "/api/userToken",
+	// 				data: {
+	// 					access_token: sessionStorage.getItem("_sestoken"),
+	// 				},
+	// 				headers: {
+	// 					"Access-Control-Allow-Origin": "*",
+	// 					"Access-Control-Allow-Headers": "*",
+	// 					"Access-Control-Allow-Credentials": "true",
+	// 					"Content-Type": "application/json",
+	// 					Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+	// 				},
+	// 			})
+	// 				.then(function (b) {
+	// 					console.log(b.data);
+	// 					if (b.data) {
+	// 						sessionStorage.setItem("_token", b.data.token);
+	// 					} else {
+	// 						sessionStorage.removeItem("_token");
+	// 						sessionStorage.removeItem("_sestoken");
+	// 						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+	// 					}
+	// 				})
+	// 				.catch(function (c) {
+	// 					console.log(c);
+	// 					sessionStorage.removeItem("_token");
+	// 					sessionStorage.removeItem("_sestoken");
+	// 					window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+	// 				});
+	// 		}
+	// 	});
 
-		return () => clearTimeout(timeout);
-	}, []);
+	// 	return () => clearTimeout(timeout);
+	// }, []);
 	///////////////////////////////////////////////////////
 
 	useEffect(() => {
 		fetchData();
+		branches();
 	}, []);
 
 	const fetchData = async () => {
 		await axios
 			.get(process.env.REACT_APP_LINK_API_SERVER + "/api/get/bep")
 			.then((response) => {
-				console.log("wah", response.data);
+				// console.log("wah", response.data);
 
-				setDataCabang(...dataCabang, response.data);
-
-				if (!response.data) {
-					window.location.reload(false);
-				} else {
-					setLoading(false);
-				}
+				setDataCabang(response.data);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -103,70 +99,44 @@ function Bep() {
 			});
 	};
 
-	useEffect(() => {
-		axios
+	const branches = async () => {
+		await axios
 			.get(process.env.REACT_APP_LINK_API_SERVER + "/api/get/branch", {})
 			.then((response) => {
-				// setBranch(response.data);
-				setLoading(false);
-				console.log(response.data);
+				setBranch(response.data);
 
-				var filtered = response.data.filter(function (value, index, arr) {
-					// console.log(value)
-					return value > 15;
-				});
-				console.log(filtered);
+				setLoading(false);
+
+				// console.log(response)
 			})
 			.catch((error) => {
 				console.log(error);
 				setLoading(false);
 			});
-	}, []);
-
-	// useEffect(() => {
-	const get_bep_final = () => {
-		// console.log(url_search);
-		if (url_search !== undefined) {
-			if (startDate.getMonth() + 1 === d.getMonth() + 1) {
-				if (isLastDate(d) === true) {
-					setError(0);
-					axios
-						.get(url_search)
-						.then((response) => {
-							if (response.data != null) {
-								setDataCabang(response.data);
-							}
-							setLoading(false);
-							console.log(response);
-						})
-						.catch((error) => {
-							console.log(error);
-							setLoading(false);
-						});
-				} else {
-					setError(1);
-				}
-			} else {
-				setError(0);
-				axios
-					.get(url_search)
-					.then((response) => {
-						if (response.data != null) {
-							setDataCabang(response.data);
-						}
-						setLoading(false);
-						console.log(response);
-
-						// setDataBalance(response.data.Data);
-						// console.log(dataBalance);
-					})
-					.catch((error) => {
-						console.log(error);
-						setLoading(false);
-					});
-			}
-		}
 	};
+
+	// // useEffect(() => {
+	// const get_bep_final = () => {
+	// 	if (startDate.getMonth() + 1 < 3) {
+	// 		console.log(true);
+	// 		axios
+	// 			.get(url_search)
+	// 			.then((response) => {
+	// 				if (branch.length !== response.data[0].length) {
+	// 					branch.pop();
+	// 				} else {
+	// 					branches();
+	// 				}
+	// 				setLoading(false);
+	// 				console.log(branch.length, response.data[0].length);
+	// 				setDataCabang(response.data);
+	// 			})
+	// 			.catch((error) => {
+	// 				console.log(error);
+	// 				setLoading(false);
+	// 			});
+	// 	}
+	// };
 	// }, []);
 
 	if (loading) {
@@ -193,48 +163,156 @@ function Bep() {
 
 	//onsearch click
 	const handleSubmit = (event) => {
-		console.log(startDate);
-		event.preventDefault();
-		if (
-			profit === null
-			// && ftp == null
-		) {
-			console.log("non");
-			if (startDate.getMonth() + 1 === d.getMonth() + 1) {
+		// event.preventDefault();
+		if (profit === null) {
+			console.log("tidak ada profit");
+			console.log(startDate);
+			if (
+				startDate.getMonth() + 1 === d.getMonth() + 1 ||
+				startDate.getMonth() + 1 >= d.getMonth() + 1
+			) {
 				setError(1);
 			} else {
 				setError(0);
-				setUrl_search(
-					process.env.REACT_APP_LINK_API_SERVER +
-						"/api/get/bep?month=" +
-						(startDate.getMonth() + 1) +
-						"&year=" +
-						startDate.getFullYear()
-				);
-				get_bep_final();
+				if (startDate.getMonth() + 1 < 3) {
+					console.log("bulan di bawah 3");
+					console.log("ambil data bep");
+					axios
+						.get(
+							process.env.REACT_APP_LINK_API_SERVER +
+								"/api/get/bep?month=" +
+								(startDate.getMonth() + 1) +
+								"&year=" +
+								startDate.getFullYear()
+						)
+						.then((response) => {
+							if (branch.length !== response.data[0].length) {
+								console.log("Check kalau branch = response data");
+								console.log(response.data[0].length, branch.length);
+								axios
+									.get(
+										process.env.REACT_APP_LINK_API_SERVER +
+											"/api/get/bep?month=" +
+											(startDate.getMonth() + 1) +
+											"&year=" +
+											startDate.getFullYear()
+									)
+									.then((response) => {
+										console.log(
+											"Branch lebih sedikit dari data cabang, pop branch 1 terakhir"
+										);
+										branch.pop();
+										setDataCabang(response.data);
+										console.log(response.data[0].length, branch.length);
+									})
+									.catch((error) => {
+										console.log(error);
+										setLoading(false);
+									});
+							} else {
+								console.log("2");
+								// console.log(response.data[0].length, branch.length);
+								axios
+									.get(
+										process.env.REACT_APP_LINK_API_SERVER +
+											"/api/get/bep?month=" +
+											(startDate.getMonth() + 1) +
+											"&year=" +
+											startDate.getFullYear()
+									)
+									.then((response) => {
+										setDataCabang(response.data);
+										console.log(response.data[0].length, branch.length);
+									})
+									.catch((error) => {
+										console.log(error);
+										setLoading(false);
+									});
+							}
+						})
+						.catch((error) => {
+							console.log(error);
+							setLoading(false);
+						});
+				} else {
+					console.log("bulan lebih dari 2");
+					axios
+						.get(
+							process.env.REACT_APP_LINK_API_SERVER +
+								"/api/get/bep?month=" +
+								(startDate.getMonth() + 1) +
+								"&year=" +
+								startDate.getFullYear()
+						)
+						.then((response) => {
+							if (branch.length !== response.data[0].length) {
+								// console.log("beda");
+								console.log(response.data[0].length, branch.length);
+								setDataCabang(response.data);
+								console.log("calling Branch");
+								// setBranch([]);
+								axios
+									.get(
+										process.env.REACT_APP_LINK_API_SERVER + "/api/get/branch"
+									)
+									.then((response) => {
+							
+										setBranch([])
+										setBranch(response.data);
+
+										setLoading(false);
+									})
+									.catch((error) => {
+										console.log(error);
+										setLoading(false);
+									});
+							} else {
+								console.log("sama");
+								console.log(response.data[0].length, branch.length);
+								setDataCabang(response.data);
+							}
+						})
+						.catch((error) => {
+							console.log(error);
+							setLoading(false);
+						});
+				}
 			}
 		} else {
-			console.log("parameter");
-			if (startDate.getMonth() + 1 === d.getMonth() + 1) {
+			console.log("ada profit");
+			if (
+				startDate.getMonth() + 1 === d.getMonth() + 1 ||
+				startDate.getMonth() + 1 >= d.getMonth() + 1
+			) {
 				setError(1);
 			} else {
 				setError(0);
-				setUrl_search(
-					process.env.REACT_APP_LINK_API_SERVER +
-						"/api/get/bep?month=" +
-						(startDate.getMonth() + 1) +
-						"&year=" +
-						startDate.getFullYear() +
-						"&profit=" +
-						profit
-					// "&ftp=" +
-					// ftp
-				);
-				get_bep_final();
+				axios
+					.get(
+						process.env.REACT_APP_LINK_API_SERVER +
+							"/api/get/bep?month=" +
+							(startDate.getMonth() + 1) +
+							"&year=" +
+							startDate.getFullYear() +
+							"&profit=" +
+							profit
+					)
+					.then((response) => {
+						if (branch.length !== response.data[0].length) {
+							branch.pop();
+						}
+						setLoading(false);
+						console.log(branch.length, response.data[0].length);
+						setDataCabang(response.data);
+					})
+					.catch((error) => {
+						console.log(error);
+						setLoading(false);
+					});
 			}
 		}
 	};
-	dataCabang.length > 0 && console.log("wahset", dataCabang);
+	// dataCabang.length > 0 && console.log('wahset',dataCabang);
 	if (error === 1) {
 		return (
 			<div className="container">
@@ -380,7 +458,7 @@ function Bep() {
 													<div className="row">
 														<div className="col-3">Loan</div>
 														<div className="col-3">
-															Rp.{" "}
+															Rp.
 															{!dataCabang
 																? "null"
 																: new Intl.NumberFormat().format(
