@@ -22,10 +22,26 @@ function Home() {
 	const [Year, setYear] = useState(date_now.getFullYear());
 	const [MonthYear, setMonthYear] = useState(`${Year}-${Month}`);
 	const [Loading, setLoading] = useState(false);
-
 	useEffect(() => {
-		console.log();
+		const timeout = setTimeout(() => {
+			// 👇️ redirects to an external URL
+			if (
+				!sessionStorage.getItem("_token") ||
+				!sessionStorage.getItem("_sestoken")
+			) {
+				window.location.replace(
+					`${
+						process.env.REACT_APP_LINK_API_SSO
+					}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
+						process.env.REACT_APP_LINK_CLIENT_PER
+					}/callback&response_type=code&scope=&state=${generateString(40)}`
+				);
+			}
+		});
 
+		return () => clearTimeout(timeout);
+	}, []);
+	useEffect(() => {
 		getbep();
 	}, []);
 
