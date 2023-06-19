@@ -3,6 +3,8 @@ import axios from "axios";
 import "../BEP/Bep.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+// const ExcelJS = require("exceljs");
+import ExcelJS from 'exceljs'
 
 function Bep() {
 	const [dataCabang, setDataCabang] = useState([]);
@@ -27,57 +29,57 @@ function Bep() {
 		return result;
 	}
 
-	 useEffect(() => {
-		const timeout = setTimeout(() => {
-			// 👇️ redirects to an external URL
-			if (
-				!sessionStorage.getItem("_token") ||
-				!sessionStorage.getItem("_sestoken")
-			) {
-				// console.log(`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`)
-				window.location.replace(
-					`${
-						process.env.REACT_APP_LINK_API_SSO
-					}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
-						process.env.REACT_APP_LINK_CLIENT_PER
-					}/callback&response_type=code&scope=&state=${generateString(40)}`
-				);
-			} else {
-				axios({
-					method: "post",
-					url: process.env.REACT_APP_LINK_API_SSO + "/api/userToken",
-					data: {
-						access_token: sessionStorage.getItem("_sestoken"),
-					},
-					headers: {
-						"Access-Control-Allow-Origin": "*",
-						"Access-Control-Allow-Headers": "*",
-						"Access-Control-Allow-Credentials": "true",
-						"Content-Type": "application/json",
-						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
-					},
-				})
-					.then(function (b) {
-						console.log(b.data);
-						if (b.data) {
-							sessionStorage.setItem("_token", b.data.token);
-						} else {
-							sessionStorage.removeItem("_token");
-							sessionStorage.removeItem("_sestoken");
-							window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
-						}
-					})
-					.catch(function (c) {
-						console.log(c);
-						sessionStorage.removeItem("_token");
-						sessionStorage.removeItem("_sestoken");
-						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
-					});
-			}
-		});
+	// useEffect(() => {
+	// 	const timeout = setTimeout(() => {
+	// 		// 👇️ redirects to an external URL
+	// 		if (
+	// 			!sessionStorage.getItem("_token") ||
+	// 			!sessionStorage.getItem("_sestoken")
+	// 		) {
+	// 			// console.log(`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`)
+	// 			window.location.replace(
+	// 				`${
+	// 					process.env.REACT_APP_LINK_API_SSO
+	// 				}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
+	// 					process.env.REACT_APP_LINK_CLIENT_PER
+	// 				}/callback&response_type=code&scope=&state=${generateString(40)}`
+	// 			);
+	// 		} else {
+	// 			axios({
+	// 				method: "post",
+	// 				url: process.env.REACT_APP_LINK_API_SSO + "/api/userToken",
+	// 				data: {
+	// 					access_token: sessionStorage.getItem("_sestoken"),
+	// 				},
+	// 				headers: {
+	// 					"Access-Control-Allow-Origin": "*",
+	// 					"Access-Control-Allow-Headers": "*",
+	// 					"Access-Control-Allow-Credentials": "true",
+	// 					"Content-Type": "application/json",
+	// 					Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+	// 				},
+	// 			})
+	// 				.then(function (b) {
+	// 					console.log(b.data);
+	// 					if (b.data) {
+	// 						sessionStorage.setItem("_token", b.data.token);
+	// 					} else {
+	// 						sessionStorage.removeItem("_token");
+	// 						sessionStorage.removeItem("_sestoken");
+	// 						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+	// 					}
+	// 				})
+	// 				.catch(function (c) {
+	// 					console.log(c);
+	// 					sessionStorage.removeItem("_token");
+	// 					sessionStorage.removeItem("_sestoken");
+	// 					window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+	// 				});
+	// 		}
+	// 	});
 
-		return () => clearTimeout(timeout);
-	}, []);
+	// 	return () => clearTimeout(timeout);
+	// }, []);
 	///////////////////////////////////////////////////////
 
 	useEffect(() => {
@@ -201,8 +203,12 @@ function Bep() {
 										console.log(
 											"Branch lebih sedikit dari data cabang, pop branch 1 terakhir"
 										);
-										
-										for(var i = 0 ; branch.length > response.data[0].length;i++){
+
+										for (
+											var i = 0;
+											branch.length > response.data[0].length;
+											i++
+										) {
 											branch.pop();
 										}
 										setDataCabang(response.data);
@@ -259,8 +265,7 @@ function Bep() {
 										process.env.REACT_APP_LINK_API_SERVER + "/api/get/branch"
 									)
 									.then((response) => {
-							
-										setBranch([])
+										setBranch([]);
 										setBranch(response.data);
 
 										setLoading(false);
@@ -315,10 +320,34 @@ function Bep() {
 			}
 		}
 	};
+
+	const ExportToExcel = () => {
+		const workbook = new ExcelJS();
+		const sheet = workbook.addworksheet("sheet1");
+		sheet.properties.defaultRowHeight = 80;
+
+		sheet.columns = [
+			{
+				header: "COA",
+				key: "coa",
+				width: 20,
+			},
+		];
+
+		dataCabang.map((item) => {
+			<>
+				{item.map((item2) => {
+					<>{console.log(item2)}</>;
+				})}
+			</>;
+		});
+	};
+
 	// dataCabang.length > 0 && console.log('wahset',dataCabang);
 	if (error === 1) {
 		return (
 			<div className="container">
+				
 				<h4 className="fw-bold">BEP ANALISYS</h4>
 				<div className="d-flex flex-column">
 					<label htmlFor="monthPicker">Search Data By Month</label>
@@ -417,6 +446,9 @@ function Bep() {
 						/>
 						<button onClick={handleSubmit} className="btn btn-secondary">
 							Search
+						</button>
+						<button onClick={ExportToExcel} className="btn btn-secondary">
+							Export to Excel
 						</button>
 					</div>
 				</div>
