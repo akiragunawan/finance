@@ -311,15 +311,16 @@ function Custom() {
 			alert("Projection Month Must be fill");
 		} else {
 			if (elb && ePiob && eDpkb && eBiob) {
-				console.log(
-					lb,
-					piob,
-					dpkb,
-					biob,
-					Number(lb) + Number(piob),
-					Number(dpkb) + Number(biob)
-				);
+				// console.log(
+				// 	lb,
+				// 	piob,
+				// 	dpkb,
+				// 	biob,
+				// 	Number(lb) + Number(piob),
+				// 	Number(dpkb) + Number(biob)
+				// );
 				if (Number(lb) + Number(piob) === Number(dpkb) + Number(biob)) {
+					console.log(iprofit);
 					axios
 						.get(
 							`${process.env.REACT_APP_LINK_API_SERVER}/api/get/scenario?year=
@@ -363,6 +364,47 @@ function Custom() {
 				} else {
 					alert("jumlah Funding harus sama dengan jumlah Lending");
 				}
+			} else {
+				axios
+					.get(
+						`${process.env.REACT_APP_LINK_API_SERVER}/api/get/scenario?year=
+								${startDate.getFullYear()}
+								&month=
+								${startDate.getMonth() + 1}
+								&loan_bal=
+								${ilb}
+								&loan_rate=
+								${ilr}
+								&pio_bal=
+								${ipiob}
+								&pio_rate=
+								${ipior}
+								&dpk_bal=
+								${idpkb}
+								&dpk_rate=
+								${idpkr}
+								&bio_bal=
+								${ibiob}
+								&bio_rate=
+								${ibior}
+								&ckpn_rate=
+								${ickpnr}
+								&branch=
+								${selBranch}
+								&profit=
+								${iprofit}
+								&projection_month=
+								${iProjection}`,
+						{}
+					)
+					.then((response) => {
+						// setShowsce(!showSce);
+						setScedata(response.data);
+						console.log(response);
+					})
+					.catch((error) => {
+						console.log(error);
+					});
 			}
 		}
 	};
