@@ -20,7 +20,7 @@ function Sidebar() {
 		sessionStorage.removeItem("_token");
 		sessionStorage.removeItem("_sestoken");
 
-		window.location.replace(process.env.REACT_APP_LINK_API_SSO+ "/logout");
+		window.location.replace(process.env.REACT_APP_LINK_API_SSO + "/logout");
 	};
 
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);

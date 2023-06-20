@@ -4,17 +4,19 @@ import "../BEP/Bep.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 // const ExcelJS = require("exceljs");
-import ExcelJS from 'exceljs'
+import ExcelJS from "exceljs";
 
 function Bep() {
 	const [dataCabang, setDataCabang] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [startDate, setStartDate] = useState(new Date());
+	const [startDate, setStartDate] = useState(new Date("2023/05"));
 	const [branch, setBranch] = useState([]);
 	const d = new Date();
 	const [profit, setProfit] = useState(null);
 	const [error, setError] = useState(0);
-	const [url_search, setUrl_search] = useState();
+	const [ChangeLoanRate, setChangeLoanRate] = useState();
+	const [ChangePioRate,setPioRate] = useState()
+
 
 	//////////////////////////////////////////////////////////
 	const characters =
@@ -347,7 +349,6 @@ function Bep() {
 	if (error === 1) {
 		return (
 			<div className="container">
-				
 				<h4 className="fw-bold">BEP ANALISYS</h4>
 				<div className="d-flex flex-column">
 					<label htmlFor="monthPicker">Search Data By Month</label>
@@ -403,7 +404,7 @@ function Bep() {
 							<div className="d-flex justify-content-center flex-wrap">
 								{branch.map((item) => (
 									<button
-										className="nav-link text-dark p-3 text-dark fw-bold"
+										className="nav-link text-dark p-3 text-dark fw-bold text-uppercase"
 										id={"nav-" + item.branch_code + "-tab"}
 										data-bs-toggle="tab"
 										data-bs-target={"#nav-" + item.branch_code}
@@ -419,7 +420,7 @@ function Bep() {
 							</div>
 						</div>
 					</div>
-					<div className="d-flex flex-column">
+					<div className="d-flex flex-column bg-warning bg-opacity-50 p-3">
 						<label htmlFor="monthPicker">Search Data By Month</label>
 						<DatePicker
 							className="w-100 mb-2 form-control"
@@ -430,13 +431,7 @@ function Bep() {
 							showIcon
 						/>
 
-						{/* <input
-							className="form-control mb-2 shadow"
-							placeholder="FTP Parameter"
-							onChange={(event) => setFtp(event.target.value)}
-							name="ftp"
-							id="ftp"
-						/> */}
+					
 						<input
 							className="form-control mb-2 shadow"
 							placeholder="Profit Parameter"
@@ -447,10 +442,24 @@ function Bep() {
 						<button onClick={handleSubmit} className="btn btn-secondary">
 							Search
 						</button>
-						<button onClick={ExportToExcel} className="btn btn-secondary">
+						{/* <button onClick={ExportToExcel} className="btn btn-secondary">
 							Export to Excel
-						</button>
+						</button> */}
 					</div>
+					{/* <div className="mt-3">
+						<div>
+							<h5 className="text-uppercase">Rate Parameter for 0 loan</h5>
+						</div>
+						<div>
+							<input
+								className="form-control "
+								placeholder="Rate (%)"
+								onChange={(e) => {
+									setChangeLoan(e.target.value);
+								}}
+							/>
+						</div>
+					</div> */}
 				</div>
 
 				<div className="container">
@@ -458,7 +467,7 @@ function Bep() {
 						{dataCabang.length > 0 &&
 							branch.map((brn, key) => (
 								<div
-									className="tab-pane fade section-to-print"
+									className="tab-pane fade section-to-print mt-3"
 									id={"nav-" + brn.branch_code}
 									role="tabpanel"
 									key={brn.branch_code}
@@ -468,7 +477,43 @@ function Bep() {
 										<div className="col">
 											<div className="card mb-3 " style={{ width: "900px" }}>
 												<div className="card-body p-4">
-													<div className="row">
+													<div
+														className={
+															dataCabang[0][key].Data.loan.balance == 0
+																? "m-3 bg-info bg-opacity-25 p-3 rounded vis"
+																: "d-none vis"
+														}
+													>
+														<div>
+															<h5 className="text-uppercase">
+																Rate Parameter for 0 loan
+															</h5>
+														</div>
+														<div>
+															<input
+																className="form-control "
+																placeholder="Loan Rate (%)"
+																onChange={(e) => {
+																	setChangeLoanRate(e.target.value);
+																}}
+															/>
+														</div>
+														<div className="mt-3">
+															<input
+																className="form-control "
+																placeholder="Pio Rate (%)"
+																onChange={(e) => {
+																	setPioRate(e.target.value);
+																}}
+															/>
+														</div>
+														<div className="mt-2">
+															<a className="btn btn-warning w-100">
+																Submit Parameters
+															</a>
+														</div>
+													</div>
+													<div className="row section-to-print">
 														<div className="col-6 text-start ">
 															Rate BASE ON FINANCIAL REPORT 2023
 														</div>
@@ -476,7 +521,7 @@ function Bep() {
 															(In Million Rp)
 														</div>
 													</div>
-													<div className="row">
+													<div className="row section-to-print">
 														<div
 															className="col-12 text-center fw-bold"
 															style={{ fontSize: "30px" }}

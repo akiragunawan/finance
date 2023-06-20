@@ -1,39 +1,55 @@
-.card-body > .row:hover{
-    background-color: rgb(201, 201, 201);
-    border: 0px black;
-    border-radius: 5px;
+.card-body > .row:hover {
+	background-color: rgb(201, 201, 201);
+	border: 0px black;
+	border-radius: 5px;
 }
 /* .col-3{
     border-right: 1px solid black;
 } */
 
-.scrolling-wrapper{
+.scrolling-wrapper {
 	overflow-x: auto;
 }
 
-
-::-webkit-scrollbar{
-    height: 10px;
-    width: 10px;
-    background: orange;
+::-webkit-scrollbar {
+	height: 10px;
+	width: 10px;
+	background: orange;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+	background: #f1f1f1;
 }
- 
+
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: orange; 
+	background: orange;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+	background: #555;
 }
 
-::-webkit-scrollbar-thumb:horizontal{
-    background: gray;
-    border-radius: 10px;
+::-webkit-scrollbar-thumb:horizontal {
+	background: gray;
+	border-radius: 10px;
+}
+
+@media print {
+	body {
+		visibility: hidden;
+	}
+	.vis {
+		display: none !important;
+		margin: 0;
+		/* visibility: hidden; */
+	}
+	.section-to-print {
+		visibility: visible;
+		position: fixed;
+		left: 0;
+		top: 0;
+	}
 }
