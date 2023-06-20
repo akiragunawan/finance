@@ -26,52 +26,52 @@ function Custom() {
 		return result;
 	}
 
-	useEffect(() => {
-		const timeout = setTimeout(() => {
-			// 👇️ redirects to an external URL
-			if (
-				!sessionStorage.getItem("_token") ||
-				!sessionStorage.getItem("_sestoken")
-			) {
-				window.location.replace(
-					`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`
-				);
-			} else {
-				axios({
-					method: "post",
-					url: process.env.REACT_APP_LINK_API_SSO+ "/api/userToken",
-					data: {
-						access_token: sessionStorage.getItem("_sestoken"),
-					},
-					headers: {
-						"Access-Control-Allow-Origin": "*",
-						"Access-Control-Allow-Headers": "*",
-						"Access-Control-Allow-Credentials": "true",
-						"Content-Type": "application/json",
-						"Authorization": "Bearer " + sessionStorage.getItem("_sestoken"),
-					},
-				})
-					.then(function (b) {
-						console.log(b.data);
-						if (b.data) {
-							sessionStorage.setItem("_token", b.data.token);
-						} else {
-							sessionStorage.removeItem("_token");
-							sessionStorage.removeItem("_sestoken");
-							window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
-						}
-					})
-					.catch(function (c) {
-						console.log(c);
-						sessionStorage.removeItem("_token");
-						sessionStorage.removeItem("_sestoken");
-						window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
-					});
-			}
-		});
+	// useEffect(() => {
+	// 	const timeout = setTimeout(() => {
+	// 		// 👇️ redirects to an external URL
+	// 		if (
+	// 			!sessionStorage.getItem("_token") ||
+	// 			!sessionStorage.getItem("_sestoken")
+	// 		) {
+	// 			window.location.replace(
+	// 				`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`
+	// 			);
+	// 		} else {
+	// 			axios({
+	// 				method: "post",
+	// 				url: process.env.REACT_APP_LINK_API_SSO+ "/api/userToken",
+	// 				data: {
+	// 					access_token: sessionStorage.getItem("_sestoken"),
+	// 				},
+	// 				headers: {
+	// 					"Access-Control-Allow-Origin": "*",
+	// 					"Access-Control-Allow-Headers": "*",
+	// 					"Access-Control-Allow-Credentials": "true",
+	// 					"Content-Type": "application/json",
+	// 					"Authorization": "Bearer " + sessionStorage.getItem("_sestoken"),
+	// 				},
+	// 			})
+	// 				.then(function (b) {
+	// 					console.log(b.data);
+	// 					if (b.data) {
+	// 						sessionStorage.setItem("_token", b.data.token);
+	// 					} else {
+	// 						sessionStorage.removeItem("_token");
+	// 						sessionStorage.removeItem("_sestoken");
+	// 						window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
+	// 					}
+	// 				})
+	// 				.catch(function (c) {
+	// 					console.log(c);
+	// 					sessionStorage.removeItem("_token");
+	// 					sessionStorage.removeItem("_sestoken");
+	// 					window.location.replace(process.env.REACT_APP_LINK_CLIENT+ "/");
+	// 				});
+	// 		}
+	// 	});
 
-		return () => clearTimeout(timeout);
-	}, []);
+	// 	return () => clearTimeout(timeout);
+	// }, []);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	const [startDate, setStartDate] = useState(new Date());
@@ -140,7 +140,7 @@ function Custom() {
 
 	useEffect(() => {
 		axios
-			.get(process.env.REACT_APP_LINK_API_SERVER+ "/api/get/branch", {})
+			.get(process.env.REACT_APP_LINK_API_SERVER + "/api/get/branch", {})
 			.then((response) => {
 				setBranch(response.data);
 				// console.log(response.data);
@@ -166,7 +166,7 @@ function Custom() {
 				if (isLastDate(d) === true) {
 					axios
 						.get(
-							process.env.REACT_APP_LINK_API_SERVER+
+							process.env.REACT_APP_LINK_API_SERVER +
 								"/api/get/bep?year=" +
 								startDate.getFullYear() +
 								"&month=" +
@@ -178,15 +178,16 @@ function Custom() {
 						)
 						.then((response) => {
 							console.log(response);
-							setLb(response.data[0].Data.loan.balance);
-							setLr(response.data[0].Data.loan.rate);
-							setPiob(response.data[0].Data.pio.balance);
-							setPior(response.data[0].Data.pio.rate);
-							setDpkb(response.data[0].Data.dpk.balance);
-							setDpkr(response.data[0].Data.dpk.rate);
-							setBiob(response.data[0].Data.bio.balance);
-							setBior(response.data[0].Data.bio.rate);
-							setCkpnr(response.data[0].Data.ckpn.rate);
+							setLb(response.data[0][0].Data.loan.balance);
+							setLr(response.data[0][0].Data.loan.rate);
+							setPiob(response.data[0][0].Data.pio.balance);
+							setPior(response.data[0][0].Data.pio.rate);
+							setDpkb(response.data[0][0].Data.dpk.balance);
+							setDpkr(response.data[0][0].Data.dpk.rate);
+							setBiob(response.data[0][0].Data.bio.balance);
+							setBior(response.data[0][0].Data.bio.rate);
+							setCkpnr(response.data[0][0].Data.ckpn.rate);
+							setProfit(response.data[0][0].Data.profit.interest_income);
 						})
 						.catch((error) => {
 							console.log(error);
@@ -205,7 +206,7 @@ function Custom() {
 				} else {
 					axios
 						.get(
-							process.env.REACT_APP_LINK_API_SERVER+
+							process.env.REACT_APP_LINK_API_SERVER +
 								"/api/get/bep?year=" +
 								startDate.getFullYear() +
 								"&month=" +
@@ -216,16 +217,17 @@ function Custom() {
 							{}
 						)
 						.then((response) => {
-							console.log(response);
-							setLb(response.data[0].Data.loan.balance);
-							setLr(response.data[0].Data.loan.rate);
-							setPiob(response.data[0].Data.pio.balance);
-							setPior(response.data[0].Data.pio.rate);
-							setDpkb(response.data[0].Data.dpk.balance);
-							setDpkr(response.data[0].Data.dpk.rate);
-							setBiob(response.data[0].Data.bio.balance);
-							setBior(response.data[0].Data.bio.rate);
-							setCkpnr(response.data[0].Data.ckpn.rate);
+							console.log(response.data[0][0].Data);
+							setLb(response.data[0][0].Data.loan.balance);
+							setLr(response.data[0][0].Data.loan.rate);
+							setPiob(response.data[0][0].Data.pio.balance);
+							setPior(response.data[0][0].Data.pio.rate);
+							setDpkb(response.data[0][0].Data.dpk.balance);
+							setDpkr(response.data[0][0].Data.dpk.rate);
+							setBiob(response.data[0][0].Data.bio.balance);
+							setBior(response.data[0][0].Data.bio.rate);
+							setCkpnr(response.data[0][0].Data.ckpn.rate);
+							setProfit(response.data[0][0].Data.profit.interest_income);
 						})
 						.catch((error) => {
 							console.log(error);
@@ -308,48 +310,52 @@ function Custom() {
 		} else if (projection === "" && eProjection) {
 			alert("Projection Month Must be fill");
 		} else {
-			axios
-				.get(
-					`${process.env.REACT_APP_LINK_API_SERVER}/api/get/scenario?year= 
-						${startDate.getFullYear()} 
-						&month= 
-						${startDate.getMonth() + 1} 
-						&loan_bal=
-						${ilb}
-						
-						&loan_rate=
-						${ilr}
-						&pio_bal=
-						${ipiob}
-						&pio_rate=
-						${ipior}
-						&dpk_bal=
-						${idpkb}
-						&dpk_rate=
-						${idpkr}
-						&bio_bal=
-						${ibiob} 
-						&bio_rate=
-						${ibior}
-						&ckpn_rate=
-						${ickpnr} 
-						&branch=
-						${selBranch}
-						&profit=
-						${iprofit}
-						&projection_month=
-						${iProjection}`,
-
-					{}
-				)
-				.then((response) => {
-					// setShowsce(!showSce);
-					setScedata(response.data);
-					console.log(response);
-				})
-				.catch((error) => {
-					console.log(error);
-				});
+			if (elb && ePiob && eDpkb && eBiob) {
+				if (lb + piob === dpkb + biob) {
+					axios
+						.get(
+							`${process.env.REACT_APP_LINK_API_SERVER}/api/get/scenario?year=
+								${startDate.getFullYear()}
+								&month=
+								${startDate.getMonth() + 1}
+								&loan_bal=
+								${ilb}
+								&loan_rate=
+								${ilr}
+								&pio_bal=
+								${ipiob}
+								&pio_rate=
+								${ipior}
+								&dpk_bal=
+								${idpkb}
+								&dpk_rate=
+								${idpkr}
+								&bio_bal=
+								${ibiob}
+								&bio_rate=
+								${ibior}
+								&ckpn_rate=
+								${ickpnr}
+								&branch=
+								${selBranch}
+								&profit=
+								${iprofit}
+								&projection_month=
+								${iProjection}`,
+							{}
+						)
+						.then((response) => {
+							// setShowsce(!showSce);
+							setScedata(response.data);
+							console.log(response);
+						})
+						.catch((error) => {
+							console.log(error);
+						});
+				} else {
+					alert("jumlah Funding harus sama dengan jumlah Lending");
+				}
+			}
 		}
 	};
 
@@ -821,7 +827,7 @@ function Custom() {
 									}}
 									className="form-control"
 									id="Projection_input"
-									placeholder="Input Number here without '%'"
+									placeholder="Input total Month (6,12 or 24)"
 								></input>
 								<span className="input-group-text">%</span>
 							</div>
