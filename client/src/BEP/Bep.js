@@ -30,57 +30,57 @@ function Bep() {
 		return result;
 	}
 
-	// useEffect(() => {
-	// 	const timeout = setTimeout(() => {
-	// 		// 👇️ redirects to an external URL
-	// 		if (
-	// 			!sessionStorage.getItem("_token") ||
-	// 			!sessionStorage.getItem("_sestoken")
-	// 		) {
-	// 			// console.log(`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`)
-	// 			window.location.replace(
-	// 				`${
-	// 					process.env.REACT_APP_LINK_API_SSO
-	// 				}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
-	// 					process.env.REACT_APP_LINK_CLIENT_PER
-	// 				}/callback&response_type=code&scope=&state=${generateString(40)}`
-	// 			);
-	// 		} else {
-	// 			axios({
-	// 				method: "post",
-	// 				url: process.env.REACT_APP_LINK_API_SSO + "/api/userToken",
-	// 				data: {
-	// 					access_token: sessionStorage.getItem("_sestoken"),
-	// 				},
-	// 				headers: {
-	// 					"Access-Control-Allow-Origin": "*",
-	// 					"Access-Control-Allow-Headers": "*",
-	// 					"Access-Control-Allow-Credentials": "true",
-	// 					"Content-Type": "application/json",
-	// 					Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
-	// 				},
-	// 			})
-	// 				.then(function (b) {
-	// 					console.log(b.data);
-	// 					if (b.data) {
-	// 						sessionStorage.setItem("_token", b.data.token);
-	// 					} else {
-	// 						sessionStorage.removeItem("_token");
-	// 						sessionStorage.removeItem("_sestoken");
-	// 						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
-	// 					}
-	// 				})
-	// 				.catch(function (c) {
-	// 					console.log(c);
-	// 					sessionStorage.removeItem("_token");
-	// 					sessionStorage.removeItem("_sestoken");
-	// 					window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
-	// 				});
-	// 		}
-	// 	});
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			// 👇️ redirects to an external URL
+			if (
+				!sessionStorage.getItem("_token") ||
+				!sessionStorage.getItem("_sestoken")
+			) {
+				// console.log(`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`)
+				window.location.replace(
+					`${
+						process.env.REACT_APP_LINK_API_SSO
+					}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
+						process.env.REACT_APP_LINK_CLIENT_PER
+					}/callback&response_type=code&scope=&state=${generateString(40)}`
+				);
+			} else {
+				axios({
+					method: "post",
+					url: process.env.REACT_APP_LINK_API_SSO + "/api/userToken",
+					data: {
+						access_token: sessionStorage.getItem("_sestoken"),
+					},
+					headers: {
+						"Access-Control-Allow-Origin": "*",
+						"Access-Control-Allow-Headers": "*",
+						"Access-Control-Allow-Credentials": "true",
+						"Content-Type": "application/json",
+						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+					},
+				})
+					.then(function (b) {
+						console.log(b.data);
+						if (b.data) {
+							sessionStorage.setItem("_token", b.data.token);
+						} else {
+							sessionStorage.removeItem("_token");
+							sessionStorage.removeItem("_sestoken");
+							window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+						}
+					})
+					.catch(function (c) {
+						console.log(c);
+						sessionStorage.removeItem("_token");
+						sessionStorage.removeItem("_sestoken");
+						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+					});
+			}
+		});
 
-	// 	return () => clearTimeout(timeout);
-	// }, []);
+		return () => clearTimeout(timeout);
+	}, []);
 	///////////////////////////////////////////////////////
 
 	useEffect(() => {
@@ -323,63 +323,18 @@ function Bep() {
 	};
 
 	const handleParameterUpate = () => {
+		console.log(ChangeLoanRate,ChangePioRate);
 		axios
 			.get(
-				`${process.env.REACT_APP_LINK_API_SERVER} 
-								/api/get/bep?month=
-								${startDate.getMonth() + 1} 
-								&year= 
-								${startDate.getFullYear()}
-								&loan_rate = ${ChangeLoanRate}`
+				`${process.env.REACT_APP_LINK_API_SERVER}/api/get/bep?month=${
+					startDate.getMonth()+1
+				}&year=${startDate.getFullYear()}&loan_rate=${ChangeLoanRate}&pio_rate=${ChangePioRate}`
 			)
 			.then((response) => {
-				if (branch.length !== response.data[0].length) {
-					console.log("Check kalau branch = response data");
-					console.log(response.data[0].length, branch.length);
-					axios
-						.get(
-							process.env.REACT_APP_LINK_API_SERVER +
-								"/api/get/bep?month=" +
-								(startDate.getMonth() + 1) +
-								"&year=" +
-								startDate.getFullYear()
-						)
-						.then((response) => {
-							console.log(
-								"Branch lebih sedikit dari data cabang, pop branch 1 terakhir"
-							);
-
-							for (var i = 0; branch.length > response.data[0].length; i++) {
-								branch.pop();
-							}
-							setDataCabang(response.data);
-							console.log(response.data[0].length, branch.length);
-						})
-						.catch((error) => {
-							console.log(error);
-							setLoading(false);
-						});
-				} else {
-					console.log("2");
-					// console.log(response.data[0].length, branch.length);
-					axios
-						.get(
-							process.env.REACT_APP_LINK_API_SERVER +
-								"/api/get/bep?month=" +
-								(startDate.getMonth() + 1) +
-								"&year=" +
-								startDate.getFullYear()
-						)
-						.then((response) => {
-							setDataCabang(response.data);
-							console.log(response.data[0].length, branch.length);
-						})
-						.catch((error) => {
-							console.log(error);
-							setLoading(false);
-						});
-				}
+				console.log(response);
+				setDataCabang(response.data)
 			})
+
 			.catch((error) => {
 				console.log(error);
 				setLoading(false);
@@ -437,7 +392,7 @@ function Bep() {
 						name="profit"
 						id="profit"
 					/>
-					<button onClick={handleParameterUpate} className="btn btn-secondary">
+					<button onClick={handleSubmit} className="btn btn-secondary">
 						Search
 					</button>
 				</div>
@@ -569,7 +524,10 @@ function Bep() {
 															/>
 														</div>
 														<div className="mt-2">
-															<a className="btn btn-warning w-100">
+															<a
+																className="btn btn-warning w-100"
+																onClick={handleParameterUpate}
+															>
 																Submit Parameters
 															</a>
 														</div>
