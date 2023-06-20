@@ -311,7 +311,15 @@ function Custom() {
 			alert("Projection Month Must be fill");
 		} else {
 			if (elb && ePiob && eDpkb && eBiob) {
-				if (lb + piob === dpkb + biob) {
+				console.log(
+					lb,
+					piob,
+					dpkb,
+					biob,
+					Number(lb) + Number(piob),
+					Number(dpkb) + Number(biob)
+				);
+				if (Number(lb) + Number(piob) === Number(dpkb) + Number(biob)) {
 					axios
 						.get(
 							`${process.env.REACT_APP_LINK_API_SERVER}/api/get/scenario?year=
