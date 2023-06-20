@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 
 const characters =
@@ -14,89 +15,139 @@ function generateString(length) {
 }
 
 function Home() {
-	const linksso = process.env.REACT_APP_LINK_API_SSO;
-	const linkserver = process.env.REACT_APP_LINK_API_SERVER;
-	const linkclientper = process.env.REACT_APP_LINK_CLIENT_PER;
-	const linkclient = process.env.REACT_APP_LINK_CLIENT;
+	var date_now = new Date();
+	const [Dts, setDts] = useState([]);
+	const [SelDate, setSelDate] = useState();
+	const [Month, setMonth] = useState(("0" + date_now.getMonth()).slice(-2));
+	const [Year, setYear] = useState(date_now.getFullYear());
+	const [MonthYear, setMonthYear] = useState(`${Year}-${Month}`);
+	const [Loading, setLoading] = useState(false);
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			// 👇️ redirects to an external URL
+			if (
+				!sessionStorage.getItem("_token") ||
+				!sessionStorage.getItem("_sestoken")
+			) {
+				window.location.replace(
+					`${
+						process.env.REACT_APP_LINK_API_SSO
+					}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
+						process.env.REACT_APP_LINK_CLIENT_PER
+					}/callback&response_type=code&scope=&state=${generateString(40)}`
+				);
+			}
+		});
 
-	const [MinusProfit, setMinusProfit] = useState([]);
-	var arr = [];
-	var dts = [];
-	// useEffect(() => {
-	// 	const timeout = setTimeout(() => {
-	// 		// 👇️ redirects to an external URL
-	// 		if (
-	// 			!sessionStorage.getItem("_token") ||
-	// 			!sessionStorage.getItem("_sestoken")
-	// 		) {
-	// 			window.location.replace(
-	// 				`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}/callback&response_type=code&scope=&state=${generateString(40)}`
-	// 			);
-	// 		}
-	// 	});
-
-	// 	return () => clearTimeout(timeout);
-	// }, []);
-
+		return () => clearTimeout(timeout);
+	}, []);
 	useEffect(() => {
 		getbep();
 	}, []);
 
+	const Get_New_Bep = async (e) => {
+		setLoading(true);
+		// console.log(e.target.value);
+		setMonthYear(e.target.value);
+		var M = e.target.value.slice(-2);
+		var Y = e.target.value.slice(0, 4);
+		console.log(Y);
+		try {
+			const response = await axios.get(
+				`${process.env.REACT_APP_LINK_API_SERVER}/api/get/bep?year=${Y}&month=${M}`
+			);
+
+			const filteredData = response.data[0].filter(
+				(item) => item.Data.profit.interest_income < 0
+			);
+
+			const updatedDts = filteredData.map((item) => ({
+				Nama_Cabang: item.Nama_Cabang,
+				Profit: item.Data.profit.interest_income,
+			}));
+
+			setDts(updatedDts);
+			setLoading(false);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+	if (Loading) {
+		return (
+			<div className="position-absolute top-50 start-50 translate-middle">
+				<div
+					className="spinner-grow text-secondary"
+					style={{ width: "5rem", height: "5em" }}
+					role="status"
+				>
+					<span className="visually-hidden">Loading...</span>
+				</div>
+			</div>
+		);
+	}
+
 	const getbep = async () => {
-		
-		await fetch(
-			process.env.REACT_APP_LINK_API_SERVER +
-				"/api/get/bep?year=2023&month=4",
-			{
-				method: "GET",
-				// mode: "cors",
-				// cache: "no-cache",
-				// credentials: "same-origin",
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-					"Accept": "application/json",
-					"Access-Control-Allow-Origin": "*",
-					"Access-Control-Allow-Headers": "*",
-					"Access-Control-Allow-Credentials": "true",
-					// "Authorization":
-					// 	"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGgvbG9naW4iLCJpYXQiOjE2ODUwMDgxMjMsImV4cCI6MTY4NTA5NDUyMywibmJmIjoxNjg1MDA4MTIzLCJqdGkiOiJmUncwNnJSVDA5a0hXU0VQIiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.Ee_vG_iep7dwipDpQgXKCnbQ9Ok7PZHPqRfOPcWoRI4",
-					// // "Content-Type": "application/json",
-				},
-				// redirect: "follow",
-				// referrerPolicy: "no-referrer",
-				// body: new URLSearchParams(data),
-			}
-		).then((response) => {
-			response
-				.json()
-				.then((data) => {
-					console.log(data)
-					for (let i = 0; i < data[0].length; i++) {
-						if (data[0][i].Data.profit.interest_income < 0) {
-							console.log(
-								data[0][i].Nama_Cabang,
-								data[0][i].Data.profit.interest_income
-							);
-							dts.push(
-								data[0][i].Nama_Cabang,
-								data[0][i].Data.profit.interest_income
-							);
-						}
-					}
-					console.log(dts);
-					// var decode = jwtDecode(data.access_token);
-					// var exp_date = new Date(decode.exp *1000);
-				})
-				.catch((err) => {
-					console.log(err);
-				});
-		});
+		try {
+			const response = await axios.get(
+				`${
+					process.env.REACT_APP_LINK_API_SERVER
+				}/api/get/bep?year=${date_now.getFullYear()}&month=${date_now.getMonth()}`
+			);
+
+			const filteredData = response.data[0].filter(
+				(item) => item.Data.profit.interest_income < 0
+			);
+
+			const updatedDts = filteredData.map((item) => ({
+				Nama_Cabang: item.Nama_Cabang,
+				Profit: item.Data.profit.interest_income,
+			}));
+
+			setDts(updatedDts);
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	return (
-		<>
-			<div>{}</div>
-		</>
+		<div className="container">
+			{/* Render the Dts array */}
+			<div className="d-flex justify-content-between my-5">
+				<div>
+					<h3 className="fw-bold  text-uppercase">Profit Minus By Branch</h3>
+				</div>
+				<div>
+					<input
+						className="form-control"
+						value={MonthYear}
+						type="month"
+						onChange={(e) => {
+							Get_New_Bep(e);
+						}}
+					/>
+				</div>
+			</div>
+			<div className="d-flex justify-content-around flex-wrap">
+				{Dts.map((item, index) => (
+					<div
+						className="card shadow my-3"
+						style={{ minWidth: "300px" }}
+						key={index}
+					>
+						<div className="card-body bg-warning bg-opacity-75 ">
+							<div className="card-title text-uppercase">
+								<h4>{item.Nama_Cabang}</h4>
+							</div>
+							<div className="card-text">
+								<p className="my-auto fw-bold">
+									RP. {new Intl.NumberFormat().format(item.Profit.toFixed(2))}
+								</p>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
 	);
 }
 
