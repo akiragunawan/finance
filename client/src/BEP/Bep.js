@@ -15,8 +15,7 @@ function Bep() {
 	const [profit, setProfit] = useState(null);
 	const [error, setError] = useState(0);
 	const [ChangeLoanRate, setChangeLoanRate] = useState();
-	const [ChangePioRate,setPioRate] = useState()
-
+	const [ChangePioRate, setPioRate] = useState();
 
 	//////////////////////////////////////////////////////////
 	const characters =
@@ -323,6 +322,69 @@ function Bep() {
 		}
 	};
 
+	const handleParameterUpate = () => {
+		axios
+			.get(
+				`${process.env.REACT_APP_LINK_API_SERVER} 
+								/api/get/bep?month=
+								${startDate.getMonth() + 1} 
+								&year= 
+								${startDate.getFullYear()}
+								&loan_rate = ${ChangeLoanRate}`
+			)
+			.then((response) => {
+				if (branch.length !== response.data[0].length) {
+					console.log("Check kalau branch = response data");
+					console.log(response.data[0].length, branch.length);
+					axios
+						.get(
+							process.env.REACT_APP_LINK_API_SERVER +
+								"/api/get/bep?month=" +
+								(startDate.getMonth() + 1) +
+								"&year=" +
+								startDate.getFullYear()
+						)
+						.then((response) => {
+							console.log(
+								"Branch lebih sedikit dari data cabang, pop branch 1 terakhir"
+							);
+
+							for (var i = 0; branch.length > response.data[0].length; i++) {
+								branch.pop();
+							}
+							setDataCabang(response.data);
+							console.log(response.data[0].length, branch.length);
+						})
+						.catch((error) => {
+							console.log(error);
+							setLoading(false);
+						});
+				} else {
+					console.log("2");
+					// console.log(response.data[0].length, branch.length);
+					axios
+						.get(
+							process.env.REACT_APP_LINK_API_SERVER +
+								"/api/get/bep?month=" +
+								(startDate.getMonth() + 1) +
+								"&year=" +
+								startDate.getFullYear()
+						)
+						.then((response) => {
+							setDataCabang(response.data);
+							console.log(response.data[0].length, branch.length);
+						})
+						.catch((error) => {
+							console.log(error);
+							setLoading(false);
+						});
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+				setLoading(false);
+			});
+	};
 	const ExportToExcel = () => {
 		const workbook = new ExcelJS();
 		const sheet = workbook.addworksheet("sheet1");
@@ -375,7 +437,7 @@ function Bep() {
 						name="profit"
 						id="profit"
 					/>
-					<button onClick={handleSubmit} className="btn btn-secondary">
+					<button onClick={handleParameterUpate} className="btn btn-secondary">
 						Search
 					</button>
 				</div>
@@ -431,7 +493,6 @@ function Bep() {
 							showIcon
 						/>
 
-					
 						<input
 							className="form-control mb-2 shadow"
 							placeholder="Profit Parameter"
