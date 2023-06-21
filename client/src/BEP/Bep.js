@@ -4,17 +4,18 @@ import "../BEP/Bep.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 // const ExcelJS = require("exceljs");
-import ExcelJS from 'exceljs'
+import ExcelJS from "exceljs";
 
 function Bep() {
 	const [dataCabang, setDataCabang] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [startDate, setStartDate] = useState(new Date());
+	const [startDate, setStartDate] = useState(new Date("2023/05"));
 	const [branch, setBranch] = useState([]);
 	const d = new Date();
 	const [profit, setProfit] = useState(null);
 	const [error, setError] = useState(0);
-	const [url_search, setUrl_search] = useState();
+	const [ChangeLoanRate, setChangeLoanRate] = useState();
+	const [ChangePioRate, setPioRate] = useState();
 
 	//////////////////////////////////////////////////////////
 	const characters =
@@ -29,57 +30,57 @@ function Bep() {
 		return result;
 	}
 
-	// useEffect(() => {
-	// 	const timeout = setTimeout(() => {
-	// 		// 👇️ redirects to an external URL
-	// 		if (
-	// 			!sessionStorage.getItem("_token") ||
-	// 			!sessionStorage.getItem("_sestoken")
-	// 		) {
-	// 			// console.log(`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`)
-	// 			window.location.replace(
-	// 				`${
-	// 					process.env.REACT_APP_LINK_API_SSO
-	// 				}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
-	// 					process.env.REACT_APP_LINK_CLIENT_PER
-	// 				}/callback&response_type=code&scope=&state=${generateString(40)}`
-	// 			);
-	// 		} else {
-	// 			axios({
-	// 				method: "post",
-	// 				url: process.env.REACT_APP_LINK_API_SSO + "/api/userToken",
-	// 				data: {
-	// 					access_token: sessionStorage.getItem("_sestoken"),
-	// 				},
-	// 				headers: {
-	// 					"Access-Control-Allow-Origin": "*",
-	// 					"Access-Control-Allow-Headers": "*",
-	// 					"Access-Control-Allow-Credentials": "true",
-	// 					"Content-Type": "application/json",
-	// 					Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
-	// 				},
-	// 			})
-	// 				.then(function (b) {
-	// 					console.log(b.data);
-	// 					if (b.data) {
-	// 						sessionStorage.setItem("_token", b.data.token);
-	// 					} else {
-	// 						sessionStorage.removeItem("_token");
-	// 						sessionStorage.removeItem("_sestoken");
-	// 						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
-	// 					}
-	// 				})
-	// 				.catch(function (c) {
-	// 					console.log(c);
-	// 					sessionStorage.removeItem("_token");
-	// 					sessionStorage.removeItem("_sestoken");
-	// 					window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
-	// 				});
-	// 		}
-	// 	});
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			// 👇️ redirects to an external URL
+			if (
+				!sessionStorage.getItem("_token") ||
+				!sessionStorage.getItem("_sestoken")
+			) {
+				// console.log(`${process.env.REACT_APP_LINK_API_SSO}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${process.env.REACT_APP_LINK_CLIENT_PER}2Fcallback&response_type=code&scope=&state=${generateString(40)}`)
+				window.location.replace(
+					`${
+						process.env.REACT_APP_LINK_API_SSO
+					}/oauth/authorize?client_id=98907a23-7b34-4bc0-8220-dc6bf0fbb104&redirect_uri=${
+						process.env.REACT_APP_LINK_CLIENT_PER
+					}/callback&response_type=code&scope=&state=${generateString(40)}`
+				);
+			} else {
+				axios({
+					method: "post",
+					url: process.env.REACT_APP_LINK_API_SSO + "/api/userToken",
+					data: {
+						access_token: sessionStorage.getItem("_sestoken"),
+					},
+					headers: {
+						"Access-Control-Allow-Origin": "*",
+						"Access-Control-Allow-Headers": "*",
+						"Access-Control-Allow-Credentials": "true",
+						"Content-Type": "application/json",
+						Authorization: "Bearer " + sessionStorage.getItem("_sestoken"),
+					},
+				})
+					.then(function (b) {
+						console.log(b.data);
+						if (b.data) {
+							sessionStorage.setItem("_token", b.data.token);
+						} else {
+							sessionStorage.removeItem("_token");
+							sessionStorage.removeItem("_sestoken");
+							window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+						}
+					})
+					.catch(function (c) {
+						console.log(c);
+						sessionStorage.removeItem("_token");
+						sessionStorage.removeItem("_sestoken");
+						window.location.replace(process.env.REACT_APP_LINK_CLIENT + "/");
+					});
+			}
+		});
 
-	// 	return () => clearTimeout(timeout);
-	// }, []);
+		return () => clearTimeout(timeout);
+	}, []);
 	///////////////////////////////////////////////////////
 
 	useEffect(() => {
@@ -321,6 +322,24 @@ function Bep() {
 		}
 	};
 
+	const handleParameterUpate = () => {
+		console.log(ChangeLoanRate,ChangePioRate);
+		axios
+			.get(
+				`${process.env.REACT_APP_LINK_API_SERVER}/api/get/bep?month=${
+					startDate.getMonth()+1
+				}&year=${startDate.getFullYear()}&loan_rate=${ChangeLoanRate}&pio_rate=${ChangePioRate}`
+			)
+			.then((response) => {
+				console.log(response);
+				setDataCabang(response.data)
+			})
+
+			.catch((error) => {
+				console.log(error);
+				setLoading(false);
+			});
+	};
 	const ExportToExcel = () => {
 		const workbook = new ExcelJS();
 		const sheet = workbook.addworksheet("sheet1");
@@ -347,7 +366,6 @@ function Bep() {
 	if (error === 1) {
 		return (
 			<div className="container">
-				
 				<h4 className="fw-bold">BEP ANALISYS</h4>
 				<div className="d-flex flex-column">
 					<label htmlFor="monthPicker">Search Data By Month</label>
@@ -403,7 +421,7 @@ function Bep() {
 							<div className="d-flex justify-content-center flex-wrap">
 								{branch.map((item) => (
 									<button
-										className="nav-link text-dark p-3 text-dark fw-bold"
+										className="nav-link text-dark p-3 text-dark fw-bold text-uppercase"
 										id={"nav-" + item.branch_code + "-tab"}
 										data-bs-toggle="tab"
 										data-bs-target={"#nav-" + item.branch_code}
@@ -419,7 +437,7 @@ function Bep() {
 							</div>
 						</div>
 					</div>
-					<div className="d-flex flex-column">
+					<div className="d-flex flex-column bg-warning bg-opacity-50 p-3">
 						<label htmlFor="monthPicker">Search Data By Month</label>
 						<DatePicker
 							className="w-100 mb-2 form-control"
@@ -430,13 +448,6 @@ function Bep() {
 							showIcon
 						/>
 
-						{/* <input
-							className="form-control mb-2 shadow"
-							placeholder="FTP Parameter"
-							onChange={(event) => setFtp(event.target.value)}
-							name="ftp"
-							id="ftp"
-						/> */}
 						<input
 							className="form-control mb-2 shadow"
 							placeholder="Profit Parameter"
@@ -447,10 +458,24 @@ function Bep() {
 						<button onClick={handleSubmit} className="btn btn-secondary">
 							Search
 						</button>
-						<button onClick={ExportToExcel} className="btn btn-secondary">
+						{/* <button onClick={ExportToExcel} className="btn btn-secondary">
 							Export to Excel
-						</button>
+						</button> */}
 					</div>
+					{/* <div className="mt-3">
+						<div>
+							<h5 className="text-uppercase">Rate Parameter for 0 loan</h5>
+						</div>
+						<div>
+							<input
+								className="form-control "
+								placeholder="Rate (%)"
+								onChange={(e) => {
+									setChangeLoan(e.target.value);
+								}}
+							/>
+						</div>
+					</div> */}
 				</div>
 
 				<div className="container">
@@ -458,7 +483,7 @@ function Bep() {
 						{dataCabang.length > 0 &&
 							branch.map((brn, key) => (
 								<div
-									className="tab-pane fade section-to-print"
+									className="tab-pane fade section-to-print mt-3"
 									id={"nav-" + brn.branch_code}
 									role="tabpanel"
 									key={brn.branch_code}
@@ -468,7 +493,46 @@ function Bep() {
 										<div className="col">
 											<div className="card mb-3 " style={{ width: "900px" }}>
 												<div className="card-body p-4">
-													<div className="row">
+													<div
+														className={
+															dataCabang[0][key].Data.loan.balance == 0
+																? "m-3 bg-info bg-opacity-25 p-3 rounded vis"
+																: "d-none vis"
+														}
+													>
+														<div>
+															<h5 className="text-uppercase">
+																Rate Parameter for 0 loan
+															</h5>
+														</div>
+														<div>
+															<input
+																className="form-control "
+																placeholder="Loan Rate (%)"
+																onChange={(e) => {
+																	setChangeLoanRate(e.target.value);
+																}}
+															/>
+														</div>
+														<div className="mt-3">
+															<input
+																className="form-control "
+																placeholder="Pio Rate (%)"
+																onChange={(e) => {
+																	setPioRate(e.target.value);
+																}}
+															/>
+														</div>
+														<div className="mt-2">
+															<a
+																className="btn btn-warning w-100"
+																onClick={handleParameterUpate}
+															>
+																Submit Parameters
+															</a>
+														</div>
+													</div>
+													<div className="row section-to-print">
 														<div className="col-6 text-start ">
 															Rate BASE ON FINANCIAL REPORT 2023
 														</div>
@@ -476,7 +540,7 @@ function Bep() {
 															(In Million Rp)
 														</div>
 													</div>
-													<div className="row">
+													<div className="row section-to-print">
 														<div
 															className="col-12 text-center fw-bold"
 															style={{ fontSize: "30px" }}
